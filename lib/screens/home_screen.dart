@@ -7,7 +7,7 @@ import 'sme_screen.dart';
 import 'buybacks_screen.dart';
 import 'allotment_screen.dart';
 import 'news_screen.dart';
-import 'offers_screen.dart';
+import 'brokers_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,10 +23,10 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = [
     const MainboardScreen(),
     const SMEScreen(),
-    const BuybacksScreen(),
     const AllotmentScreen(),
+    const BuybacksScreen(),
+    const BrokersScreen(),
     const NewsScreen(),
-    const OffersScreen(),
   ];
 
   @override
@@ -83,11 +83,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildNavItem(0, Icons.trending_up_rounded, 'Mainboard'),
                 _buildNavItem(1, Icons.storefront_rounded, 'SME'),
                 _buildNavItem(
-                    2, Icons.account_balance_wallet_rounded, 'Buybacks'),
+                    2, Icons.assignment_turned_in_rounded, 'Allotment'),
                 _buildNavItem(
-                    3, Icons.assignment_turned_in_rounded, 'Allotment'),
-                _buildNavItem(4, Icons.article_rounded, 'News'),
-                _buildNavItem(5, Icons.card_giftcard_rounded, 'Offers'),
+                    3, Icons.account_balance_wallet_rounded, 'Buybacks'),
+                _buildNavItem(4, Icons.business_rounded, 'Brokers'),
+                _buildNavItem(5, Icons.article_rounded, 'News'),
               ],
             ),
           ),

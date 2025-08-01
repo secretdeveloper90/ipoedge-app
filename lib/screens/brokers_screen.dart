@@ -1,0 +1,174 @@
+import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
+import '../widgets/common_app_bar.dart';
+import '../widgets/broker_card.dart';
+import '../models/broker.dart';
+import '../services/broker_service.dart';
+import 'broker_detail_screen.dart';
+
+class BrokersScreen extends StatefulWidget {
+  const BrokersScreen({super.key});
+
+  @override
+  State<BrokersScreen> createState() => _BrokersScreenState();
+}
+
+class _BrokersScreenState extends State<BrokersScreen> {
+  final BrokerService _brokerService = BrokerService();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: const CommonAppBar(
+        title: 'Brokers',
+      ),
+      body: _buildBrokersList('all'),
+    );
+  }
+
+  Widget _buildBrokersList(String category) {
+    return FutureBuilder<List<Broker>>(
+      future: _brokerService.getBrokers(category: category),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _buildLoadingState();
+        }
+
+        if (snapshot.hasError) {
+          return _buildErrorState();
+        }
+
+        final brokers = snapshot.data ?? [];
+
+        if (brokers.isEmpty) {
+          return _buildEmptyState(category);
+        }
+
+        return RefreshIndicator(
+          onRefresh: () => _loadBrokers(category),
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: brokers.length,
+            itemBuilder: (context, index) {
+              final broker = brokers[index];
+              return BrokerCard(
+                broker: broker,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BrokerDetailScreen(broker: broker),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Future<List<Broker>> _loadBrokers(String category) async {
+    return await _brokerService.getBrokers(category: category);
+  }
+
+  Widget _buildLoadingState() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+          ),
+          SizedBox(height: 16),
+          Text(
+            'Loading brokers...',
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline_rounded,
+            size: 64,
+            color: AppColors.error.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Failed to load brokers',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Please check your connection and try again',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () => setState(() {}),
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('Retry'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(String category) {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.business_rounded,
+            size: 64,
+            color: AppColors.textSecondary.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No ${category == 'all' ? '' : category} brokers found',
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'We\'re working on adding more brokers to our platform',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}

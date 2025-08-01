@@ -327,7 +327,7 @@ const List<Map<String, dynamic>> mockBrokerData = [
       "User-friendly platform",
       "Quick onboarding"
     ],
-    "equityDelivery": 20,
+    "equityDelivery": "20",
     "equityIntraday": "0.05%"
   },
   {
@@ -446,7 +446,7 @@ const List<Map<String, dynamic>> mockBrokerData = [
     "activeClients": "14,72,456",
     "about":
         "Kotak Securities Limited, a subsidiary of Kotak Mahindra Bank Limited, is one of the leading stockbrokers in India. The company offers a wide range of trading and investment services, including research and advisory services, portfolio management services, wealth management, and more. As of April 2025, Kotak Securities has an active client base of 14,72,456.",
-    "accountOpening": 99,
+    "accountOpening": "99",
     "accountMaintenance": 0,
     "callTrade": 49,
     "planCharges": 49,
@@ -1094,7 +1094,7 @@ const List<Map<String, dynamic>> mockBrokerData = [
     "activeClients": "13,031",
     "about":
         "Backed by the SMC group, Stoxkart offers trading and investing in various segments at a flat rate of brokerage.",
-    "accountOpening": 0,
+    "accountOpening": "0",
     "accountMaintenance": 300,
     "callTrade": 20,
     "brokerage": {
@@ -1201,7 +1201,7 @@ const List<Map<String, dynamic>> mockBrokerData = [
     "activeClients": "5,02,584",
     "about":
         "Launched in April 2022, m.Stock is the broking platform created by the renowned Asset Management Company, Mirae Asset.",
-    "accountOpening": 0,
+    "accountOpening": "0",
     "accountMaintenance": "Free",
     "callTrade": "Free",
     "brokerage": {
