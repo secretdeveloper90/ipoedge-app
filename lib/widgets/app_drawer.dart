@@ -174,10 +174,19 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                               ),
                             ],
                           ),
-                          child: const Icon(
-                            Icons.trending_up_rounded,
-                            color: Colors.white,
-                            size: 32,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(18),
+                            child: Image.asset(
+                              'assets/images/ipo-edge-logo.jpeg',
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(
+                                  Icons.trending_up_rounded,
+                                  color: Colors.white,
+                                  size: 32,
+                                );
+                              },
+                            ),
                           ),
                         ),
                         const SizedBox(width: 16),
