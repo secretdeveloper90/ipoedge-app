@@ -34,233 +34,25 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: CustomScrollView(
-        slivers: [
-          // Enhanced App Bar with modern hero section
-          SliverAppBar(
-            expandedHeight: 240,
-            floating: false,
-            pinned: true,
-            backgroundColor: AppColors.primary,
-            elevation: 0,
-            leading: Container(
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-            actions: [
-              Container(
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.share, color: Colors.white),
-                  onPressed: () {
-                    // Add share functionality
-                  },
-                ),
-              ),
-            ],
-            flexibleSpace: FlexibleSpaceBar(
-              title: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  widget.buyback.companyName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
-                    letterSpacing: -0.3,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.left,
-                ),
-              ),
-              titlePadding:
-                  const EdgeInsets.only(left: 0, bottom: 16, right: 16),
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.primary,
-                      AppColors.primary.withOpacity(0.9),
-                      AppColors.primary.withOpacity(0.8),
-                    ],
-                  ),
-                ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 16),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 20),
-                        // Enhanced Company logo with better styling
-                        Hero(
-                          tag: 'buyback-logo-${widget.buyback.id}',
-                          child: Container(
-                            width: 70,
-                            height: 70,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.15),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(14),
-                              child: Image.network(
-                                widget.buyback.logo,
-                                fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    'assets/images/ipo-edge-logo.jpeg',
-                                    fit: BoxFit.contain,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(14),
-                                        ),
-                                        child: const Icon(
-                                          Icons.business_rounded,
-                                          color: AppColors.primary,
-                                          size: 35,
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        // Enhanced status badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.25),
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.4),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                _getStatusIcon(),
-                                color: Colors.white,
-                                size: 12,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                widget.buyback.statusDisplayName,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        // Buyback price highlight
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: Text(
-                            'Buyback Price: ${widget.buyback.formattedBuybackPrice}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -0.2,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+      body: Column(
+        children: [
+          _buildModernHeader(),
+          Container(
+            color: Colors.white,
+            child: TabBar(
+              controller: _tabController,
+              labelColor: AppColors.primary,
+              unselectedLabelColor: Colors.grey[600],
+              indicatorColor: AppColors.primary,
+              indicatorWeight: 3,
+              tabs: const [
+                Tab(text: 'Overview'),
+                Tab(text: 'Details'),
+                Tab(text: 'Timeline'),
+              ],
             ),
           ),
-
-          // Key Metrics Header
-          SliverToBoxAdapter(
-            child: Container(
-              margin: const EdgeInsets.all(16),
-              child: _buildKeyMetricsCard(),
-            ),
-          ),
-
-          // Tab Bar
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _SliverTabBarDelegate(
-              TabBar(
-                controller: _tabController,
-                labelColor: AppColors.primary,
-                unselectedLabelColor: AppColors.textSecondary,
-                indicatorColor: AppColors.primary,
-                indicatorWeight: 3,
-                labelStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-                unselectedLabelStyle: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
-                ),
-                tabs: const [
-                  Tab(text: 'Overview'),
-                  Tab(text: 'Details'),
-                  Tab(text: 'Timeline'),
-                ],
-              ),
-            ),
-          ),
-
-          // Tab Content
-          SliverFillRemaining(
+          Expanded(
             child: TabBarView(
               controller: _tabController,
               children: [
@@ -270,6 +62,299 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModernHeader() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primary,
+            AppColors.primaryDark,
+          ],
+        ),
+      ),
+      child: SafeArea(
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Navigation button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back,
+                        color: Colors.white, size: 24),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(), // Empty space to maintain layout
+                ],
+              ),
+              const SizedBox(height: 24),
+              // Company logo and info section
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    // Company logo
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(8),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          widget.buyback.logo,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.business,
+                              size: 32,
+                              color: Colors.grey,
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    // Company info
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.buyback.companyName,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              height: 1.2,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _getStatusColor(widget.buyback.status),
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          _getStatusColor(widget.buyback.status)
+                                              .withOpacity(0.3),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Text(
+                                  widget.buyback.statusDisplayName,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            widget.buyback.methodDisplayName,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.white70,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Key metrics row
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildHeaderMetric(
+                      '₹ Buyback Price',
+                      widget.buyback.formattedBuybackPrice,
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildHeaderMetric(
+                      '📊 Issue Size',
+                      widget.buyback.issueSize,
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildHeaderMetric(
+                      '📈 Percentage',
+                      widget.buyback.formattedPercentage,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeaderMetric(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.white70,
+            fontWeight: FontWeight.w500,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'upcoming':
+        return AppColors.warning;
+      case 'open':
+        return AppColors.success;
+      case 'closed':
+        return AppColors.error;
+      default:
+        return AppColors.info;
+    }
+  }
+
+  Widget _buildMetricItem(
+      String label, String value, Color color, IconData icon) {
+    return Container(
+      height: 100,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color.withOpacity(0.1),
+            color.withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.2), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 16, color: color),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOverviewTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          _buildKeyMetricsCard(),
+          const SizedBox(height: 16),
+          _buildCompanyInfoCard(),
+          const SizedBox(height: 16),
+          _buildBuybackMethodCard(),
         ],
       ),
     );
@@ -338,61 +423,6 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildMetricItem(
-      String label, String value, Color color, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: color, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: color,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOverviewTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          _buildCompanyInfoCard(),
-          const SizedBox(height: 16),
-          _buildBuybackMethodCard(),
-        ],
       ),
     );
   }
@@ -853,19 +883,6 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
     );
   }
 
-  IconData _getStatusIcon() {
-    switch (widget.buyback.status.toLowerCase()) {
-      case 'upcoming':
-        return Icons.schedule_rounded;
-      case 'open':
-        return Icons.play_arrow_rounded;
-      case 'closed':
-        return Icons.check_circle_rounded;
-      default:
-        return Icons.info_rounded;
-    }
-  }
-
   String _formatDate(String date) {
     try {
       final DateTime parsedDate = DateTime.parse(date);
@@ -887,31 +904,5 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
     } catch (e) {
       return date;
     }
-  }
-}
-
-class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabBar _tabBar;
-
-  _SliverTabBarDelegate(this._tabBar);
-
-  @override
-  double get minExtent => _tabBar.preferredSize.height;
-
-  @override
-  double get maxExtent => _tabBar.preferredSize.height;
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: Colors.white,
-      child: _tabBar,
-    );
-  }
-
-  @override
-  bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
-    return false;
   }
 }
