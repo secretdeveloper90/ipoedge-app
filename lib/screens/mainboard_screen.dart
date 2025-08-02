@@ -40,9 +40,9 @@ class _MainboardScreenState extends State<MainboardScreen>
         searchType: SearchType.mainboard,
         searchHint: 'Search mainboard IPOs...',
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(80),
+          preferredSize: const Size.fromHeight(60),
           child: Container(
-            margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.15),
               borderRadius: BorderRadius.circular(16),
@@ -79,12 +79,12 @@ class _MainboardScreenState extends State<MainboardScreen>
                 unselectedLabelColor: Colors.white.withOpacity(0.8),
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.w700,
-                  fontSize: 13,
+                  fontSize: 12,
                   letterSpacing: 0.5,
                 ),
                 unselectedLabelStyle: const TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 12,
+                  fontSize: 10,
                   letterSpacing: 0.3,
                 ),
                 dividerColor: Colors.transparent,
@@ -92,37 +92,13 @@ class _MainboardScreenState extends State<MainboardScreen>
                 overlayColor: WidgetStateProperty.all(Colors.transparent),
                 tabs: const [
                   Tab(
-                    height: 56,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.trending_up_rounded, size: 20),
-                        SizedBox(height: 4),
-                        Text('CURRENT'),
-                      ],
-                    ),
+                    text: 'CURRENT',
                   ),
                   Tab(
-                    height: 56,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.schedule_rounded, size: 20),
-                        SizedBox(height: 4),
-                        Text('UPCOMING'),
-                      ],
-                    ),
+                    text: 'UPCOMING',
                   ),
                   Tab(
-                    height: 56,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.list_alt_rounded, size: 20),
-                        SizedBox(height: 4),
-                        Text('LISTED'),
-                      ],
-                    ),
+                    text: 'LISTED',
                   ),
                 ],
               ),

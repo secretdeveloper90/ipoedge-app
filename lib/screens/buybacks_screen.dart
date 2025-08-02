@@ -49,9 +49,9 @@ class _BuybacksScreenState extends State<BuybacksScreen>
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(80),
+          preferredSize: const Size.fromHeight(60),
           child: Container(
-            margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.15),
               borderRadius: BorderRadius.circular(16),
@@ -88,12 +88,12 @@ class _BuybacksScreenState extends State<BuybacksScreen>
                 unselectedLabelColor: Colors.white.withOpacity(0.8),
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.w700,
-                  fontSize: 13,
+                  fontSize: 12,
                   letterSpacing: 0.5,
                 ),
                 unselectedLabelStyle: const TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 12,
+                  fontSize: 10,
                   letterSpacing: 0.3,
                 ),
                 dividerColor: Colors.transparent,
@@ -101,26 +101,10 @@ class _BuybacksScreenState extends State<BuybacksScreen>
                 overlayColor: WidgetStateProperty.all(Colors.transparent),
                 tabs: const [
                   Tab(
-                    height: 56,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.trending_up_rounded, size: 20),
-                        SizedBox(height: 4),
-                        Text('ACTIVE'),
-                      ],
-                    ),
+                    text: 'ACTIVE',
                   ),
                   Tab(
-                    height: 56,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.history_rounded, size: 20),
-                        SizedBox(height: 4),
-                        Text('CLOSED'),
-                      ],
-                    ),
+                    text: 'CLOSED',
                   ),
                 ],
               ),
@@ -209,10 +193,7 @@ class _BuybacksScreenState extends State<BuybacksScreen>
         padding: const EdgeInsets.all(16),
         itemCount: buybacks.length,
         itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: BuybackCard(buyback: buybacks[index]),
-          );
+          return BuybackCard(buyback: buybacks[index]);
         },
       ),
     );

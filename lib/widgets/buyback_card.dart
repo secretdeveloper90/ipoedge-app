@@ -14,7 +14,7 @@ class BuybackCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -51,26 +51,26 @@ class BuybackCard extends StatelessWidget {
           splashColor: Colors.blue.withOpacity(0.04),
           highlightColor: Colors.blue.withOpacity(0.02),
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildCompactHeader(),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Divider(
                   color: Colors.grey.withOpacity(0.12),
                   thickness: 0.8,
                   height: 1,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 _buildDateSection(),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Divider(
                   color: Colors.grey.withOpacity(0.12),
                   thickness: 0.8,
                   height: 1,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 _buildIssueSection(),
               ],
             ),
@@ -139,7 +139,7 @@ class BuybackCard extends StatelessWidget {
               Text(
                 '${buyback.companyName} Buyback 2025',
                 style: const TextStyle(
-                  fontSize: 17,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: Colors.black87,
                   height: 1.3,
@@ -165,7 +165,7 @@ class BuybackCard extends StatelessWidget {
                     child: Text(
                       'Buyback Price: ${buyback.formattedBuybackPrice}',
                       style: const TextStyle(
-                        fontSize: 13,
+                        fontSize: 10,
                         color: Colors.green,
                         fontWeight: FontWeight.w600,
                       ),
@@ -214,7 +214,7 @@ class BuybackCard extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             color: Colors.grey[600],
             fontWeight: FontWeight.w500,
           ),
@@ -223,7 +223,7 @@ class BuybackCard extends StatelessWidget {
         Text(
           date,
           style: const TextStyle(
-            fontSize: 13,
+            fontSize: 11,
             color: Colors.black87,
             fontWeight: FontWeight.w600,
           ),
@@ -243,7 +243,7 @@ class BuybackCard extends StatelessWidget {
               Text(
                 'Issue Size (Shares)',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   color: Colors.grey[600],
                   fontWeight: FontWeight.w500,
                 ),
@@ -252,7 +252,7 @@ class BuybackCard extends StatelessWidget {
               RichText(
                 text: TextSpan(
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 10,
                     color: Colors.black87,
                     fontWeight: FontWeight.w600,
                   ),
@@ -276,7 +276,7 @@ class BuybackCard extends StatelessWidget {
               Text(
                 'Issue Size (Amount)',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   color: Colors.grey[600],
                   fontWeight: FontWeight.w500,
                 ),
@@ -285,7 +285,7 @@ class BuybackCard extends StatelessWidget {
               Text(
                 buyback.issueSize,
                 style: const TextStyle(
-                  fontSize: 13,
+                  fontSize: 10,
                   color: Colors.black87,
                   fontWeight: FontWeight.w600,
                 ),

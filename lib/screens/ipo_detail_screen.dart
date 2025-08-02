@@ -99,19 +99,32 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         color: Colors.white, size: 24),
                     onPressed: () => Navigator.pop(context),
                   ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.share,
-                            color: Colors.white, size: 24),
-                        onPressed: () => _shareIPO(),
+                  // Modern compact share button
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 0.5,
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.bookmark_border,
-                            color: Colors.white, size: 24),
-                        onPressed: () => _bookmarkIPO(),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => _shareIPO(),
+                        borderRadius: BorderRadius.circular(10),
+                        splashColor: Colors.white.withOpacity(0.2),
+                        highlightColor: Colors.white.withOpacity(0.1),
+                        child: const Icon(
+                          Icons.share_rounded,
+                          color: Colors.white,
+                          size: 18,
+                        ),
                       ),
-                    ],
+                    ),
                   ),
                 ],
               ),
@@ -3191,15 +3204,6 @@ class _IPODetailScreenState extends State<IPODetailScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Share functionality will be implemented soon'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
-  void _bookmarkIPO() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Bookmark functionality will be implemented soon'),
         duration: Duration(seconds: 2),
       ),
     );

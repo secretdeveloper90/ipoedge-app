@@ -15,7 +15,7 @@ class BrokerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 10),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -75,7 +75,7 @@ class BrokerCard extends StatelessWidget {
                   ),
                   // Main content
                   Padding(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -86,8 +86,8 @@ class BrokerCard extends StatelessWidget {
                             Hero(
                               tag: 'broker-logo-${broker.id}',
                               child: Container(
-                                width: 72,
-                                height: 72,
+                                width: 52,
+                                height: 52,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
                                   gradient: LinearGradient(
@@ -118,7 +118,7 @@ class BrokerCard extends StatelessWidget {
                                     width: 2,
                                   ),
                                 ),
-                                padding: const EdgeInsets.all(12),
+                                padding: const EdgeInsets.all(8),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
                                   child: Image.network(
@@ -143,7 +143,7 @@ class BrokerCard extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 20),
+                            const SizedBox(width: 14),
                             // Enhanced broker info
                             Expanded(
                               child: Column(
@@ -153,7 +153,7 @@ class BrokerCard extends StatelessWidget {
                                   Text(
                                     broker.name,
                                     style: const TextStyle(
-                                      fontSize: 22,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w700,
                                       color: AppColors.textPrimary,
                                       height: 1.2,
@@ -162,74 +162,161 @@ class BrokerCard extends StatelessWidget {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: 6),
-                                  // Compact rating display
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.amber[50],
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: Colors.amber[200]!,
-                                        width: 0.5,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.star_rounded,
-                                          size: 14,
-                                          color: Colors.amber[600],
+                                  const SizedBox(height: 4),
+                                  // Service tags below broker name
+                                  Wrap(
+                                    spacing: 4,
+                                    runSpacing: 4,
+                                    children:
+                                        broker.services.take(3).map((service) {
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
                                         ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          broker.formattedRating,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.amber[800],
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              AppColors.primary
+                                                  .withOpacity(0.1),
+                                              AppColors.primary
+                                                  .withOpacity(0.05),
+                                            ],
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                            color: AppColors.primary
+                                                .withOpacity(0.2),
+                                            width: 1,
                                           ),
                                         ),
-                                        const SizedBox(width: 3),
+                                        child: Text(
+                                          service,
+                                          style: const TextStyle(
+                                            fontSize: 8,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.primary,
+                                            letterSpacing: 0.2,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Modern rating button
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    const Color(0xFFFFD700), // Gold
+                                    const Color(0xFFFFA500), // Orange
+                                    const Color(0xFFFF8C00), // Dark orange
+                                  ],
+                                  stops: const [0.0, 0.5, 1.0],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFFFFD700)
+                                        .withOpacity(0.4),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                    spreadRadius: 0,
+                                  ),
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.15),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.3),
+                                  width: 0.5,
+                                ),
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: () {
+                                    // Show rating details
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  splashColor: Colors.white.withOpacity(0.3),
+                                  highlightColor:
+                                      Colors.white.withOpacity(0.15),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Colors.white.withOpacity(0.2),
+                                          Colors.transparent,
+                                        ],
+                                        stops: const [0.0, 0.5],
+                                      ),
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        // Star icon
+                                        Icon(
+                                          Icons.star_rounded,
+                                          size: 12,
+                                          color: Colors.white,
+                                          shadows: const [
+                                            Shadow(
+                                              color: Colors.black26,
+                                              offset: Offset(0, 1),
+                                              blurRadius: 2,
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 1),
+                                        // Rating text
                                         Text(
-                                          '(${_formatReviewCount(broker.reviewCount)})',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.amber[700],
+                                          broker.formattedRating,
+                                          style: const TextStyle(
+                                            fontSize: 8,
+                                            fontWeight: FontWeight.w900,
+                                            color: Colors.white,
+                                            shadows: [
+                                              Shadow(
+                                                color: Colors.black26,
+                                                offset: Offset(0, 1),
+                                                blurRadius: 2,
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 6),
                         // Key metrics with icons and dividers
                         Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: AppColors.cardBorder.withOpacity(0.3),
-                              width: 1,
-                            ),
-                          ),
+                          padding: const EdgeInsets.all(10),
                           child: Column(
                             children: [
                               // Top divider
                               Container(
                                 height: 1,
-                                color: Colors.grey.withOpacity(0.3),
-                                margin: const EdgeInsets.only(bottom: 8),
+                                color: Colors.grey.withOpacity(0.2),
+                                margin: const EdgeInsets.only(bottom: 6),
                               ),
                               Row(
                                 children: [
@@ -244,9 +331,9 @@ class BrokerCard extends StatelessWidget {
                                   Container(
                                     width: 1,
                                     height: 35,
-                                    color: Colors.grey.withOpacity(0.3),
+                                    color: Colors.grey.withOpacity(0.2),
                                     margin: const EdgeInsets.symmetric(
-                                        horizontal: 6),
+                                        horizontal: 4),
                                   ),
                                   Expanded(
                                     child: _buildMetricItemWithIcon(
@@ -258,14 +345,14 @@ class BrokerCard extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                               Container(
                                 height: 1,
-                                color: Colors.grey.withOpacity(0.3),
+                                color: Colors.grey.withOpacity(0.2),
                                 margin:
-                                    const EdgeInsets.symmetric(horizontal: 6),
+                                    const EdgeInsets.symmetric(horizontal: 4),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                               Row(
                                 children: [
                                   Expanded(
@@ -279,9 +366,9 @@ class BrokerCard extends StatelessWidget {
                                   Container(
                                     width: 1,
                                     height: 35,
-                                    color: Colors.grey.withOpacity(0.3),
+                                    color: Colors.grey.withOpacity(0.2),
                                     margin: const EdgeInsets.symmetric(
-                                        horizontal: 6),
+                                        horizontal: 4),
                                   ),
                                   Expanded(
                                     child: _buildMetricItemWithIcon(
@@ -296,47 +383,11 @@ class BrokerCard extends StatelessWidget {
                               // Bottom divider
                               Container(
                                 height: 1,
-                                color: Colors.grey.withOpacity(0.3),
-                                margin: const EdgeInsets.only(top: 8),
+                                color: Colors.grey.withOpacity(0.2),
+                                margin: const EdgeInsets.only(top: 6),
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        // Modern services tags
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: broker.services.take(4).map((service) {
-                            return Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    AppColors.primary.withOpacity(0.1),
-                                    AppColors.primary.withOpacity(0.05),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: AppColors.primary.withOpacity(0.2),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Text(
-                                service,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.primary,
-                                  letterSpacing: 0.2,
-                                ),
-                              ),
-                            );
-                          }).toList(),
                         ),
                       ],
                     ),
@@ -350,15 +401,6 @@ class BrokerCard extends StatelessWidget {
     );
   }
 
-  String _formatReviewCount(int count) {
-    if (count >= 1000000) {
-      return '${(count / 1000000).toStringAsFixed(1)}M';
-    } else if (count >= 1000) {
-      return '${(count / 1000).toStringAsFixed(1)}K';
-    }
-    return count.toString();
-  }
-
   Widget _buildMetricItemWithIcon(
       String label, String value, IconData icon, Color color) {
     return Column(
@@ -368,7 +410,7 @@ class BrokerCard extends StatelessWidget {
           children: [
             Icon(
               icon,
-              size: 14,
+              size: 12,
               color: color,
             ),
             const SizedBox(width: 4),
@@ -391,7 +433,7 @@ class BrokerCard extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-            fontSize: 13,
+            fontSize: 11,
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,
           ),

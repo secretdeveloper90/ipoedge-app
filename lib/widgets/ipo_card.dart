@@ -16,7 +16,7 @@ class IPOCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -46,12 +46,12 @@ class IPOCard extends StatelessWidget {
           splashColor: AppColors.primary.withOpacity(0.04),
           highlightColor: AppColors.primary.withOpacity(0.02),
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(),
-                const SizedBox(height: 18),
+                const SizedBox(height: 14),
                 _buildSimpleMetrics(),
               ],
             ),
@@ -148,7 +148,7 @@ class IPOCard extends StatelessWidget {
               Text(
                 ipo.name,
                 style: const TextStyle(
-                  fontSize: 17,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF1A1A1A),
                   letterSpacing: -0.2,
@@ -159,7 +159,7 @@ class IPOCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(8),
@@ -176,7 +176,7 @@ class IPOCard extends StatelessWidget {
                     Text(
                       ipo.offerDate.formatted,
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 10,
                         color: AppColors.primary,
                         fontWeight: FontWeight.w600,
                       ),
@@ -187,34 +187,45 @@ class IPOCard extends StatelessWidget {
             ],
           ),
         ),
-        // Enhanced share button
+        // Attractive gradient share button
         Container(
-          width: 40,
-          height: 40,
+          width: 28,
+          height: 28,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppColors.primary.withOpacity(0.1),
-                AppColors.primary.withOpacity(0.05),
+                AppColors.primary.withOpacity(0.9),
+                AppColors.primary.withOpacity(0.7),
               ],
             ),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: AppColors.primary.withOpacity(0.15),
-              width: 1,
-            ),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+                spreadRadius: 0,
+              ),
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 1),
+              ),
+            ],
           ),
           child: Material(
             color: Colors.transparent,
             child: InkWell(
               onTap: () => _shareIPO(),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
+              splashColor: Colors.white.withOpacity(0.2),
+              highlightColor: Colors.white.withOpacity(0.1),
               child: const Icon(
-                Icons.ios_share_rounded,
-                size: 18,
-                color: AppColors.primary,
+                Icons.share_rounded,
+                size: 12,
+                color: Colors.white,
               ),
             ),
           ),
@@ -242,7 +253,7 @@ class IPOCard extends StatelessWidget {
               width: 1,
               height: 40,
               color: Colors.grey.withOpacity(0.2),
-              margin: const EdgeInsets.symmetric(horizontal: 12),
+              margin: const EdgeInsets.symmetric(horizontal: 10),
             ),
             Expanded(
               child: _buildSimpleMetricItem(
@@ -256,11 +267,11 @@ class IPOCard extends StatelessWidget {
               width: 1,
               height: 40,
               color: Colors.grey.withOpacity(0.2),
-              margin: const EdgeInsets.symmetric(horizontal: 12),
+              margin: const EdgeInsets.symmetric(horizontal: 10),
             ),
             Expanded(
               child: _buildSimpleMetricItem(
-                '👥 subscriptions',
+                '👥 subs',
                 ipo.subscription.formattedTimes,
                 null,
                 AppTheme.getSubscriptionColor(ipo.subscription.displayTimes),
@@ -268,7 +279,7 @@ class IPOCard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         // Expected Premium with enhanced styling
         _buildExpectedPremiumRow(),
       ],
@@ -283,7 +294,7 @@ class IPOCard extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             color: Colors.grey.shade600,
             fontWeight: FontWeight.w600,
           ),
@@ -296,7 +307,7 @@ class IPOCard extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-            fontSize: 15,
+            fontSize: 11,
             fontWeight: FontWeight.w700,
             color: Colors.black87,
           ),
@@ -316,7 +327,7 @@ class IPOCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -335,8 +346,8 @@ class IPOCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 32,
-            height: 30,
+            width: 28,
+            height: 28,
             decoration: BoxDecoration(
               color: gmpColor.withOpacity(0.12),
               borderRadius: BorderRadius.circular(8),
@@ -344,17 +355,17 @@ class IPOCard extends StatelessWidget {
             child: Icon(
               hasGMP ? Icons.trending_up_rounded : Icons.help_outline_rounded,
               color: gmpColor,
-              size: 16,
+              size: 14,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           Expanded(
             child: Row(
               children: [
                 Text(
-                  'Expected Premium: ',
+                  'Exp. Premium: ',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     color: gmpColor.withOpacity(0.8),
                     fontWeight: FontWeight.w600,
                   ),
@@ -365,7 +376,7 @@ class IPOCard extends StatelessWidget {
                         ? '₹${ipo.expectedPremium.displayRange} (${ipo.gmp.formattedPercentage})'
                         : 'Not Available',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: gmpColor,
                     ),
@@ -378,7 +389,7 @@ class IPOCard extends StatelessWidget {
           ),
           if (hasGMP)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
               decoration: BoxDecoration(
                 color: gmpColor.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(6),
@@ -386,7 +397,7 @@ class IPOCard extends StatelessWidget {
               child: Text(
                 'GMP',
                 style: TextStyle(
-                  fontSize: 9,
+                  fontSize: 8,
                   fontWeight: FontWeight.w700,
                   color: gmpColor,
                 ),

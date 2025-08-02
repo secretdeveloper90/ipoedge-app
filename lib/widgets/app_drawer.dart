@@ -198,7 +198,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                                 'IPO Edge',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 28,
+                                  fontSize: 26,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: -0.8,
                                   shadows: [
@@ -215,7 +215,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                                 'Your Gateway to IPO Success',
                                 style: TextStyle(
                                   color: Colors.white70,
-                                  fontSize: 15,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   letterSpacing: 0.2,
                                 ),
@@ -518,7 +518,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
               child: Text(
                 'IPO Edge v1.0.0',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   color: AppColors.textSecondary.withOpacity(0.7),
                   fontWeight: FontWeight.w500,
                 ),
