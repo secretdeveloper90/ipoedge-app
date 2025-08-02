@@ -86,7 +86,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
       ),
       child: SafeArea(
         child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+          padding: const EdgeInsets.fromLTRB(10, 5, 10, 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -94,15 +94,21 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back,
-                        color: Colors.white, size: 24),
-                    onPressed: () => Navigator.pop(context),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Padding(
+                      padding: EdgeInsets.only(left: 1),
+                      child: Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                    ),
                   ),
                   // Modern compact share button
                   Container(
-                    width: 36,
-                    height: 36,
+                    width: 34,
+                    height: 34,
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(10),
@@ -121,20 +127,20 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         child: const Icon(
                           Icons.share_rounded,
                           color: Colors.white,
-                          size: 18,
+                          size: 16,
                         ),
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 5),
               // Company logo and info section
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: Colors.white.withOpacity(0.2),
                     width: 1,
@@ -144,46 +150,46 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                   children: [
                     // Company logo
                     Container(
-                      width: 80,
-                      height: 80,
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(8),
                         color: Colors.white,
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.15),
-                            blurRadius: 12,
-                            offset: const Offset(0, 6),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(3),
                       child: widget.ipo.logo != null
                           ? ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(8),
                               child: CachedNetworkImage(
                                 imageUrl: widget.ipo.logo!,
                                 fit: BoxFit.contain,
                                 placeholder: (context, url) => const Icon(
                                   Icons.business,
-                                  size: 32,
+                                  size: 22,
                                   color: Colors.grey,
                                 ),
                                 errorWidget: (context, url, error) =>
                                     const Icon(
                                   Icons.business,
-                                  size: 32,
+                                  size: 22,
                                   color: Colors.grey,
                                 ),
                               ),
                             )
                           : const Icon(
                               Icons.business,
-                              size: 32,
+                              size: 22,
                               color: Colors.grey,
                             ),
                     ),
-                    const SizedBox(width: 20),
+                    const SizedBox(width: 12),
                     // Company info
                     Expanded(
                       child: Column(
@@ -192,7 +198,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                           Text(
                             widget.ipo.name,
                             style: const TextStyle(
-                              fontSize: 22,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                               height: 1.2,
@@ -200,44 +206,11 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.getStatusColor(
-                                      widget.ipo.status),
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AppTheme.getStatusColor(
-                                              widget.ipo.status)
-                                          .withOpacity(0.3),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Text(
-                                  widget.ipo.statusText,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 3),
                           Text(
                             widget.ipo.sector,
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 11,
                               color: Colors.white70,
                               fontWeight: FontWeight.w500,
                             ),
@@ -248,30 +221,6 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-              // Key metrics row
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildHeaderMetric(
-                      '₹ Offer Price',
-                      widget.ipo.offerPrice.formatted,
-                    ),
-                  ),
-                  Expanded(
-                    child: _buildHeaderMetric(
-                      '📄 Lot Size',
-                      '${widget.ipo.lotSize}',
-                    ),
-                  ),
-                  Expanded(
-                    child: _buildHeaderMetric(
-                      '👥 Subs',
-                      widget.ipo.subscription.formattedTimes,
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
         ),
@@ -279,47 +228,20 @@ class _IPODetailScreenState extends State<IPODetailScreen>
     );
   }
 
-  Widget _buildHeaderMetric(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.white70,
-            fontWeight: FontWeight.w500,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
   Widget _buildOverviewTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildKeyMetricsCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildSubscriptionCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildDatesCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildCompanyInfoCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildProductPortfolioCard(),
         ],
       ),
@@ -328,18 +250,18 @@ class _IPODetailScreenState extends State<IPODetailScreen>
 
   Widget _buildFinancialsTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildValuationsCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildFinancialPerformanceCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildPromoterInfoCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildAnchorInvestorsCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildPeerComparisonCard(),
         ],
       ),
@@ -348,24 +270,24 @@ class _IPODetailScreenState extends State<IPODetailScreen>
 
   Widget _buildDetailsTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildIssueDetailsCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildObjectivesCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildRegistrarCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildFreshIssueOFSCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildMarketLotCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildSharesOfferedCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildBiddingTimingsCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildDocumentsCard(),
         ],
       ),
@@ -374,14 +296,14 @@ class _IPODetailScreenState extends State<IPODetailScreen>
 
   Widget _buildAnalysisTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStrengthsCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildWeaknessesCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildRecommendationCard(),
         ],
       ),
@@ -391,21 +313,22 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildKeyMetricsCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Key Metrics',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             Row(
               children: [
                 Expanded(
@@ -416,10 +339,10 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     Icons.trending_up,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 6),
                 Expanded(
                   child: _buildMetricItem(
-                    'Expected Premium',
+                    'Expected Prem',
                     widget.ipo.expectedPremium.displayRange,
                     AppColors.info,
                     Icons.analytics,
@@ -427,7 +350,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 6),
             Row(
               children: [
                 Expanded(
@@ -438,7 +361,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     Icons.account_balance_wallet,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 6),
                 Expanded(
                   child: _buildMetricItem(
                     'Issue Size',
@@ -451,9 +374,9 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             ),
             // Expected Premium Note
             if (widget.ipo.expectedPremium.note.isNotEmpty) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: AppColors.info.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -465,14 +388,14 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     const Icon(
                       Icons.info_outline,
                       color: AppColors.info,
-                      size: 16,
+                      size: 14,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         widget.ipo.expectedPremium.note,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           color: AppColors.textSecondary,
                           height: 1.3,
                         ),
@@ -491,8 +414,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildMetricItem(
       String label, String value, Color color, IconData icon) {
     return Container(
-      height: 100,
-      padding: const EdgeInsets.all(16),
+      height: 72,
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -502,12 +425,12 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             color.withOpacity(0.05),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: color.withOpacity(0.2), width: 1),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.1),
-            blurRadius: 8,
+            color: color.withOpacity(0.08),
+            blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
@@ -519,19 +442,19 @@ class _IPODetailScreenState extends State<IPODetailScreen>
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                child: Icon(icon, size: 16, color: color),
+                child: Icon(icon, size: 14, color: color),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   label,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -544,7 +467,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
           Text(
             value,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 11,
               fontWeight: FontWeight.w700,
               color: color,
             ),
@@ -559,34 +482,35 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildSubscriptionCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Subscription Status',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             _buildSubscriptionBar(
                 'Overall', widget.ipo.subscription.times, AppColors.primary),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             _buildSubscriptionBar(
                 'Retail', widget.ipo.subscription.retail, AppColors.secondary),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             _buildSubscriptionBar(
                 'HNI', widget.ipo.subscription.hni, AppColors.warning),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             _buildSubscriptionBar(
                 'QIB', widget.ipo.subscription.qib, AppColors.info),
             if (widget.ipo.subscription.employee != null) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               _buildSubscriptionBar('Employee',
                   widget.ipo.subscription.employee, AppColors.success),
             ],
@@ -608,7 +532,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             Text(
               category,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
@@ -616,16 +540,16 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             Text(
               times != null ? '${safeTimes.toStringAsFixed(2)}x' : '-',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: times != null ? color : AppColors.textSecondary,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Container(
-          height: 8,
+          height: 7,
           decoration: BoxDecoration(
             color: Colors.grey[300],
             borderRadius: BorderRadius.circular(4),
@@ -648,29 +572,30 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildDatesCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Important Dates',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             _buildDateItem(
                 'Open Date',
                 '${widget.ipo.offerDate.start} - ${widget.ipo.offerDate.end}',
                 Icons.calendar_today),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             _buildDateItem('Listing Date',
                 widget.ipo.listingDate ?? 'Coming Soon', Icons.list),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             _buildDateItem(
                 'Allotment Date',
                 widget.ipo.allotmentDate ?? 'Coming Soon',
@@ -684,8 +609,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildDateItem(String label, String value, IconData icon) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: AppColors.primary),
-        const SizedBox(width: 12),
+        Icon(icon, size: 18, color: AppColors.primary),
+        const SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -693,7 +618,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               Text(
                 label,
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w500,
                 ),
@@ -701,7 +626,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               Text(
                 value,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
@@ -717,87 +642,88 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildCompanyInfoCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Company Information',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             Text(
               widget.ipo.companyDescription,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 13,
                 color: AppColors.textPrimary,
-                height: 1.5,
+                height: 1.4,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             _buildInfoRow('Sector', widget.ipo.sector),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             _buildInfoRow('Exchange', widget.ipo.exchange),
 
             // Company Details Section
             if (widget.ipo.companyDetails != null) ...[
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               const Text(
                 'Company Details',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               if (widget.ipo.companyDetails!.foundedYear != null) ...[
                 _buildInfoRow('Founded Year',
                     widget.ipo.companyDetails!.foundedYear.toString()),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
               ],
               if (widget.ipo.companyDetails!.employees != null) ...[
                 _buildInfoRow('Employees',
                     widget.ipo.companyDetails!.employees.toString()),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
               ],
               if (widget.ipo.companyDetails!.headquarters != null) ...[
                 _buildInfoRow(
                     'Headquarters', widget.ipo.companyDetails!.headquarters!),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
               ],
 
               // Contact Information
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               const Text(
                 'Contact Information',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               if (widget.ipo.companyDetails!.phone != null) ...[
                 _buildContactRow(
                     Icons.phone, 'Phone', widget.ipo.companyDetails!.phone!),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
               ],
               if (widget.ipo.companyDetails!.email != null) ...[
                 _buildContactRow(
                     Icons.email, 'Email', widget.ipo.companyDetails!.email!),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
               ],
               if (widget.ipo.companyDetails!.website != null) ...[
                 _buildContactRow(Icons.language, 'Website',
                     widget.ipo.companyDetails!.website!),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
               ],
             ],
           ],
@@ -811,11 +737,11 @@ class _IPODetailScreenState extends State<IPODetailScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 80,
+          width: 75,
           child: Text(
             label,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.w500,
               color: AppColors.textSecondary,
             ),
@@ -825,7 +751,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
           child: Text(
             value,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               color: AppColors.textPrimary,
             ),
           ),
@@ -840,27 +766,27 @@ class _IPODetailScreenState extends State<IPODetailScreen>
       children: [
         Icon(
           icon,
-          size: 16,
+          size: 14,
           color: AppColors.primary,
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 6),
         SizedBox(
-          width: 60,
+          width: 55,
           child: Text(
             label,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.w500,
               color: AppColors.textSecondary,
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 6),
         Expanded(
           child: Text(
             value,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               color: AppColors.textPrimary,
             ),
           ),
@@ -872,21 +798,22 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildValuationsCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Valuations & Ratios',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             // EPS Row
             Row(
               children: [
@@ -898,7 +825,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     Icons.trending_up,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: _buildMetricItem(
                     'EPS (Post-IPO)',
@@ -909,7 +836,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             // P/E Row
             Row(
               children: [
@@ -921,7 +848,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     Icons.analytics,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: _buildMetricItem(
                     'P/E (Post-IPO)',
@@ -932,7 +859,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             // ROE and ROCE Row
             Row(
               children: [
@@ -946,7 +873,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     Icons.percent,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: _buildMetricItem(
                     'ROCE',
@@ -959,7 +886,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             // PAT Margin and Debt-to-Equity Row
             Row(
               children: [
@@ -973,7 +900,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     Icons.trending_up,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: _buildMetricItem(
                     'Debt/Equity',
@@ -984,7 +911,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             // Price-to-Book and RONW Row
             Row(
               children: [
@@ -997,7 +924,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     Icons.book,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: _buildMetricItem(
                     'RONW',
@@ -1019,26 +946,27 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildFinancialPerformanceCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Financial Performance',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             if (widget.ipo.financials.isNotEmpty) ...[
               // Financial data table header
               Container(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -1050,7 +978,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                       child: Text(
                         'Year',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 13,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
                         ),
@@ -1061,7 +989,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                       child: Text(
                         'Revenue (₹Cr)',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 13,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
                         ),
@@ -1073,7 +1001,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                       child: Text(
                         'Profit (₹Cr)',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 13,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
                         ),
@@ -1083,12 +1011,12 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                   ],
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               // Financial data rows
               ...widget.ipo.financials.map((financial) => Container(
                     padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 12),
-                    margin: const EdgeInsets.only(bottom: 4),
+                        vertical: 10, horizontal: 10),
+                    margin: const EdgeInsets.only(bottom: 3),
                     decoration: BoxDecoration(
                       color: Colors.grey[50],
                       borderRadius: BorderRadius.circular(8),
@@ -1100,7 +1028,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                           child: Text(
                             financial.year,
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
                             ),
@@ -1111,7 +1039,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                           child: Text(
                             financial.revenue?.toStringAsFixed(2) ?? '-',
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 13,
                               color: AppColors.textPrimary,
                             ),
                             textAlign: TextAlign.center,
@@ -1122,7 +1050,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                           child: Text(
                             financial.profit?.toStringAsFixed(2) ?? '-',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 13,
                               color: financial.profit != null &&
                                       financial.profit! > 0
                                   ? AppColors.success
@@ -1137,18 +1065,18 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                       ],
                     ),
                   )),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               // Additional financial metrics
               if (widget.ipo.financials.isNotEmpty) ...[
                 const Text(
                   'Additional Metrics',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 ...widget.ipo.financials.take(1).map((financial) => Column(
                       children: [
                         if (financial.assets != null ||
@@ -1179,7 +1107,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                             ],
                           ),
                         if (financial.totalBorrowing != null) ...[
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           _buildMetricItem(
                             'Total Borrowing',
                             financial.formattedTotalBorrowing,
@@ -1194,7 +1122,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               const Text(
                 'Financial performance data will be updated soon.',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   color: AppColors.textSecondary,
                   fontStyle: FontStyle.italic,
                 ),
@@ -1208,21 +1136,22 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildPromoterInfoCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Promoter Information',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             // Promoter Holdings
             Row(
               children: [
@@ -1236,7 +1165,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     Icons.person,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: _buildMetricItem(
                     'Post-Issue Holding',
@@ -1251,21 +1180,21 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             ),
             // Promoter Names
             if (widget.ipo.promoters.names.isNotEmpty) ...[
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               const Text(
                 'Promoter Names',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Colors.grey[200]!),
                 ),
                 child: Column(
@@ -1277,15 +1206,15 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     return Padding(
                       padding: EdgeInsets.only(
                           bottom: index < widget.ipo.promoters.names.length - 1
-                              ? 8
+                              ? 6
                               : 0),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            width: 6,
-                            height: 6,
-                            margin: const EdgeInsets.only(top: 6, right: 12),
+                            width: 5,
+                            height: 5,
+                            margin: const EdgeInsets.only(top: 5, right: 10),
                             decoration: const BoxDecoration(
                               color: AppColors.primary,
                               shape: BoxShape.circle,
@@ -1295,9 +1224,9 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                             child: Text(
                               name,
                               style: const TextStyle(
-                                fontSize: 14,
+                                fontSize: 13,
                                 color: AppColors.textPrimary,
-                                height: 1.4,
+                                height: 1.3,
                               ),
                             ),
                           ),
@@ -1318,34 +1247,35 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildIssueDetailsCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Issue Details',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             _buildInfoRow('Issue Size', widget.ipo.issueSize),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             _buildInfoRow('Face Value', '₹${widget.ipo.faceValue}'),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             _buildInfoRow('Lot Size', '${widget.ipo.lotSize} shares'),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             _buildInfoRow('Category',
                 widget.ipo.category == IPOCategory.sme ? 'SME' : 'Mainboard'),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             _buildInfoRow('Offer Price', widget.ipo.offerPrice.formatted),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             _buildInfoRow('Exchange', widget.ipo.exchange),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             _buildInfoRow('Status', widget.ipo.status.toUpperCase()),
           ],
         ),
@@ -1356,56 +1286,57 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildObjectivesCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Issue Objectives',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             if (widget.ipo.issueObjectives.isNotEmpty)
               ...widget.ipo.issueObjectives.asMap().entries.map((entry) {
                 final index = entry.key;
                 final objective = entry.value;
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(bottom: 10),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        width: 24,
-                        height: 24,
+                        width: 22,
+                        height: 22,
                         decoration: BoxDecoration(
                           color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(11),
                         ),
                         child: Center(
                           child: Text(
                             '${index + 1}',
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           objective,
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: 13,
                             color: AppColors.textPrimary,
-                            height: 1.4,
+                            height: 1.3,
                           ),
                         ),
                       ),
@@ -1417,7 +1348,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               const Text(
                 'Issue objectives will be updated soon.',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   color: AppColors.textSecondary,
                   fontStyle: FontStyle.italic,
                 ),
@@ -1431,32 +1362,33 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildRegistrarCard() {
     return Card(
       elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Registrar & Lead Managers',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             // Registrar Information
             const Text(
               'Registrar',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             if (widget.ipo.registrarDetails != null) ...[
               _buildInfoRow('Name', widget.ipo.registrarDetails!.name),
               const SizedBox(height: 8),
@@ -1490,12 +1422,12 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             const Text(
               'Lead Managers',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             if (widget.ipo.leadManagers.isNotEmpty) ...[
               ...widget.ipo.leadManagers.asMap().entries.map((entry) {
                 final index = entry.key;
@@ -1549,9 +1481,10 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildFreshIssueOFSCard() {
     return Card(
       elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1562,7 +1495,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Text(
                   'Issue Structure',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
@@ -1591,7 +1524,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         Text(
                           'Fresh Issue',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 15,
                             fontWeight: FontWeight.bold,
                             color: AppColors.success,
                           ),
@@ -1677,7 +1610,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         Text(
                           'Offer for Sale (OFS)',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 15,
                             fontWeight: FontWeight.bold,
                             color: AppColors.warning,
                           ),
@@ -1786,9 +1719,10 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildMarketLotCard() {
     return Card(
       elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1799,7 +1733,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Text(
                   'Market Lot Details',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
@@ -1811,7 +1745,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               // Table Header
               Container(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -1823,7 +1757,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                       child: Text(
                         'Category',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
                         ),
@@ -1834,7 +1768,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                       child: Text(
                         'Shares',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
                         ),
@@ -1844,9 +1778,9 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     Expanded(
                       flex: 2,
                       child: Text(
-                        'Amount (₹)',
+                        'Amount(₹)',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
                         ),
@@ -1858,7 +1792,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                       child: Text(
                         'Applications',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
                         ),
@@ -1924,7 +1858,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             child: Text(
               category,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),
@@ -1935,7 +1869,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             child: Text(
               details.shares > 0 ? details.shares.toString() : '-',
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: AppColors.textPrimary,
               ),
               textAlign: TextAlign.center,
@@ -1948,7 +1882,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                   ? '₹${details.amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}'
                   : '-',
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: AppColors.textPrimary,
               ),
               textAlign: TextAlign.center,
@@ -1963,7 +1897,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                       (Match m) => '${m[1]},')
                   : '-',
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: AppColors.textPrimary,
               ),
               textAlign: TextAlign.center,
@@ -1977,51 +1911,58 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildSharesOfferedCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Row(
               children: [
-                Icon(Icons.pie_chart, color: AppColors.primary, size: 24),
-                SizedBox(width: 8),
-                Text(
-                  'Shares Offered Breakdown',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                Icon(Icons.pie_chart, color: AppColors.primary, size: 22),
+                SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    'Shares Offered Breakdown',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             if (widget.ipo.sharesOffered != null) ...[
               // Total Shares
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.primary.withOpacity(0.3)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Total Shares Offered',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                    const Flexible(
+                      child: Text(
+                        'Total Shares Offered',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     Text(
                       '${(widget.ipo.sharesOffered!.total / 1000000).toStringAsFixed(2)}M',
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 15,
                         fontWeight: FontWeight.bold,
                         color: AppColors.primary,
                       ),
@@ -2029,54 +1970,74 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
-              // Breakdown Grid
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 2.5,
-                children: [
-                  _buildSharesOfferedItem(
-                    'QIB',
-                    widget.ipo.sharesOffered!.qib,
-                    widget.ipo.sharesOffered!.total,
-                    AppColors.primary,
-                  ),
-                  _buildSharesOfferedItem(
-                    'NII',
-                    widget.ipo.sharesOffered!.nii,
-                    widget.ipo.sharesOffered!.total,
-                    AppColors.secondary,
-                  ),
-                  _buildSharesOfferedItem(
-                    'bNII',
-                    widget.ipo.sharesOffered!.bNii,
-                    widget.ipo.sharesOffered!.total,
-                    AppColors.warning,
-                  ),
-                  _buildSharesOfferedItem(
-                    'sNII',
-                    widget.ipo.sharesOffered!.sNii,
-                    widget.ipo.sharesOffered!.total,
-                    AppColors.info,
-                  ),
-                  _buildSharesOfferedItem(
-                    'Retail',
-                    widget.ipo.sharesOffered!.retail,
-                    widget.ipo.sharesOffered!.total,
-                    AppColors.success,
-                  ),
-                ],
+              // Breakdown Grid - Using Wrap for better responsiveness
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  // Calculate optimal item width based on available space
+                  final availableWidth = constraints.maxWidth;
+                  final itemWidth =
+                      (availableWidth - 8) / 2; // 2 columns with 8px gap
+
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      SizedBox(
+                        width: itemWidth,
+                        child: _buildSharesOfferedItem(
+                          'QIB',
+                          widget.ipo.sharesOffered!.qib,
+                          widget.ipo.sharesOffered!.total,
+                          AppColors.primary,
+                        ),
+                      ),
+                      SizedBox(
+                        width: itemWidth,
+                        child: _buildSharesOfferedItem(
+                          'NII',
+                          widget.ipo.sharesOffered!.nii,
+                          widget.ipo.sharesOffered!.total,
+                          AppColors.secondary,
+                        ),
+                      ),
+                      SizedBox(
+                        width: itemWidth,
+                        child: _buildSharesOfferedItem(
+                          'bNII',
+                          widget.ipo.sharesOffered!.bNii,
+                          widget.ipo.sharesOffered!.total,
+                          AppColors.warning,
+                        ),
+                      ),
+                      SizedBox(
+                        width: itemWidth,
+                        child: _buildSharesOfferedItem(
+                          'sNII',
+                          widget.ipo.sharesOffered!.sNii,
+                          widget.ipo.sharesOffered!.total,
+                          AppColors.info,
+                        ),
+                      ),
+                      SizedBox(
+                        width: itemWidth,
+                        child: _buildSharesOfferedItem(
+                          'Retail',
+                          widget.ipo.sharesOffered!.retail,
+                          widget.ipo.sharesOffered!.total,
+                          AppColors.success,
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ] else ...[
               const Text(
                 'Shares offered breakdown not available.',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   color: AppColors.textSecondary,
                   fontStyle: FontStyle.italic,
                 ),
@@ -2096,41 +2057,52 @@ class _IPODetailScreenState extends State<IPODetailScreen>
         shares > 0 ? (shares / 1000000).toStringAsFixed(2) : '0.00';
 
     return Container(
-      padding: const EdgeInsets.all(10),
+      height: 70, // Fixed height to prevent overflow
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            category,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            shares > 0 ? '${sharesInM}M' : '-',
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+          Flexible(
+            child: Text(
+              category,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          Text(
-            shares > 0 ? '($percentage%)' : '(-)',
-            style: TextStyle(
-              fontSize: 11,
-              color: color,
-              fontWeight: FontWeight.w500,
+          const SizedBox(height: 1),
+          Flexible(
+            child: Text(
+              shares > 0 ? '${sharesInM}M' : '-',
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Flexible(
+            child: Text(
+              shares > 0 ? '($percentage%)' : '(-)',
+              style: TextStyle(
+                fontSize: 10,
+                color: color,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -2141,9 +2113,10 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildProductPortfolioCard() {
     return Card(
       elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -2154,7 +2127,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Text(
                   'Product Portfolio',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
@@ -2212,7 +2185,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 const Text(
                   'Main Products',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
@@ -2250,7 +2223,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 const Text(
                   'Target Occasions',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
@@ -2343,9 +2316,10 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildAnchorInvestorsCard() {
     return Card(
       elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -2356,7 +2330,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Text(
                   'Anchor Investors',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
@@ -2382,7 +2356,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                       const Text(
                         'Total Anchor Investment',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
                         ),
@@ -2390,7 +2364,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                       Text(
                         widget.ipo.anchorInvestors!.totalAmount!,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: FontWeight.bold,
                           color: AppColors.success,
                         ),
@@ -2405,7 +2379,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               const Text(
                 'Anchor Investors List',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),
@@ -2492,9 +2466,10 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildPeerComparisonCard() {
     return Card(
       elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -2505,7 +2480,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Text(
                   'Peer Comparison',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
@@ -2680,9 +2655,10 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildBiddingTimingsCard() {
     return Card(
       elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -2693,7 +2669,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Text(
                   'Bidding Timings',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
@@ -2833,9 +2809,10 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildDocumentsCard() {
     return Card(
       elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -2846,7 +2823,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Text(
                   'IPO Documents',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
@@ -2968,9 +2945,10 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildStrengthsCard() {
     return Card(
       elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -2981,7 +2959,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Text(
                   'Strengths',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.success,
                   ),
@@ -3035,9 +3013,10 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildWeaknessesCard() {
     return Card(
       elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -3048,7 +3027,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Text(
                   'Weaknesses',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.error,
                   ),
@@ -3102,21 +3081,22 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildRecommendationCard() {
     return Card(
       elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Recommendation',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -3134,7 +3114,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                       Text(
                         'Investment Recommendation',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: FontWeight.bold,
                           color: AppColors.primary,
                         ),
@@ -3160,42 +3140,74 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   }
 
   Widget _buildBottomActionBar() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () => _applyForIPO(),
-              icon: const Icon(Icons.assignment, color: Colors.white),
-              label: const Text(
-                'Apply Now',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Container(
+          width: double.infinity,
+          height: 50,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.primary,
+                AppColors.primaryDark,
+              ],
+              stops: [0.0, 1.0],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+                spreadRadius: 0,
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _applyForIPO(),
+              borderRadius: BorderRadius.circular(16),
+              splashColor: Colors.white.withOpacity(0.2),
+              highlightColor: Colors.white.withOpacity(0.1),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'Apply',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.arrow_forward_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
