@@ -21,14 +21,14 @@ class TermsConditionsScreen extends StatelessWidget {
           elevation: 2,
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               _buildLastUpdated(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               _buildSection(
                 'Acceptance of Terms',
                 'By accessing and using the IPO Edge mobile application, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.',
@@ -65,7 +65,7 @@ class TermsConditionsScreen extends StatelessWidget {
                 'Modifications',
                 'IPO Edge may revise these terms of service at any time without notice. By using this app, you are agreeing to be bound by the then current version of these terms of service.',
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               _buildContactInfo(),
             ],
           ),
@@ -76,7 +76,7 @@ class TermsConditionsScreen extends StatelessWidget {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -100,16 +100,16 @@ class TermsConditionsScreen extends StatelessWidget {
                 Text(
                   'Terms & Conditions',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 4),
+                SizedBox(height: 3),
                 Text(
                   'Please read these terms carefully before using our app',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     color: Colors.white70,
                   ),
                 ),
@@ -123,7 +123,7 @@ class TermsConditionsScreen extends StatelessWidget {
 
   Widget _buildLastUpdated() {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: AppColors.warning.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
@@ -143,7 +143,7 @@ class TermsConditionsScreen extends StatelessWidget {
           Text(
             'Last Updated: January 15, 2025',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               color: AppColors.warning,
               fontWeight: FontWeight.w500,
             ),
@@ -155,23 +155,23 @@ class TermsConditionsScreen extends StatelessWidget {
 
   Widget _buildSection(String title, String content) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             content,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               color: AppColors.textSecondary,
               height: 1.6,
             ),
@@ -183,7 +183,7 @@ class TermsConditionsScreen extends StatelessWidget {
 
   Widget _buildContactInfo() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.surfaceVariant.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
@@ -198,16 +198,16 @@ class TermsConditionsScreen extends StatelessWidget {
           Text(
             'Questions About Terms?',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 6),
           Text(
             'If you have any questions about these Terms & Conditions, please contact us at legal@ipoedge.com or through our Contact Us page.',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               color: AppColors.textSecondary,
               height: 1.5,
             ),

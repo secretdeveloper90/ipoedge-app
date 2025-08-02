@@ -14,27 +14,33 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
   final List<FAQItem> _faqs = [
     FAQItem(
       question: 'What is an IPO?',
-      answer: 'An Initial Public Offering (IPO) is when a private company offers shares to the public for the first time. It allows companies to raise capital from public investors.',
+      answer:
+          'An Initial Public Offering (IPO) is when a private company offers shares to the public for the first time. It allows companies to raise capital from public investors.',
     ),
     FAQItem(
       question: 'How do I apply for an IPO?',
-      answer: 'You can apply for an IPO through your broker\'s platform, bank\'s net banking, or mobile apps. You need a demat account and sufficient funds in your bank account.',
+      answer:
+          'You can apply for an IPO through your broker\'s platform, bank\'s net banking, or mobile apps. You need a demat account and sufficient funds in your bank account.',
     ),
     FAQItem(
       question: 'What is the minimum investment amount?',
-      answer: 'The minimum investment varies for each IPO. For retail investors, it\'s usually one lot, which can range from ₹10,000 to ₹2,00,000 depending on the IPO.',
+      answer:
+          'The minimum investment varies for each IPO. For retail investors, it\'s usually one lot, which can range from ₹10,000 to ₹2,00,000 depending on the IPO.',
     ),
     FAQItem(
       question: 'When will I know if I got allotment?',
-      answer: 'IPO allotment results are typically announced 7-10 days after the issue closes. You can check the status on the registrar\'s website or through our app.',
+      answer:
+          'IPO allotment results are typically announced 7-10 days after the issue closes. You can check the status on the registrar\'s website or through our app.',
     ),
     FAQItem(
       question: 'What happens if I don\'t get allotment?',
-      answer: 'If you don\'t get allotment, the blocked amount in your bank account will be unblocked and returned within 3-5 working days.',
+      answer:
+          'If you don\'t get allotment, the blocked amount in your bank account will be unblocked and returned within 3-5 working days.',
     ),
     FAQItem(
       question: 'Can I modify or cancel my IPO application?',
-      answer: 'You can modify your IPO application multiple times during the bidding period, but you cannot cancel it once submitted.',
+      answer:
+          'You can modify your IPO application multiple times during the bidding period, but you cannot cancel it once submitted.',
     ),
   ];
 
@@ -54,16 +60,16 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           elevation: 2,
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               _buildQuickActions(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               _buildFAQSection(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               _buildContactSupport(),
             ],
           ),
@@ -74,7 +80,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -98,16 +104,16 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                 Text(
                   'How can we help?',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 4),
+                SizedBox(height: 3),
                 Text(
                   'Find answers to common questions or contact our support team',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     color: Colors.white70,
                   ),
                 ),
@@ -126,12 +132,12 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
         const Text(
           'Quick Actions',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         Row(
           children: [
             Expanded(
@@ -153,7 +159,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         Row(
           children: [
             Expanded(
@@ -185,27 +191,46 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
     required String subtitle,
     required VoidCallback onTap,
   }) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Material(
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
+        child: Container(
+          width: double.infinity,
           padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceVariant.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: AppColors.cardBorder.withOpacity(0.3),
+              width: 1,
+            ),
+          ),
           child: Column(
             children: [
               Container(
-                width: 50,
-                height: 50,
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.primary.withOpacity(0.1),
+                      AppColors.primaryDark.withOpacity(0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.primary.withOpacity(0.2),
+                    width: 1,
+                  ),
                 ),
                 child: Icon(
                   icon,
                   color: AppColors.primary,
-                  size: 24,
+                  size: 28,
                 ),
               ),
               const SizedBox(height: 12),
@@ -226,6 +251,8 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                   color: AppColors.textSecondary,
                 ),
                 textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -241,15 +268,22 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
         const Text(
           'Frequently Asked Questions',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 12),
-        Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: AppColors.surfaceVariant.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: AppColors.cardBorder.withOpacity(0.3),
+              width: 1,
+            ),
+          ),
           child: Column(
             children: _faqs.map((faq) => _buildFAQItem(faq)).toList(),
           ),
@@ -263,18 +297,18 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
       title: Text(
         faq.question,
         style: const TextStyle(
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: FontWeight.w500,
           color: AppColors.textPrimary,
         ),
       ),
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
           child: Text(
             faq.answer,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               color: AppColors.textSecondary,
               height: 1.5,
             ),
@@ -286,7 +320,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
 
   Widget _buildContactSupport() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surfaceVariant.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
@@ -301,20 +335,20 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           const Text(
             'Still Need Help?',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           const Text(
             'Our support team is available 24/7 to assist you with any questions or issues.',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               color: AppColors.textSecondary,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           Row(
             children: [
               Expanded(
@@ -325,7 +359,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -334,74 +368,74 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           const Divider(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           const Text(
             'Support Hours',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Monday - Friday',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   color: AppColors.textSecondary,
                 ),
               ),
               Text(
                 '9:00 AM - 6:00 PM',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: AppColors.textPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 3),
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Saturday',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   color: AppColors.textSecondary,
                 ),
               ),
               Text(
                 '9:00 AM - 2:00 PM',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: AppColors.textPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 3),
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Sunday',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   color: AppColors.textSecondary,
                 ),
               ),
               Text(
                 'Closed',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: AppColors.error,
                 ),
@@ -446,21 +480,22 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
               'Contact Support',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             ListTile(
-              leading: const Icon(Icons.phone_rounded, color: AppColors.primary),
+              leading:
+                  const Icon(Icons.phone_rounded, color: AppColors.primary),
               title: const Text('Call Us'),
               subtitle: const Text('+91 98765 43210'),
               onTap: () {
@@ -469,7 +504,8 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.email_rounded, color: AppColors.primary),
+              leading:
+                  const Icon(Icons.email_rounded, color: AppColors.primary),
               title: const Text('Email Us'),
               subtitle: const Text('support@ipoedge.com'),
               onTap: () {
@@ -495,7 +531,8 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
   Future<void> _launchWhatsApp() async {
     const String phone = '+919876543210';
     const String message = 'Hi, I need help with IPO Edge app';
-    final Uri uri = Uri.parse('https://wa.me/$phone?text=${Uri.encodeComponent(message)}');
+    final Uri uri =
+        Uri.parse('https://wa.me/$phone?text=${Uri.encodeComponent(message)}');
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }

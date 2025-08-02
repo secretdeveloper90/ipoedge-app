@@ -22,20 +22,20 @@ class AboutUsScreen extends StatelessWidget {
           elevation: 2,
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeroSection(),
-              const SizedBox(height: 30),
+              const SizedBox(height: 24),
               _buildMissionSection(),
-              const SizedBox(height: 30),
+              const SizedBox(height: 24),
               _buildFeaturesSection(),
-              const SizedBox(height: 30),
+              const SizedBox(height: 24),
               _buildTeamSection(),
-              const SizedBox(height: 30),
+              const SizedBox(height: 24),
               _buildStatsSection(),
-              const SizedBox(height: 30),
+              const SizedBox(height: 24),
               _buildContactSection(),
             ],
           ),
@@ -46,7 +46,7 @@ class AboutUsScreen extends StatelessWidget {
 
   Widget _buildHeroSection() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -73,7 +73,7 @@ class AboutUsScreen extends StatelessWidget {
                     Text(
                       'IPO Edge',
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -81,7 +81,7 @@ class AboutUsScreen extends StatelessWidget {
                     Text(
                       'Your Gateway to IPO Success',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: Colors.white70,
                       ),
                     ),
@@ -90,11 +90,11 @@ class AboutUsScreen extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 16),
+          SizedBox(height: 14),
           Text(
             'IPO Edge is India\'s leading platform for IPO information, analysis, and investment guidance. We help investors make informed decisions in the exciting world of Initial Public Offerings.',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               color: Colors.white,
               height: 1.5,
             ),
@@ -111,14 +111,14 @@ class AboutUsScreen extends StatelessWidget {
         const Text(
           'Our Mission',
           style: TextStyle(
-            fontSize: 22,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: AppColors.success.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
@@ -130,7 +130,7 @@ class AboutUsScreen extends StatelessWidget {
           child: const Text(
             'To democratize IPO investing by providing comprehensive, accurate, and timely information that empowers every investor to make confident investment decisions in the Indian capital markets.',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               color: AppColors.textSecondary,
               height: 1.6,
             ),
@@ -147,34 +147,38 @@ class AboutUsScreen extends StatelessWidget {
         const Text(
           'What We Offer',
           style: TextStyle(
-            fontSize: 22,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         _buildFeatureCard(
           icon: Icons.analytics_rounded,
           title: 'Comprehensive IPO Analysis',
-          description: 'Detailed analysis of upcoming and current IPOs with expert insights',
+          description:
+              'Detailed analysis of upcoming and current IPOs with expert insights',
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         _buildFeatureCard(
           icon: Icons.schedule_rounded,
           title: 'Real-time Updates',
-          description: 'Live updates on IPO schedules, allotments, and market performance',
+          description:
+              'Live updates on IPO schedules, allotments, and market performance',
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         _buildFeatureCard(
           icon: Icons.school_rounded,
           title: 'Educational Content',
-          description: 'Learn about IPO investing with our comprehensive guides and tutorials',
+          description:
+              'Learn about IPO investing with our comprehensive guides and tutorials',
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         _buildFeatureCard(
           icon: Icons.support_agent_rounded,
           title: 'Expert Support',
-          description: '24/7 customer support to help you with your investment queries',
+          description:
+              '24/7 customer support to help you with your investment queries',
         ),
       ],
     );
@@ -185,52 +189,57 @@ class AboutUsScreen extends StatelessWidget {
     required String title,
     required String description,
   }) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                icon,
-                color: AppColors.primary,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.cardBorder.withOpacity(0.3),
+          width: 1,
         ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              color: AppColors.primary,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -242,14 +251,14 @@ class AboutUsScreen extends StatelessWidget {
         const Text(
           'Our Team',
           style: TextStyle(
-            fontSize: 22,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: AppColors.info.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
@@ -264,16 +273,16 @@ class AboutUsScreen extends StatelessWidget {
               Text(
                 'Expert Financial Professionals',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
               ),
-              SizedBox(height: 8),
+              SizedBox(height: 6),
               Text(
                 'Our team consists of experienced financial analysts, market researchers, and technology experts who are passionate about making IPO investing accessible to everyone.',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   color: AppColors.textSecondary,
                   height: 1.5,
                 ),
@@ -292,12 +301,12 @@ class AboutUsScreen extends StatelessWidget {
         const Text(
           'Our Impact',
           style: TextStyle(
-            fontSize: 22,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         Row(
           children: [
             Expanded(
@@ -309,7 +318,7 @@ class AboutUsScreen extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         Row(
           children: [
             Expanded(
@@ -327,7 +336,7 @@ class AboutUsScreen extends StatelessWidget {
 
   Widget _buildStatCard(String value, String label) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -348,16 +357,16 @@ class AboutUsScreen extends StatelessWidget {
           Text(
             value,
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: AppColors.primary,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 3),
           Text(
             label,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               color: AppColors.textSecondary,
             ),
             textAlign: TextAlign.center,
@@ -369,7 +378,7 @@ class AboutUsScreen extends StatelessWidget {
 
   Widget _buildContactSection() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surfaceVariant.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
@@ -384,20 +393,20 @@ class AboutUsScreen extends StatelessWidget {
           const Text(
             'Get in Touch',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           const Text(
             'Have questions or suggestions? We\'d love to hear from you!',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               color: AppColors.textSecondary,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           Row(
             children: [
               Expanded(
@@ -408,7 +417,7 @@ class AboutUsScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -423,7 +432,7 @@ class AboutUsScreen extends StatelessWidget {
                   label: const Text('Visit Website'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

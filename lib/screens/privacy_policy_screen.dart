@@ -21,14 +21,14 @@ class PrivacyPolicyScreen extends StatelessWidget {
           elevation: 2,
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               _buildLastUpdated(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               _buildSection(
                 'Information We Collect',
                 'We collect information you provide directly to us, such as when you create an account, subscribe to our services, or contact us for support. This may include your name, email address, phone number, and investment preferences.',
@@ -57,7 +57,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 'Changes to This Policy',
                 'We may update this privacy policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the "Last Updated" date.',
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               _buildContactInfo(),
             ],
           ),
@@ -68,7 +68,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -92,16 +92,16 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 Text(
                   'Your Privacy Matters',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 4),
+                SizedBox(height: 3),
                 Text(
                   'We are committed to protecting your personal information',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     color: Colors.white70,
                   ),
                 ),
@@ -115,7 +115,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
   Widget _buildLastUpdated() {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: AppColors.info.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
@@ -135,7 +135,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
           Text(
             'Last Updated: January 15, 2025',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               color: AppColors.info,
               fontWeight: FontWeight.w500,
             ),
@@ -147,23 +147,23 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
   Widget _buildSection(String title, String content) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             content,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               color: AppColors.textSecondary,
               height: 1.6,
             ),
@@ -175,7 +175,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
   Widget _buildContactInfo() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.surfaceVariant.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
@@ -190,16 +190,16 @@ class PrivacyPolicyScreen extends StatelessWidget {
           Text(
             'Questions About Privacy?',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 6),
           Text(
             'If you have any questions about this Privacy Policy, please contact us at privacy@ipoedge.com or through our Contact Us page.',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               color: AppColors.textSecondary,
               height: 1.5,
             ),

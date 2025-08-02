@@ -30,12 +30,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           elevation: 2,
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               _buildNotificationSettings(),
             ],
           ),
@@ -46,7 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -70,16 +70,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   'App Settings',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 4),
+                SizedBox(height: 3),
                 Text(
                   'Customize your IPO Edge experience',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     color: Colors.white70,
                   ),
                 ),
@@ -132,18 +132,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Text(
               title,
               style: const TextStyle(
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        Card(
-          elevation: 2,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: AppColors.surfaceVariant.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: AppColors.cardBorder.withOpacity(0.3),
+              width: 1,
+            ),
+          ),
           child: Column(children: children),
         ),
       ],
@@ -161,7 +167,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: Text(
         title,
         style: TextStyle(
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: FontWeight.w500,
           color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
         ),
@@ -169,7 +175,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       subtitle: Text(
         subtitle,
         style: TextStyle(
-          fontSize: 14,
+          fontSize: 13,
           color: enabled
               ? AppColors.textSecondary
               : AppColors.textSecondary.withOpacity(0.6),

@@ -22,16 +22,16 @@ class ContactUsScreen extends StatelessWidget {
           elevation: 2,
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeroSection(),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               _buildContactMethods(),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               _buildOfficeInfo(),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               _buildBusinessHours(),
             ],
           ),
@@ -42,7 +42,7 @@ class ContactUsScreen extends StatelessWidget {
 
   Widget _buildHeroSection() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -56,23 +56,23 @@ class ContactUsScreen extends StatelessWidget {
         children: [
           Icon(
             Icons.support_agent_rounded,
-            size: 48,
+            size: 40,
             color: Colors.white,
           ),
-          SizedBox(height: 16),
+          SizedBox(height: 14),
           Text(
             'Get in Touch',
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 6),
           Text(
             'We\'re here to help you with your IPO investment journey. Reach out to us anytime!',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               color: Colors.white70,
               height: 1.5,
             ),
@@ -89,12 +89,12 @@ class ContactUsScreen extends StatelessWidget {
         const Text(
           'Contact Methods',
           style: TextStyle(
-            fontSize: 22,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         _buildContactCard(
           icon: Icons.email_rounded,
           title: 'Email Support',
@@ -129,47 +129,56 @@ class ContactUsScreen extends StatelessWidget {
     required String description,
     required VoidCallback onTap,
   }) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Material(
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          width: double.infinity,
           padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: AppColors.primary.withOpacity(0.1),
+              width: 1,
+            ),
+          ),
           child: Row(
             children: [
               Container(
-                width: 50,
-                height: 50,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   color: AppColors.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   icon,
                   color: AppColors.primary,
-                  size: 24,
+                  size: 22,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       title,
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 3),
                     Text(
                       subtitle,
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.w500,
                         color: AppColors.primary,
                       ),
@@ -178,7 +187,7 @@ class ContactUsScreen extends StatelessWidget {
                     Text(
                       description,
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: AppColors.textSecondary,
                       ),
                     ),
@@ -187,7 +196,7 @@ class ContactUsScreen extends StatelessWidget {
               ),
               const Icon(
                 Icons.arrow_forward_ios_rounded,
-                size: 16,
+                size: 14,
                 color: AppColors.textSecondary,
               ),
             ],
@@ -204,14 +213,14 @@ class ContactUsScreen extends StatelessWidget {
         const Text(
           'Office Information',
           style: TextStyle(
-            fontSize: 22,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: AppColors.surfaceVariant.withOpacity(0.3),
             borderRadius: BorderRadius.circular(12),
@@ -234,21 +243,21 @@ class ContactUsScreen extends StatelessWidget {
                   Text(
                     'Head Office',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 12),
+              SizedBox(height: 10),
               Text(
                 'IPO Edge Financial Services Pvt. Ltd.\n'
                 '123 Business Tower, 5th Floor\n'
                 'Financial District, Mumbai - 400001\n'
                 'Maharashtra, India',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   color: AppColors.textSecondary,
                   height: 1.5,
                 ),
@@ -267,14 +276,14 @@ class ContactUsScreen extends StatelessWidget {
         const Text(
           'Business Hours',
           style: TextStyle(
-            fontSize: 22,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: AppColors.success.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
@@ -291,7 +300,7 @@ class ContactUsScreen extends StatelessWidget {
                   Text(
                     'Monday - Friday',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: AppColors.textPrimary,
                     ),
@@ -299,20 +308,20 @@ class ContactUsScreen extends StatelessWidget {
                   Text(
                     '9:00 AM - 6:00 PM',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       color: AppColors.textSecondary,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 8),
+              SizedBox(height: 6),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Saturday',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: AppColors.textPrimary,
                     ),
@@ -320,20 +329,20 @@ class ContactUsScreen extends StatelessWidget {
                   Text(
                     '9:00 AM - 2:00 PM',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       color: AppColors.textSecondary,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 8),
+              SizedBox(height: 6),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Sunday',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: AppColors.textPrimary,
                     ),
@@ -341,7 +350,7 @@ class ContactUsScreen extends StatelessWidget {
                   Text(
                     'Closed',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       color: AppColors.error,
                     ),
                   ),
@@ -371,7 +380,8 @@ class ContactUsScreen extends StatelessWidget {
   Future<void> _launchWhatsApp() async {
     const String phone = '+919876543210';
     const String message = 'Hi, I need help with IPO Edge app';
-    final Uri uri = Uri.parse('https://wa.me/$phone?text=${Uri.encodeComponent(message)}');
+    final Uri uri =
+        Uri.parse('https://wa.me/$phone?text=${Uri.encodeComponent(message)}');
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
