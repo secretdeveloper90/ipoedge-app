@@ -17,7 +17,7 @@ class BuybackCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -91,7 +91,7 @@ class BuybackCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
               color: _getLogoBackgroundColor(),
               boxShadow: [
                 BoxShadow(
@@ -102,7 +102,7 @@ class BuybackCard extends StatelessWidget {
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
               child: Image.network(
                 buyback.logo,
                 fit: BoxFit.contain,

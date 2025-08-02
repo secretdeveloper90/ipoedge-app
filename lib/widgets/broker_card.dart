@@ -20,7 +20,7 @@ class BrokerCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(12),
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -89,7 +89,7 @@ class BrokerCard extends StatelessWidget {
                                 width: 52,
                                 height: 52,
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(10),
                                   gradient: LinearGradient(
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,

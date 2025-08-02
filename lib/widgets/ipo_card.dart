@@ -19,7 +19,7 @@ class IPOCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.06),
@@ -69,7 +69,7 @@ class IPOCard extends StatelessWidget {
           width: 56,
           height: 56,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(10),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -187,7 +187,7 @@ class IPOCard extends StatelessWidget {
             ],
           ),
         ),
-        // Attractive gradient share button
+        // Modern light blue share button
         Container(
           width: 28,
           height: 28,
@@ -196,22 +196,21 @@ class IPOCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppColors.primary.withOpacity(0.9),
-                AppColors.primary.withOpacity(0.7),
+                AppColors.primary.withOpacity(0.12),
+                AppColors.primary.withOpacity(0.08),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: AppColors.primary.withOpacity(0.15),
+              width: 1,
+            ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.3),
-                blurRadius: 8,
+                color: AppColors.primary.withOpacity(0.08),
+                blurRadius: 6,
                 offset: const Offset(0, 2),
                 spreadRadius: 0,
-              ),
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 4,
-                offset: const Offset(0, 1),
               ),
             ],
           ),
@@ -220,12 +219,12 @@ class IPOCard extends StatelessWidget {
             child: InkWell(
               onTap: () => _shareIPO(),
               borderRadius: BorderRadius.circular(12),
-              splashColor: Colors.white.withOpacity(0.2),
-              highlightColor: Colors.white.withOpacity(0.1),
-              child: const Icon(
+              splashColor: AppColors.primary.withOpacity(0.2),
+              highlightColor: AppColors.primary.withOpacity(0.1),
+              child: Icon(
                 Icons.share_rounded,
                 size: 12,
-                color: Colors.white,
+                color: AppColors.primary.withOpacity(0.8),
               ),
             ),
           ),
@@ -337,7 +336,7 @@ class IPOCard extends StatelessWidget {
             gmpColor.withOpacity(0.04),
           ],
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: gmpColor.withOpacity(0.15),
           width: 1,
