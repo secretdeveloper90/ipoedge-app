@@ -48,7 +48,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               indicatorColor: AppColors.primary,
               indicatorWeight: 3,
               labelStyle: const TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.3,
               ),
