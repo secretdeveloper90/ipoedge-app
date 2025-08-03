@@ -23,6 +23,9 @@ class _SMEScreenState extends State<SMEScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
@@ -39,66 +42,115 @@ class _SMEScreenState extends State<SMEScreen>
         showSearch: true,
         searchType: SearchType.sme,
         searchHint: 'Search SME IPOs...',
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
+         bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
           child: Container(
-            margin: const EdgeInsets.fromLTRB(16, 0, 16, 6),
+            margin: const EdgeInsets.fromLTRB(20, 0, 20, 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                colors: [
+                  Colors.white.withOpacity(0.25),
+                  Colors.white.withOpacity(0.15),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Colors.white.withOpacity(0.2),
-                width: 1,
+                color: Colors.white.withOpacity(0.3),
+                width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 4),
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 24,
+                  offset: const Offset(0, 6),
+                  spreadRadius: -2,
+                ),
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.1),
+                  blurRadius: 1,
+                  offset: const Offset(0, 1),
                 ),
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               child: TabBar(
                 controller: _tabController,
                 indicator: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: const LinearGradient(
+                    colors: [Colors.white, Color(0xFFF8F9FA)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withOpacity(0.12),
+                      blurRadius: 12,
+                      offset: const Offset(0, 3),
+                      spreadRadius: -1,
+                    ),
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.1),
                       blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      offset: const Offset(0, 1),
                     ),
                   ],
                 ),
-                indicatorPadding: const EdgeInsets.all(3),
+                indicatorPadding: const EdgeInsets.all(4),
                 indicatorSize: TabBarIndicatorSize.tab,
                 labelColor: AppColors.primary,
-                unselectedLabelColor: Colors.white.withOpacity(0.8),
+                unselectedLabelColor: Colors.white.withOpacity(0.85),
                 labelStyle: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 11,
-                  letterSpacing: 0.5,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 10,
+                  letterSpacing: 0.3,
+                  height: 1.1,
                 ),
                 unselectedLabelStyle: const TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 9,
-                  letterSpacing: 0.3,
+                  letterSpacing: 0.2,
+                  height: 1.1,
                 ),
                 dividerColor: Colors.transparent,
                 splashFactory: NoSplash.splashFactory,
                 overlayColor: WidgetStateProperty.all(Colors.transparent),
-                tabs: const [
+                tabs: [
                   Tab(
-                    text: 'CURRENT',
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      child: const Text(
+                        'CURRENT',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
                   ),
                   Tab(
-                    text: 'UPCOMING',
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      child: const Text(
+                        'UPCOMING',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
                   ),
                   Tab(
-                    text: 'LISTED',
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      child: const Text(
+                        'LISTED',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
                   ),
                 ],
               ),
