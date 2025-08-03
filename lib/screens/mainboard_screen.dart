@@ -40,9 +40,9 @@ class _MainboardScreenState extends State<MainboardScreen>
         searchType: SearchType.mainboard,
         searchHint: 'Search mainboard IPOs...',
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
+          preferredSize: const Size.fromHeight(48),
           child: Container(
-            margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 6),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.15),
               borderRadius: BorderRadius.circular(16),
@@ -73,18 +73,18 @@ class _MainboardScreenState extends State<MainboardScreen>
                     ),
                   ],
                 ),
-                indicatorPadding: const EdgeInsets.all(4),
+                indicatorPadding: const EdgeInsets.all(3),
                 indicatorSize: TabBarIndicatorSize.tab,
                 labelColor: AppColors.primary,
                 unselectedLabelColor: Colors.white.withOpacity(0.8),
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.w700,
-                  fontSize: 12,
+                  fontSize: 11,
                   letterSpacing: 0.5,
                 ),
                 unselectedLabelStyle: const TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 10,
+                  fontSize: 9,
                   letterSpacing: 0.3,
                 ),
                 dividerColor: Colors.transparent,
