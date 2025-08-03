@@ -45,6 +45,16 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
               unselectedLabelColor: Colors.grey[600],
               indicatorColor: AppColors.primary,
               indicatorWeight: 3,
+              labelStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.3,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.2,
+              ),
               tabs: const [
                 Tab(text: 'Overview'),
                 Tab(text: 'Charges'),
@@ -81,29 +91,61 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
       ),
       child: SafeArea(
         child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+          padding: const EdgeInsets.fromLTRB(10, 5, 10, 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Navigation button
+              // Navigation and action buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back,
-                        color: Colors.white, size: 24),
-                    onPressed: () => Navigator.pop(context),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Padding(
+                      padding: EdgeInsets.only(left: 1),
+                      child: Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                    ),
                   ),
-                  const SizedBox(), // Empty space to maintain layout
+                  // Modern compact share button
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 0.5,
+                      ),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => _shareBroker(),
+                        borderRadius: BorderRadius.circular(10),
+                        splashColor: Colors.white.withOpacity(0.2),
+                        highlightColor: Colors.white.withOpacity(0.1),
+                        child: const Icon(
+                          Icons.share_rounded,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 5),
               // Broker logo and info section
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: Colors.white.withOpacity(0.2),
                     width: 1,
@@ -113,36 +155,36 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
                   children: [
                     // Broker logo
                     Container(
-                      width: 80,
-                      height: 80,
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(8),
                         color: Colors.white,
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.15),
-                            blurRadius: 12,
-                            offset: const Offset(0, 6),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(3),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(8),
                         child: Image.network(
                           widget.broker.logo,
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
                             return const Icon(
                               Icons.business,
-                              size: 32,
+                              size: 22,
                               color: Colors.grey,
                             );
                           },
                         ),
                       ),
                     ),
-                    const SizedBox(width: 20),
+                    const SizedBox(width: 12),
                     // Broker info
                     Expanded(
                       child: Column(
@@ -151,7 +193,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
                           Text(
                             widget.broker.name,
                             style: const TextStyle(
-                              fontSize: 22,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                               height: 1.2,
@@ -159,62 +201,76 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 4),
                           Row(
                             children: [
+                              // Rating container with background
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
+                                  horizontal: 8,
+                                  vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color:
-                                      _getCategoryColor(widget.broker.category),
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: _getCategoryColor(
-                                              widget.broker.category)
-                                          .withOpacity(0.3),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
+                                  color: Colors.white.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.3),
+                                    width: 0.5,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.star_rounded,
+                                      size: 14,
+                                      color: Colors.amber[300],
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      widget.broker.formattedRating,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ],
                                 ),
-                                child: Text(
-                                  widget.broker.categoryDisplayName,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
+                              ),
+                              const SizedBox(width: 8),
+                              // Active clients info
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.3),
+                                    width: 0.5,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.star_rounded,
-                                size: 16,
-                                color: Colors.amber[300],
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                widget.broker.formattedRating,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '(${widget.broker.reviewCount})',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.white70,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.people_rounded,
+                                      size: 14,
+                                      color: Colors.white.withOpacity(0.9),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      widget.broker.activeClients,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -225,30 +281,6 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-              // Key metrics row
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildHeaderMetric(
-                      '🏢 Established',
-                      widget.broker.establishedYear,
-                    ),
-                  ),
-                  Expanded(
-                    child: _buildHeaderMetric(
-                      '📍 Headquarters',
-                      widget.broker.headquarters,
-                    ),
-                  ),
-                  Expanded(
-                    child: _buildHeaderMetric(
-                      '💼 Services',
-                      '${widget.broker.services.length}+',
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
         ),
@@ -256,59 +288,19 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
     );
   }
 
-  Widget _buildHeaderMetric(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.white70,
-            fontWeight: FontWeight.w500,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-  Color _getCategoryColor(String category) {
-    switch (category.toLowerCase()) {
-      case 'discount':
-        return AppColors.success;
-      case 'full-service':
-        return AppColors.info;
-      case 'bank-based':
-        return AppColors.warning;
-      default:
-        return AppColors.secondary;
-    }
-  }
-
   Widget _buildOverviewTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Column(
         children: [
           _buildDescriptionCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildKeyMetricsCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildServicesCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildOtherInvestmentsCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildProsConsCard(),
         ],
       ),
@@ -317,15 +309,15 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
 
   Widget _buildChargesTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Column(
         children: [
           _buildAccountChargesCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildBrokerageChargesCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildMarginRatesCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildDetailedChargesCard(),
         ],
       ),
@@ -334,13 +326,13 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
 
   Widget _buildFeaturesTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Column(
         children: [
           _buildPlatformsCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildFeaturesListCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildAdditionalFeaturesCard(),
         ],
       ),
@@ -350,27 +342,28 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
   Widget _buildDescriptionCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'About',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             Text(
               widget.broker.description,
               style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-                height: 1.6,
+                fontSize: 13,
+                color: AppColors.textPrimary,
+                height: 1.4,
               ),
             ),
           ],
@@ -382,56 +375,61 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
   Widget _buildKeyMetricsCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Key Metrics',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             Row(
               children: [
                 Expanded(
                   child: _buildMetricItem(
-                    '👥 Active Clients',
+                    'Active Clients',
                     widget.broker.activeClients,
                     AppColors.primary,
+                    Icons.people,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 6),
                 Expanded(
                   child: _buildMetricItem(
-                    '⭐ Rating',
+                    'Rating',
                     widget.broker.formattedRating,
                     AppColors.warning,
+                    Icons.star,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 6),
             Row(
               children: [
                 Expanded(
                   child: _buildMetricItem(
-                    '💰 Account Opening',
+                    'Account Opening',
                     widget.broker.accountOpening,
                     AppColors.success,
+                    Icons.account_balance_wallet,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 6),
                 Expanded(
                   child: _buildMetricItem(
-                    '🔧 Maintenance',
+                    'Maintenance',
                     widget.broker.accountMaintenance,
                     AppColors.info,
+                    Icons.settings,
                   ),
                 ),
               ],
@@ -442,41 +440,68 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
     );
   }
 
-  Widget _buildMetricItem(String label, String value, Color color) {
+  Widget _buildMetricItem(
+      String label, String value, Color color, IconData icon) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      height: 72,
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
           colors: [
             color.withOpacity(0.1),
             color.withOpacity(0.05),
           ],
         ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withOpacity(0.2), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.08),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Icon(icon, size: 14, color: color),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: color,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -486,53 +511,51 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
   Widget _buildServicesCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Trading Services',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: widget.broker.services.map((service) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.primary.withOpacity(0.1),
-                        AppColors.primary.withOpacity(0.05),
-                      ],
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: widget.broker.services.map((service) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
                     ),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppColors.primary.withOpacity(0.2),
-                      width: 1,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: AppColors.primary.withOpacity(0.3),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    service,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+                    child: Text(
+                      service.toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary,
+                      ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                }).toList(),
+              ),
             ),
           ],
         ),
@@ -543,35 +566,31 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
   Widget _buildOtherInvestmentsCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Other Investment Options',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 6,
-                mainAxisSpacing: 6,
-                childAspectRatio: 3.2,
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: widget.broker.otherInvestments.map((investment) {
+                  return _buildInvestmentOption(investment);
+                }).toList(),
               ),
-              itemCount: widget.broker.otherInvestments.length,
-              itemBuilder: (context, index) {
-                final investment = widget.broker.otherInvestments[index];
-                return _buildInvestmentOption(investment);
-              },
             ),
           ],
         ),
@@ -611,40 +630,32 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
     }
 
     return Container(
-      padding: const EdgeInsets.all(6),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 6,
+      ),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            color.withOpacity(0.1),
-            color.withOpacity(0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(8),
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1,
+          color: color.withOpacity(0.3),
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             icon,
-            size: 16,
+            size: 14,
             color: color,
           ),
           const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              _formatInvestmentName(investment),
-              style: TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+          Text(
+            _formatInvestmentName(investment).toUpperCase(),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: color,
             ),
           ),
         ],
@@ -676,21 +687,22 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
   Widget _buildProsConsCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Pros & Cons',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             // Pros Section
             Container(
               padding: const EdgeInsets.all(16),
@@ -833,21 +845,22 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
   Widget _buildAccountChargesCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Account Charges',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             _buildChargeItem('Account Opening', widget.broker.accountOpening),
             _buildChargeItem(
                 'Account Maintenance', widget.broker.accountMaintenance),
@@ -861,21 +874,22 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
   Widget _buildBrokerageChargesCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Brokerage Charges',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             _buildChargeItem(
                 'Equity Delivery', widget.broker.brokerage.equityDelivery),
             _buildChargeItem(
@@ -901,21 +915,22 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
   Widget _buildMarginRatesCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Margin Rates',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             _buildChargeItem(
                 'Equity Delivery', widget.broker.margins.equityDelivery),
             _buildChargeItem(
@@ -941,30 +956,31 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
   Widget _buildDetailedChargesCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Detailed Charges Breakdown',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             _buildChargeSection(
                 'Delivery Trading', widget.broker.charges.delivery),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             _buildChargeSection(
                 'Intraday Trading', widget.broker.charges.intraday),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             _buildChargeSection(
                 'Futures Trading', widget.broker.charges.futures),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             _buildChargeSection(
                 'Options Trading', widget.broker.charges.options),
           ],
@@ -1051,7 +1067,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
 
   Widget _buildChargeItem(String label, String value) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 6),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -1075,8 +1091,8 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
             ),
           ),
           const SizedBox(width: 8),
-          Expanded(
-            flex: 1,
+          SizedBox(
+            width: 120,
             child: Text(
               value,
               style: const TextStyle(
@@ -1097,21 +1113,22 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
   Widget _buildPlatformsCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Trading Platforms',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             ...widget.broker.platforms.map((platform) {
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -1152,21 +1169,22 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
   Widget _buildFeaturesListCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Key Features',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             ...widget.broker.features.map((feature) {
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -1215,21 +1233,22 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
   Widget _buildAdditionalFeaturesCard() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Additional Features',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             _buildFeatureToggle(
                 '3-in-1 Account', widget.broker.additionalFeatures.account3in1),
             _buildFeatureToggle('Free Trading Calls',
@@ -1286,6 +1305,15 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
             size: 20,
           ),
         ],
+      ),
+    );
+  }
+
+  void _shareBroker() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Share functionality will be implemented soon'),
+        duration: Duration(seconds: 2),
       ),
     );
   }

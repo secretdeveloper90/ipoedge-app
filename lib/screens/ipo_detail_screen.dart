@@ -48,12 +48,14 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               indicatorColor: AppColors.primary,
               indicatorWeight: 3,
               labelStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.3,
               ),
               unselectedLabelStyle: const TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.2,
               ),
               tabs: const [
                 Tab(text: 'Overview'),
