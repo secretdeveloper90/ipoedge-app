@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/ipo_model.dart';
 import '../models/ipo.dart';
 import '../theme/app_theme.dart';
@@ -104,14 +105,17 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Padding(
-                      padding: EdgeInsets.only(left: 1),
-                      child: Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
-                        size: 22,
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Padding(
+                        padding: EdgeInsets.only(left: 1),
+                        child: Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                          size: 22,
+                        ),
                       ),
                     ),
                   ),
@@ -2912,6 +2916,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                             color: AppColors.primary,
                             size: 20,
                           ),
+                          tooltip: 'Open in browser',
                         ),
                       ],
                     ),
@@ -3241,15 +3246,32 @@ class _IPODetailScreenState extends State<IPODetailScreen>
     );
   }
 
-  void _openDocument(String url) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Opening document: $url'),
-        duration: const Duration(seconds: 2),
-        backgroundColor: AppColors.primary,
-      ),
-    );
-    // TODO: Implement actual document opening functionality
-    // You can use url_launcher package to open the URL
+  void _openDocument(String url) async {
+    try {
+      final Uri uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Could not open document'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error opening document: $e'),
+            duration: const Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
