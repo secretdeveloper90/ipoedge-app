@@ -148,7 +148,7 @@ class IPOCard extends StatelessWidget {
               Text(
                 ipo.name,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF1A1A1A),
                   letterSpacing: -0.2,
@@ -293,7 +293,7 @@ class IPOCard extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 12,
             color: Colors.grey.shade600,
             fontWeight: FontWeight.w600,
           ),
@@ -306,7 +306,7 @@ class IPOCard extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             color: Colors.black87,
           ),

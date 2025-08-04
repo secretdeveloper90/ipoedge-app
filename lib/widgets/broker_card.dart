@@ -418,7 +418,7 @@ class BrokerCard extends StatelessWidget {
               child: Text(
                 label,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: FontWeight.w500,
                   color: color,
                 ),
@@ -433,7 +433,7 @@ class BrokerCard extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,
           ),

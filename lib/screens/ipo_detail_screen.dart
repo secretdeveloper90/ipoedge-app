@@ -1534,7 +1534,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         Text(
                           'Fresh Issue',
                           style: TextStyle(
-                            fontSize: 15,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: AppColors.success,
                           ),
@@ -2872,7 +2872,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                               Text(
                                 document.title,
                                 style: const TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.textPrimary,
                                 ),
@@ -2883,7 +2883,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                                   Text(
                                     document.type.toUpperCase(),
                                     style: const TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 13,
                                       color: AppColors.textSecondary,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -2895,7 +2895,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                                     Text(
                                       document.size!,
                                       style: const TextStyle(
-                                        fontSize: 12,
+                                        fontSize: 13,
                                         color: AppColors.textSecondary,
                                       ),
                                     ),

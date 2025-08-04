@@ -74,7 +74,7 @@ class AppTheme {
         elevation: 2,
         centerTitle: true,
         titleTextStyle: TextStyle(
-          fontSize: 18,
+          fontSize: 19,
           fontWeight: FontWeight.w600,
           color: Colors.white,
         ),
@@ -97,62 +97,62 @@ class AppTheme {
       // Text Theme
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
-          fontSize: 30,
+          fontSize: 31,
           fontWeight: FontWeight.bold,
           color: AppColors.textPrimary,
         ),
         headlineMedium: TextStyle(
-          fontSize: 26,
+          fontSize: 27,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),
         headlineSmall: TextStyle(
-          fontSize: 22,
+          fontSize: 23,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),
         titleLarge: TextStyle(
-          fontSize: 20,
+          fontSize: 21,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),
         titleMedium: TextStyle(
-          fontSize: 15,
+          fontSize: 16,
           fontWeight: FontWeight.w500,
           color: AppColors.textPrimary,
         ),
         titleSmall: TextStyle(
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: FontWeight.w500,
           color: AppColors.textPrimary,
         ),
         bodyLarge: TextStyle(
-          fontSize: 15,
+          fontSize: 16,
           fontWeight: FontWeight.normal,
           color: AppColors.textPrimary,
         ),
         bodyMedium: TextStyle(
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: FontWeight.normal,
           color: AppColors.textPrimary,
         ),
         bodySmall: TextStyle(
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: FontWeight.normal,
           color: AppColors.textSecondary,
         ),
         labelLarge: TextStyle(
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: FontWeight.w500,
           color: AppColors.textPrimary,
         ),
         labelMedium: TextStyle(
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: FontWeight.w500,
           color: AppColors.textSecondary,
         ),
         labelSmall: TextStyle(
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: FontWeight.w500,
           color: AppColors.textHint,
         ),

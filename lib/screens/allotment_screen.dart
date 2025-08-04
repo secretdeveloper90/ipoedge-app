@@ -445,7 +445,7 @@ class _AllotmentScreenState extends State<AllotmentScreen> {
               const Text(
                 'Recent Applications',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 19,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 ),

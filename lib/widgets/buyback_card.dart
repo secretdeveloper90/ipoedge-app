@@ -137,9 +137,9 @@ class BuybackCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                '${buyback.companyName} Buyback 2025',
+                '${buyback.companyName}',
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: Colors.black87,
                   height: 1.3,
@@ -165,7 +165,7 @@ class BuybackCard extends StatelessWidget {
                     child: Text(
                       'Buyback Price: ${buyback.formattedBuybackPrice}',
                       style: const TextStyle(
-                        fontSize: 10,
+                        fontSize: 11,
                         color: Colors.green,
                         fontWeight: FontWeight.w600,
                       ),
@@ -214,7 +214,7 @@ class BuybackCard extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 12,
             color: Colors.grey[600],
             fontWeight: FontWeight.w500,
           ),
@@ -223,7 +223,7 @@ class BuybackCard extends StatelessWidget {
         Text(
           date,
           style: const TextStyle(
-            fontSize: 11,
+            fontSize: 12,
             color: Colors.black87,
             fontWeight: FontWeight.w600,
           ),
@@ -243,7 +243,7 @@ class BuybackCard extends StatelessWidget {
               Text(
                 'Issue Size (Shares)',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 12,
                   color: Colors.grey[600],
                   fontWeight: FontWeight.w500,
                 ),
@@ -252,7 +252,7 @@ class BuybackCard extends StatelessWidget {
               RichText(
                 text: TextSpan(
                   style: const TextStyle(
-                    fontSize: 10,
+                    fontSize: 12,
                     color: Colors.black87,
                     fontWeight: FontWeight.w600,
                   ),
@@ -276,7 +276,7 @@ class BuybackCard extends StatelessWidget {
               Text(
                 'Issue Size (Amount)',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 12,
                   color: Colors.grey[600],
                   fontWeight: FontWeight.w500,
                 ),
@@ -285,7 +285,7 @@ class BuybackCard extends StatelessWidget {
               Text(
                 buyback.issueSize,
                 style: const TextStyle(
-                  fontSize: 10,
+                  fontSize: 12,
                   color: Colors.black87,
                   fontWeight: FontWeight.w600,
                 ),

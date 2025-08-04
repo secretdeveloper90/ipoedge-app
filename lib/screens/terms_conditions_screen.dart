@@ -100,7 +100,7 @@ class TermsConditionsScreen extends StatelessWidget {
                 Text(
                   'Terms & Conditions',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 19,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -109,7 +109,7 @@ class TermsConditionsScreen extends StatelessWidget {
                 Text(
                   'Please read these terms carefully before using our app',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     color: Colors.white70,
                   ),
                 ),
@@ -141,9 +141,9 @@ class TermsConditionsScreen extends StatelessWidget {
           ),
           SizedBox(width: 8),
           Text(
-            'Last Updated: January 15, 2025',
+            'Last Updated: July 15, 2025',
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 12,
               color: AppColors.warning,
               fontWeight: FontWeight.w500,
             ),
@@ -162,7 +162,7 @@ class TermsConditionsScreen extends StatelessWidget {
           Text(
             title,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 17,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
@@ -171,7 +171,7 @@ class TermsConditionsScreen extends StatelessWidget {
           Text(
             content,
             style: const TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               color: AppColors.textSecondary,
               height: 1.6,
             ),
@@ -198,7 +198,7 @@ class TermsConditionsScreen extends StatelessWidget {
           Text(
             'Questions About Terms?',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 15,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
@@ -207,7 +207,7 @@ class TermsConditionsScreen extends StatelessWidget {
           Text(
             'If you have any questions about these Terms & Conditions, please contact us at legal@ipoedge.com or through our Contact Us page.',
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               color: AppColors.textSecondary,
               height: 1.5,
             ),

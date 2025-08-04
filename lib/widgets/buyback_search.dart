@@ -129,7 +129,7 @@ class BuybackSearchDelegate extends SearchDelegate<String> {
             child: Text(
               buyback.statusDisplayName,
               style: TextStyle(
-                fontSize: 10,
+               fontSize:11,
                 fontWeight: FontWeight.w600,
                 color: _getStatusColor(buyback.status),
               ),
@@ -158,7 +158,7 @@ class BuybackSearchDelegate extends SearchDelegate<String> {
           Text(
             message,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 19,
               fontWeight: FontWeight.w500,
               color: AppColors.textPrimary,
             ),
@@ -168,7 +168,7 @@ class BuybackSearchDelegate extends SearchDelegate<String> {
           const Text(
             'Try searching with different keywords',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 15,
               color: AppColors.textSecondary,
             ),
             textAlign: TextAlign.center,
@@ -209,7 +209,7 @@ class BuybackSearchDelegate extends SearchDelegate<String> {
                       Text(
                         companyName,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 17,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
@@ -217,7 +217,7 @@ class BuybackSearchDelegate extends SearchDelegate<String> {
                       const Text(
                         'Buyback Program',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -234,7 +234,7 @@ class BuybackSearchDelegate extends SearchDelegate<String> {
                   child: const Text(
                     'Active',
                     style: TextStyle(
-                      fontSize: 10,
+                     fontSize:11,
                       fontWeight: FontWeight.w500,
                       color: AppColors.success,
                     ),
@@ -284,7 +284,7 @@ class BuybackSearchDelegate extends SearchDelegate<String> {
           Text(
             text,
             style: const TextStyle(
-              fontSize: 10,
+             fontSize:11,
               color: AppColors.textSecondary,
             ),
           ),

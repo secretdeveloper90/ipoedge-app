@@ -187,7 +187,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: TextField(
                       controller: _searchController,
                       style: const TextStyle(
-                        fontSize: 14,
+                       fontSize: 15,
                         fontWeight: FontWeight.w500,
                       ),
                       decoration: InputDecoration(
@@ -195,7 +195,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             widget.initialHint ?? widget.searchType.searchHint,
                         hintStyle: TextStyle(
                           color: AppColors.textSecondary.withOpacity(0.7),
-                          fontSize: 14,
+                         fontSize: 15,
                           fontWeight: FontWeight.w400,
                         ),
                         prefixIcon: Container(
@@ -289,7 +289,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             'Search',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 14,
+                             fontSize: 15,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -377,7 +377,7 @@ class _SearchScreenState extends State<SearchScreen> {
           child: Text(
             label,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
               color: AppColors.textSecondary,
             ),
@@ -413,7 +413,7 @@ class _SearchScreenState extends State<SearchScreen> {
               isDense: true,
             ),
             style: const TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
               color: AppColors.textPrimary,
             ),
@@ -428,7 +428,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   child: Text(
                     getDisplayText(option),
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: option == value
                           ? AppColors.primary
@@ -481,7 +481,7 @@ class _SearchScreenState extends State<SearchScreen> {
             const Text(
               'Searching IPOs...',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 17,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
@@ -490,7 +490,7 @@ class _SearchScreenState extends State<SearchScreen> {
             const Text(
               'Finding the best investment opportunities for you',
               style: TextStyle(
-                fontSize: 14,
+               fontSize: 15,
                 color: AppColors.textSecondary,
               ),
               textAlign: TextAlign.center,
@@ -540,7 +540,7 @@ class _SearchScreenState extends State<SearchScreen> {
               const Text(
                 'Use the search bar above to find companies,\nsectors, or specific IPO opportunities',
                 style: TextStyle(
-                  fontSize: 14,
+                 fontSize: 15,
                   color: AppColors.textSecondary,
                   height: 1.4,
                 ),
@@ -571,7 +571,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       child: Text(
                         'Try "tech", "pharma", or company names',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: AppColors.primary,
                           fontWeight: FontWeight.w500,
                         ),
@@ -619,7 +619,7 @@ class _SearchScreenState extends State<SearchScreen> {
               const Text(
                 'No IPOs Found',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 19,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                   letterSpacing: -0.3,
@@ -629,7 +629,7 @@ class _SearchScreenState extends State<SearchScreen> {
               const Text(
                 'We couldn\'t find any IPOs matching your search.\nTry different keywords or adjust your filters.',
                 style: TextStyle(
-                  fontSize: 14,
+                 fontSize: 15,
                   color: AppColors.textSecondary,
                   height: 1.4,
                 ),
@@ -660,7 +660,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       child: Text(
                         'Try broader terms or reset filters',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: AppColors.warning,
                           fontWeight: FontWeight.w500,
                         ),
@@ -708,7 +708,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     Text(
                       '${_searchResults.length} IPO${_searchResults.length == 1 ? '' : 's'} found',
                       style: const TextStyle(
-                        fontSize: 14,
+                       fontSize: 15,
                         color: AppColors.success,
                         fontWeight: FontWeight.w600,
                       ),

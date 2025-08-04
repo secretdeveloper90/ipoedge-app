@@ -301,7 +301,7 @@ class AboutUsScreen extends StatelessWidget {
         const Text(
           'Our Impact',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 19,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),
@@ -357,7 +357,7 @@ class AboutUsScreen extends StatelessWidget {
           Text(
             value,
             style: const TextStyle(
-              fontSize: 20,
+              fontSize: 21,
               fontWeight: FontWeight.bold,
               color: AppColors.primary,
             ),
@@ -366,7 +366,7 @@ class AboutUsScreen extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              fontSize: 11,
+              fontSize: 12,
               color: AppColors.textSecondary,
             ),
             textAlign: TextAlign.center,

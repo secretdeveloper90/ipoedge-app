@@ -132,7 +132,7 @@ class NewsCard extends StatelessWidget {
     return Text(
       newsItem['headline'] ?? '',
       style: const TextStyle(
-        fontSize: 14,
+        fontSize: 15,
         fontWeight: FontWeight.w700,
         color: AppColors.textPrimary,
         height: 1.3,
@@ -154,7 +154,7 @@ class NewsCard extends StatelessWidget {
         Text(
           _formatDate(newsItem['date'] ?? ''),
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 13,
             color: AppColors.textSecondary.withOpacity(0.8),
             fontWeight: FontWeight.w500,
           ),
@@ -170,7 +170,7 @@ class NewsCard extends StatelessWidget {
           child: Text(
             newsItem['source'] ?? '',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               color: AppColors.textSecondary.withOpacity(0.8),
               fontWeight: FontWeight.w500,
             ),
@@ -186,7 +186,7 @@ class NewsCard extends StatelessWidget {
     return Text(
       newsItem['summary'] ?? '',
       style: const TextStyle(
-        fontSize: 14,
+        fontSize: 15,
         color: AppColors.textSecondary,
         height: 1.4,
       ),

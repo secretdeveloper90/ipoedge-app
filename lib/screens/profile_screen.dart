@@ -291,7 +291,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 12,
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w500,
                 ),

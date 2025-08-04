@@ -70,7 +70,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   'App Settings',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 19,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -79,7 +79,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   'Customize your IPO Edge experience',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     color: Colors.white70,
                   ),
                 ),
@@ -132,7 +132,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Text(
               title,
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: 17,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
@@ -167,7 +167,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: Text(
         title,
         style: TextStyle(
-          fontSize: 14,
+          fontSize: 15,
           fontWeight: FontWeight.w500,
           color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
         ),
@@ -175,7 +175,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       subtitle: Text(
         subtitle,
         style: TextStyle(
-          fontSize: 13,
+          fontSize: 14,
           color: enabled
               ? AppColors.textSecondary
               : AppColors.textSecondary.withOpacity(0.6),

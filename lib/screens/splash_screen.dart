@@ -268,7 +268,7 @@ class _SplashScreenState extends State<SplashScreen>
                                 Text(
                                   'IPO Edge',
                                   style: TextStyle(
-                                    fontSize: 36,
+                                    fontSize: 38,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
                                     letterSpacing: 2.0,
@@ -286,7 +286,7 @@ class _SplashScreenState extends State<SplashScreen>
                                 Text(
                                   'Your Gateway to IPO Intelligence',
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 20,
                                     color: Colors.white.withOpacity(0.8),
                                     fontWeight: FontWeight.w400,
                                     letterSpacing: 1.0,

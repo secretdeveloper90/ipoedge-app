@@ -18,7 +18,7 @@ class FinancialChart extends StatelessWidget {
           'No financial data available',
           style: TextStyle(
             color: AppColors.textSecondary,
-            fontSize: 14,
+            fontSize: 15,
           ),
         ),
       );
@@ -61,7 +61,7 @@ class FinancialChart extends StatelessWidget {
                   child: Text(
                     'Year',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
@@ -72,7 +72,7 @@ class FinancialChart extends StatelessWidget {
                   child: Text(
                     'Revenue',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
@@ -83,7 +83,7 @@ class FinancialChart extends StatelessWidget {
                   child: Text(
                     'Profit',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
@@ -94,7 +94,7 @@ class FinancialChart extends StatelessWidget {
                   child: Text(
                     'Net Worth',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
@@ -118,7 +118,7 @@ class FinancialChart extends StatelessWidget {
                       child: Text(
                         financial.year,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.w500,
                           color: AppColors.textPrimary,
                         ),
@@ -129,7 +129,7 @@ class FinancialChart extends StatelessWidget {
                       child: Text(
                         financial.formattedRevenue,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: AppColors.textPrimary,
                         ),
                         textAlign: TextAlign.center,
@@ -139,7 +139,7 @@ class FinancialChart extends StatelessWidget {
                       child: Text(
                         financial.formattedProfit,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: (financial.profit != null &&
                                   financial.profit! >= 0)
                               ? AppColors.success
@@ -152,7 +152,7 @@ class FinancialChart extends StatelessWidget {
                       child: Text(
                         financial.formattedNetWorth,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: AppColors.textPrimary,
                         ),
                         textAlign: TextAlign.center,
@@ -189,7 +189,7 @@ class FinancialChart extends StatelessWidget {
         const Text(
           'Revenue Trend',
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
           ),
@@ -226,7 +226,7 @@ class FinancialChart extends StatelessWidget {
                       Text(
                         financial.year,
                         style: const TextStyle(
-                          fontSize: 9,
+                          fontSize: 10,
                           color: AppColors.textSecondary,
                         ),
                       ),

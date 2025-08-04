@@ -106,7 +106,7 @@ class _AllotmentStatusScreenState extends State<AllotmentStatusScreen>
           const Text(
             'Welcome Back!',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 21,
               fontWeight: FontWeight.w700,
               color: Colors.white,
             ),
@@ -116,7 +116,7 @@ class _AllotmentStatusScreenState extends State<AllotmentStatusScreen>
             'Track your IPO applications and allotment status',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 15,
               color: Colors.white.withOpacity(0.9),
               height: 1.4,
             ),
@@ -164,7 +164,7 @@ class _AllotmentStatusScreenState extends State<AllotmentStatusScreen>
               const Text(
                 'Recent Applications',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 19,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 ),
@@ -227,7 +227,7 @@ class _AllotmentStatusScreenState extends State<AllotmentStatusScreen>
                 Text(
                   companyName,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 17,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
@@ -236,14 +236,14 @@ class _AllotmentStatusScreenState extends State<AllotmentStatusScreen>
                 Text(
                   appliedAmount,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     color: AppColors.textSecondary,
                   ),
                 ),
                 Text(
                   statusText,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     color: AppColors.textSecondary,
                   ),
                 ),
