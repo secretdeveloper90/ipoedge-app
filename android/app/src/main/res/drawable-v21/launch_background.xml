@@ -1,22 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- IPO Edge Launch Splash Screen v21+ -->
+<!-- Simple launch background v21+ -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Background gradient -->
+    <!-- Simple light blue background -->
     <item>
         <shape>
-            <gradient
-                android:angle="135"
-                android:startColor="#1565C0"
-                android:centerColor="#5E92F3"
-                android:endColor="#00C853"
-                android:type="linear" />
+            <solid android:color="#E3F2FD" />
         </shape>
-    </item>
-
-    <!-- App logo -->
-    <item>
-        <bitmap
-            android:gravity="center"
-            android:src="@mipmap/launcher_icon" />
     </item>
 </layer-list>
