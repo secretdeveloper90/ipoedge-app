@@ -15,7 +15,7 @@ class NewsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
@@ -60,11 +60,11 @@ class NewsCard extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(16),
-        topRight: Radius.circular(16),
+        topLeft: Radius.circular(12),
+        topRight: Radius.circular(12),
       ),
       child: Container(
-        height: 200,
+        height: 150,
         width: double.infinity,
         child: CachedNetworkImage(
           imageUrl: imageUrl,
@@ -114,42 +114,16 @@ class NewsCard extends StatelessWidget {
 
   Widget _buildNewsContent() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectorTag(),
-          const SizedBox(height: 12),
           _buildHeadline(),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           _buildDateAndSource(),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           _buildSummary(),
-          const SizedBox(height: 12),
-          _buildImpact(),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSectorTag() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: _getSectorColor().withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: _getSectorColor().withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: Text(
-        newsItem['sector'] ?? 'General',
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: _getSectorColor(),
-        ),
       ),
     );
   }
@@ -158,7 +132,7 @@ class NewsCard extends StatelessWidget {
     return Text(
       newsItem['headline'] ?? '',
       style: const TextStyle(
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: FontWeight.w700,
         color: AppColors.textPrimary,
         height: 1.3,
@@ -216,54 +190,8 @@ class NewsCard extends StatelessWidget {
         color: AppColors.textSecondary,
         height: 1.4,
       ),
-      maxLines: 3,
+      maxLines: 1,
       overflow: TextOverflow.ellipsis,
-    );
-  }
-
-  Widget _buildImpact() {
-    final impact = newsItem['impact'] ?? '';
-    if (impact.isEmpty) return const SizedBox.shrink();
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: AppColors.cardBorder.withOpacity(0.5),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: _getImpactColor().withOpacity(0.15),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Icon(
-              _getImpactIcon(),
-              size: 14,
-              color: _getImpactColor(),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              impact,
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w500,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -316,62 +244,6 @@ class NewsCard extends StatelessWidget {
       default:
         return Icons.article_rounded;
     }
-  }
-
-  Color _getSectorColor() {
-    final sector = newsItem['sector'] ?? '';
-    switch (sector.toLowerCase()) {
-      case 'energy / renewables':
-      case 'energy':
-        return const Color(0xFF4CAF50);
-      case 'it services':
-        return const Color(0xFF2196F3);
-      case 'banking / fintech':
-      case 'banking':
-        return const Color(0xFF1565C0);
-      case 'conglomerate / energy':
-        return const Color(0xFF795548);
-      case 'tech / food delivery':
-        return const Color(0xFFFF5722);
-      case 'automobile / ev':
-        return const Color(0xFF9C27B0);
-      case 'fmcg':
-        return const Color(0xFFFF9800);
-      case 'index summary':
-        return const Color(0xFF607D8B);
-      default:
-        return AppColors.primary;
-    }
-  }
-
-  Color _getImpactColor() {
-    final impact = newsItem['impact'] ?? '';
-    if (impact.contains('rose') ||
-        impact.contains('gained') ||
-        impact.contains('surged') ||
-        impact.contains('up ')) {
-      return AppColors.success;
-    } else if (impact.contains('fell') ||
-        impact.contains('dropped') ||
-        impact.contains('declined')) {
-      return AppColors.error;
-    }
-    return AppColors.textSecondary;
-  }
-
-  IconData _getImpactIcon() {
-    final impact = newsItem['impact'] ?? '';
-    if (impact.contains('rose') ||
-        impact.contains('gained') ||
-        impact.contains('surged') ||
-        impact.contains('up ')) {
-      return Icons.trending_up_rounded;
-    } else if (impact.contains('fell') ||
-        impact.contains('dropped') ||
-        impact.contains('declined')) {
-      return Icons.trending_down_rounded;
-    }
-    return Icons.info_outline_rounded;
   }
 
   String _formatDate(String dateStr) {
