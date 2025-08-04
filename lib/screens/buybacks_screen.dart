@@ -3,6 +3,7 @@ import '../theme/app_theme.dart';
 import '../widgets/common_app_bar.dart';
 import '../widgets/buyback_search.dart';
 import '../widgets/buyback_card.dart';
+import '../widgets/loading_shimmer.dart';
 import '../services/buyback_service.dart';
 import '../models/buyback_model.dart';
 
@@ -16,6 +17,7 @@ class BuybacksScreen extends StatefulWidget {
 class _BuybacksScreenState extends State<BuybacksScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -24,6 +26,17 @@ class _BuybacksScreenState extends State<BuybacksScreen>
     _tabController.addListener(() {
       setState(() {});
     });
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    // Simulate loading delay for demonstration
+    await Future.delayed(const Duration(milliseconds: 1500));
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -167,6 +180,19 @@ class _BuybacksScreenState extends State<BuybacksScreen>
   }
 
   Widget _buildBuybacksList(String status) {
+    if (_isLoading) {
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: 3,
+        itemBuilder: (context, index) {
+          return const LoadingShimmer(
+            isLoading: true,
+            child: BuybackShimmerCard(),
+          );
+        },
+      );
+    }
+
     List<Buyback> buybacks;
 
     if (status == 'current_upcoming') {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common_app_bar.dart';
 import '../widgets/broker_card.dart';
+import '../widgets/loading_shimmer.dart';
 import '../models/broker.dart';
 import '../services/broker_service.dart';
 import 'broker_detail_screen.dart';
@@ -32,7 +33,16 @@ class _BrokersScreenState extends State<BrokersScreen> {
       future: _brokerService.getBrokers(category: category),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoadingState();
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: 3,
+            itemBuilder: (context, index) {
+              return const LoadingShimmer(
+                isLoading: true,
+                child: BrokerShimmerCard(),
+              );
+            },
+          );
         }
 
         if (snapshot.hasError) {
@@ -72,27 +82,6 @@ class _BrokersScreenState extends State<BrokersScreen> {
 
   Future<List<Broker>> _loadBrokers(String category) async {
     return await _brokerService.getBrokers(category: category);
-  }
-
-  Widget _buildLoadingState() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-          ),
-          SizedBox(height: 16),
-          Text(
-            'Loading brokers...',
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildErrorState() {

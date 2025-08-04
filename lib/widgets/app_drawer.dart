@@ -7,8 +7,9 @@ import '../screens/privacy_policy_screen.dart';
 import '../screens/terms_conditions_screen.dart';
 import '../screens/about_us_screen.dart';
 import '../screens/settings_screen.dart';
-import '../screens/help_support_screen.dart';
 import '../screens/profile_screen.dart';
+import '../screens/help_support_screen.dart';
+
 import '../screens/home_screen.dart';
 import '../screens/signin_screen.dart';
 import '../services/auth_service.dart';
@@ -168,21 +169,21 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                                       Colors.white.withOpacity(0.15),
                                     ],
                                   ),
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                     color: Colors.white.withOpacity(0.3),
-                                    width: 2,
+                                    width: 1.5,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
                                     ),
                                   ],
                                 ),
                                 child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(10.5),
                                   child: Image.asset(
                                     'assets/images/ipo-edge-logo.jpeg',
                                     fit: BoxFit.cover,
@@ -190,13 +191,13 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                                       return const Icon(
                                         Icons.trending_up_rounded,
                                         color: Colors.white,
-                                        size: 32,
+                                        size: 8,
                                       );
                                     },
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 14),
+                              const SizedBox(width: 10),
                               Expanded(
                                 child: _buildGuestContent(),
                               ),
@@ -303,14 +304,6 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
         subtitle: 'Go to main dashboard',
         onTap: () => _handleMenuTap('home'),
       ),
-      if (AuthService().isLoggedIn) ...[
-        DrawerMenuItem(
-          icon: Icons.person_rounded,
-          title: 'Profile',
-          subtitle: 'View and edit your profile',
-          onTap: () => _handleMenuTap('profile'),
-        ),
-      ],
       DrawerMenuItem(
         icon: Icons.contact_support_rounded,
         title: 'Contact Us',
@@ -581,12 +574,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
           (route) => false,
         );
         break;
-      case 'profile':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const ProfileScreen()),
-        );
-        break;
+
       case 'contact':
         Navigator.push(
           context,
@@ -753,9 +741,9 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
               MouseRegion(
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
-                  onTap: () => _navigateToProfile(),
+                  onTap: () => _navigateToSettings(),
                   child: Icon(
-                    Icons.person_outline_rounded,
+                    Icons.settings_outlined,
                     color: Colors.white.withOpacity(0.9),
                     size: 28,
                   ),
@@ -771,34 +759,41 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
   Widget _buildGuestContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         const Text(
           'IPO Edge',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 22,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
-            letterSpacing: -0.8,
+            letterSpacing: -0.4,
+            height: 1.1,
             shadows: [
               Shadow(
                 color: Colors.black26,
-                offset: Offset(0, 2),
-                blurRadius: 4,
+                offset: Offset(0, 1),
+                blurRadius: 3,
               ),
             ],
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
-        const SizedBox(height: 8),
-        const Text(
+        const SizedBox(height: 4),
+        Text(
           'Your Gateway to IPO Success',
           style: TextStyle(
-            color: Colors.white70,
-            fontSize: 12,
+            color: Colors.white.withOpacity(0.8),
+            fontSize: 11,
             fontWeight: FontWeight.w500,
-            letterSpacing: 0.2,
+            letterSpacing: 0,
+            height: 1.2,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
@@ -808,8 +803,9 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                 text: 'Click here to ',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.8),
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w400,
+                  height: 1.1,
                 ),
                 children: const [
                   TextSpan(
@@ -821,6 +817,8 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                   ),
                 ],
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ),
@@ -836,7 +834,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
     );
   }
 
-  void _navigateToProfile() {
+  void _navigateToSettings() {
     Navigator.pop(context);
     Navigator.push(
       context,
