@@ -8,6 +8,10 @@ import '../screens/terms_conditions_screen.dart';
 import '../screens/about_us_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/help_support_screen.dart';
+import '../screens/profile_screen.dart';
+import '../screens/home_screen.dart';
+import '../screens/signin_screen.dart';
+import '../services/auth_service.dart';
 
 class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key});
@@ -148,84 +152,56 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Colors.white.withOpacity(0.25),
-                                Colors.white.withOpacity(0.15),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.3),
-                              width: 2,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(14),
-                            child: Image.asset(
-                              'assets/images/ipo-edge-logo.jpeg',
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(
-                                  Icons.trending_up_rounded,
-                                  color: Colors.white,
-                                  size: 32,
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                    AuthService().isLoggedIn
+                        ? _buildLoggedInContent()
+                        : Row(
                             children: [
-                              Text(
-                                'IPO Edge',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: -0.8,
-                                  shadows: [
-                                    Shadow(
-                                      color: Colors.black26,
-                                      offset: Offset(0, 2),
-                                      blurRadius: 4,
+                              Container(
+                                width: 56,
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Colors.white.withOpacity(0.25),
+                                      Colors.white.withOpacity(0.15),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.3),
+                                    width: 2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
-                              ),
-                              SizedBox(height: 3),
-                              Text(
-                                'Your Gateway to IPO Success',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0.2,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(14),
+                                  child: Image.asset(
+                                    'assets/images/ipo-edge-logo.jpeg',
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Icon(
+                                        Icons.trending_up_rounded,
+                                        color: Colors.white,
+                                        size: 32,
+                                      );
+                                    },
+                                  ),
                                 ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: _buildGuestContent(),
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
                     const SizedBox(height: 18),
                     Wrap(
                       spacing: 8,
@@ -322,6 +298,20 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
   Widget _buildMenuItems() {
     final menuItems = [
       DrawerMenuItem(
+        icon: Icons.home_rounded,
+        title: 'Home',
+        subtitle: 'Go to main dashboard',
+        onTap: () => _handleMenuTap('home'),
+      ),
+      if (AuthService().isLoggedIn) ...[
+        DrawerMenuItem(
+          icon: Icons.person_rounded,
+          title: 'Profile',
+          subtitle: 'View and edit your profile',
+          onTap: () => _handleMenuTap('profile'),
+        ),
+      ],
+      DrawerMenuItem(
         icon: Icons.contact_support_rounded,
         title: 'Contact Us',
         subtitle: 'Get in touch with our team',
@@ -357,6 +347,15 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
         subtitle: 'FAQs and support center',
         onTap: () => _handleMenuTap('help'),
       ),
+      if (AuthService().isLoggedIn) ...[
+        DrawerMenuItem(
+          icon: Icons.logout_rounded,
+          title: 'Sign Out',
+          subtitle: 'Sign out of your account',
+          onTap: () => _handleMenuTap('signout'),
+          isDestructive: true,
+        ),
+      ],
     ];
 
     return FadeTransition(
@@ -400,12 +399,14 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: item.isDestructive
+                        ? Colors.red.withOpacity(0.1)
+                        : AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
                     item.icon,
-                    color: AppColors.primary,
+                    color: item.isDestructive ? Colors.red : AppColors.primary,
                     size: 18,
                   ),
                 ),
@@ -416,10 +417,12 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                     children: [
                       Text(
                         item.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: item.isDestructive
+                              ? Colors.red
+                              : AppColors.textPrimary,
                         ),
                       ),
                       if (item.subtitle != null) ...[
@@ -571,6 +574,19 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
     Navigator.pop(context);
 
     switch (action) {
+      case 'home':
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          (route) => false,
+        );
+        break;
+      case 'profile':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ProfileScreen()),
+        );
+        break;
       case 'contact':
         Navigator.push(
           context,
@@ -608,7 +624,52 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
           MaterialPageRoute(builder: (context) => const HelpSupportScreen()),
         );
         break;
+      case 'signout':
+        _handleSignOut();
+        break;
     }
+  }
+
+  void _handleSignOut() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Sign Out'),
+          content: const Text('Are you sure you want to sign out?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                AuthService().signOut();
+                Navigator.pop(context); // Close dialog
+
+                // Navigate to home screen (mainboard)
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  (route) => false,
+                );
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Signed out successfully'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: const Text('Sign Out'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _launchUrl(String url) async {
@@ -617,6 +678,171 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
+
+  Widget _buildLoggedInContent() {
+    return Row(
+      children: [
+        // Profile Avatar with same style as IPO logo
+        Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withOpacity(0.25),
+                Colors.white.withOpacity(0.15),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.3),
+              width: 2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.person_rounded,
+            color: Colors.white,
+            size: 28,
+          ),
+        ),
+        const SizedBox(width: 14),
+
+        // User info with welcome message and icon in same row
+        Expanded(
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      AuthService().userName ?? 'IPO Investor',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.3,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Welcome back!',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () => _navigateToProfile(),
+                  child: Icon(
+                    Icons.person_outline_rounded,
+                    color: Colors.white.withOpacity(0.9),
+                    size: 28,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGuestContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'IPO Edge',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            letterSpacing: -0.8,
+            shadows: [
+              Shadow(
+                color: Colors.black26,
+                offset: Offset(0, 2),
+                blurRadius: 4,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Your Gateway to IPO Success',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.2,
+          ),
+        ),
+        const SizedBox(height: 16),
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () => _navigateToSignIn(),
+            child: RichText(
+              text: TextSpan(
+                text: 'Click here to ',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.8),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                ),
+                children: const [
+                  TextSpan(
+                    text: 'sign in',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _navigateToSignIn() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SignInScreen()),
+    );
+  }
+
+  void _navigateToProfile() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ProfileScreen()),
+    );
+  }
 }
 
 class DrawerMenuItem {
@@ -624,12 +850,14 @@ class DrawerMenuItem {
   final String title;
   final String? subtitle;
   final VoidCallback onTap;
+  final bool isDestructive;
 
   const DrawerMenuItem({
     required this.icon,
     required this.title,
     this.subtitle,
     required this.onTap,
+    this.isDestructive = false,
   });
 }
 

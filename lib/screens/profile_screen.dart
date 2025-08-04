@@ -1,27 +1,86 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../services/auth_service.dart';
+import '../services/drawer_service.dart';
+import '../widgets/common_app_bar.dart';
+import '../widgets/app_drawer.dart';
+import 'home_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    // Register the scaffold key with the drawer service
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      DrawerService().setScaffoldKey(_scaffoldKey);
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    // Note: We don't restore the previous scaffold key here because
+    // the DrawerService will be updated by the next screen that has a drawer
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 2,
+      key: _scaffoldKey,
+      appBar: CommonAppBar(
+        title: 'Profile',
+        actions: AuthService().isLoggedIn
+            ? [
+                IconButton(
+                  onPressed: _handleSignOut,
+                  icon: const Icon(Icons.logout_rounded),
+                  tooltip: 'Sign Out',
+                  color: Colors.white,
+                ),
+              ]
+            : null,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+      drawer: const AppDrawer(),
+      body: AuthService().isLoggedIn
+          ? _buildAuthenticatedProfile()
+          : _buildGuestProfile(),
+    );
+  }
+
+  Widget _buildAuthenticatedProfile() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildProfileHeader(),
+          const SizedBox(height: 24),
+          _buildUserDetailsCard(),
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGuestProfile() {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(32),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildProfileHeader(),
-            const SizedBox(height: 24),
-            _buildMenuSection(),
-            const SizedBox(height: 24),
-            _buildAboutSection(),
+            const SizedBox(height: 40),
+            _buildGuestImage(),
+            const SizedBox(height: 32),
+            _buildGuestInfo(),
+            const SizedBox(height: 40),
           ],
         ),
       ),
@@ -30,229 +89,266 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildProfileHeader() {
     return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primary,
+            AppColors.primary.withOpacity(0.8),
+          ],
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            children: [
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 3,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.person_rounded,
+                  size: 50,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                AuthService().userName ?? 'IPO Investor',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Premium Member',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white.withOpacity(0.9),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuestImage() {
+    return Container(
+      width: 120,
+      height: 120,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: AppColors.cardBorder,
+          width: 2,
+        ),
+      ),
+      child: Icon(
+        Icons.person_rounded,
+        size: 60,
+        color: AppColors.textSecondary,
+      ),
+    );
+  }
+
+  Widget _buildUserDetailsCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.cardBorder),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.person,
-              size: 40,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'IPO Investor',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Track and analyze IPO investments',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary,
-            ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMenuSection() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
-      ),
-      child: Column(
-        children: [
-          _buildMenuItem(
-            icon: Icons.notifications,
-            title: 'Notifications',
-            subtitle: 'IPO alerts and updates',
-            onTap: () {},
-          ),
-          const Divider(height: 1),
-          _buildMenuItem(
-            icon: Icons.bookmark,
-            title: 'Watchlist',
-            subtitle: 'Your saved IPOs',
-            onTap: () {},
-          ),
-          const Divider(height: 1),
-          _buildMenuItem(
-            icon: Icons.analytics,
-            title: 'Portfolio',
-            subtitle: 'Track your investments',
-            onTap: () {},
-          ),
-          const Divider(height: 1),
-          _buildMenuItem(
-            icon: Icons.settings,
-            title: 'Settings',
-            subtitle: 'App preferences',
-            onTap: () {},
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMenuItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: AppColors.primary.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(
-          icon,
-          color: AppColors.primary,
-          size: 20,
-        ),
-      ),
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: AppColors.textPrimary,
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: const TextStyle(
-          fontSize: 12,
-          color: AppColors.textSecondary,
-        ),
-      ),
-      trailing: const Icon(
-        Icons.chevron_right,
-        color: AppColors.textSecondary,
-      ),
-      onTap: onTap,
-    );
-  }
-
-  Widget _buildAboutSection() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'About IPO Edge',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'IPO Edge is your comprehensive platform for tracking and analyzing Initial Public Offerings (IPOs) in the Indian stock market. Stay updated with the latest IPO listings, subscription data, GMP information, and detailed company analysis.',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textPrimary,
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 16),
           Row(
             children: [
-              _buildInfoChip('Version', '1.0.0'),
+              Icon(
+                Icons.person_outline_rounded,
+                color: AppColors.primary,
+                size: 24,
+              ),
               const SizedBox(width: 12),
-              _buildInfoChip('Build', '2025.01'),
+              const Text(
+                'Personal Information',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
             ],
           ),
+          const SizedBox(height: 20),
+          _buildDetailRow(
+              Icons.person, 'Full Name', AuthService().userName ?? 'John Doe'),
           const SizedBox(height: 16),
-          const Text(
-            'Features:',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          ...[
-            '• Real-time IPO tracking',
-            '• Detailed company analysis',
-            '• GMP and subscription data',
-            '• Financial performance charts',
-            '• Search and filter options',
-          ].map((feature) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Text(
-                  feature,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              )),
+          _buildDetailRow(Icons.email_outlined, 'Email',
+              AuthService().userEmail ?? 'john.doe@example.com'),
+          const SizedBox(height: 16),
+          _buildDetailRow(
+              Icons.phone_outlined, 'Mobile Number', '+91 98765 43210'),
+          const SizedBox(height: 16),
+          _buildDetailRow(
+              Icons.location_city_outlined, 'City', 'Mumbai, Maharashtra'),
         ],
       ),
     );
   }
 
-  Widget _buildInfoChip(String label, String value) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.cardBorder),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '$label: ',
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
+  Widget _buildGuestInfo() {
+    return Column(
+      children: [
+        const Text(
+          'IPO Investor',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceVariant,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: Text(
+            'Track and analyze IPO investments',
+            style: TextStyle(
+              fontSize: 16,
               color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
             ),
+            textAlign: TextAlign.center,
           ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDetailRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            icon,
+            color: AppColors.primary,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _handleSignOut() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Sign Out'),
+          content: const Text('Are you sure you want to sign out?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
-          ),
-        ],
-      ),
+            TextButton(
+              onPressed: () {
+                AuthService().signOut();
+                Navigator.pop(context); // Close dialog
+
+                // Navigate to home screen (mainboard)
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  (route) => false,
+                );
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Signed out successfully'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: const Text('Sign Out'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

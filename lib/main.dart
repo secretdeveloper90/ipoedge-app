@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'theme/app_theme.dart';
 import 'screens/splash_screen.dart';
+import 'screens/signin_screen.dart';
+import 'screens/signup_screen.dart';
 
 void main() {
   // Set preferred orientations and system UI
@@ -34,6 +36,10 @@ class IPOEdgeApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
+      routes: {
+        '/signin': (context) => const SignInScreen(),
+        '/signup': (context) => const SignUpScreen(),
+      },
     );
   }
 }
