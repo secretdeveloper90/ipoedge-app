@@ -4,7 +4,7 @@ import '../widgets/common_app_bar.dart';
 import '../widgets/buyback_search.dart';
 import '../widgets/buyback_card.dart';
 import '../widgets/loading_shimmer.dart';
-import '../services/buyback_service.dart';
+import '../services/firebase_buyback_service.dart';
 import '../models/buyback_model.dart';
 
 class BuybacksScreen extends StatefulWidget {
@@ -18,6 +18,8 @@ class _BuybacksScreenState extends State<BuybacksScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _isLoading = true;
+  List<Buyback> _allBuybacks = [];
+  String _error = '';
 
   @override
   void initState() {
@@ -30,12 +32,26 @@ class _BuybacksScreenState extends State<BuybacksScreen>
   }
 
   Future<void> _loadData() async {
-    // Simulate loading delay for demonstration
-    await Future.delayed(const Duration(milliseconds: 1500));
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
+    setState(() {
+      _isLoading = true;
+      _error = '';
+    });
+
+    try {
+      final buybacks = await FirebaseBuybackService.getAllBuybacks();
+      if (mounted) {
+        setState(() {
+          _allBuybacks = buybacks;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Failed to load buybacks: $e';
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -193,15 +209,44 @@ class _BuybacksScreenState extends State<BuybacksScreen>
       );
     }
 
+    if (_error.isNotEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.red,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              _error,
+              style: Theme.of(context).textTheme.bodyLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _loadData,
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
     List<Buyback> buybacks;
 
     if (status == 'current_upcoming') {
-      buybacks = [
-        ...BuybackService.getUpcomingBuybacks(),
-        ...BuybackService.getOpenBuybacks(),
-      ];
+      buybacks = _allBuybacks
+          .where((buyback) =>
+              buyback.status.toLowerCase() == 'upcoming' ||
+              buyback.status.toLowerCase() == 'open')
+          .toList();
     } else {
-      buybacks = BuybackService.getClosedBuybacks();
+      buybacks = _allBuybacks
+          .where((buyback) => buyback.status.toLowerCase() == 'closed')
+          .toList();
     }
 
     if (buybacks.isEmpty) {
@@ -256,9 +301,7 @@ class _BuybacksScreenState extends State<BuybacksScreen>
     }
 
     return RefreshIndicator(
-      onRefresh: () async {
-        setState(() {});
-      },
+      onRefresh: _loadData,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: buybacks.length,

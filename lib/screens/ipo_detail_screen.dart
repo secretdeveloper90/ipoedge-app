@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/ipo_model.dart';
 import '../models/ipo.dart';
 import '../theme/app_theme.dart';
+import '../services/firebase_ipo_service.dart';
 
 class IPODetailScreen extends StatefulWidget {
   final IPO ipo;
@@ -20,11 +21,16 @@ class IPODetailScreen extends StatefulWidget {
 class _IPODetailScreenState extends State<IPODetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  IPO? _currentIPO;
+  bool _isLoading = false;
+  String _error = '';
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _currentIPO = widget.ipo;
+    _refreshIPOData();
   }
 
   @override
@@ -33,8 +39,79 @@ class _IPODetailScreenState extends State<IPODetailScreen>
     super.dispose();
   }
 
+  Future<void> _refreshIPOData() async {
+    setState(() {
+      _isLoading = true;
+      _error = '';
+    });
+
+    try {
+      final freshIPO = await FirebaseIPOService.getIPOById(widget.ipo.id);
+      if (freshIPO != null && mounted) {
+        setState(() {
+          _currentIPO = freshIPO;
+          _isLoading = false;
+        });
+      } else if (mounted) {
+        setState(() {
+          _error = 'IPO not found';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Failed to load IPO details: $e';
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  IPO get ipo => _currentIPO ?? widget.ipo;
+
   @override
   Widget build(BuildContext context) {
+    if (_error.isNotEmpty) {
+      return Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: AppBar(
+          title: const Text('IPO Details'),
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _refreshIPOData,
+            ),
+          ],
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Colors.red,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                _error,
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _refreshIPOData,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: Column(
@@ -119,32 +196,75 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                       ),
                     ),
                   ),
-                  // Modern compact share button
-                  Container(
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 0.5,
-                      ),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () => _shareIPO(),
-                        borderRadius: BorderRadius.circular(10),
-                        splashColor: Colors.white.withOpacity(0.2),
-                        highlightColor: Colors.white.withOpacity(0.1),
-                        child: const Icon(
-                          Icons.share_rounded,
-                          color: Colors.white,
-                          size: 16,
+                  // Action buttons row
+                  Row(
+                    children: [
+                      // Refresh button
+                      Container(
+                        width: 34,
+                        height: 34,
+                        margin: const EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 0.5,
+                          ),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _isLoading ? null : _refreshIPOData,
+                            borderRadius: BorderRadius.circular(10),
+                            splashColor: Colors.white.withOpacity(0.2),
+                            highlightColor: Colors.white.withOpacity(0.1),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.refresh,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                          ),
                         ),
                       ),
-                    ),
+                      // Modern compact share button
+                      Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 0.5,
+                          ),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => _shareIPO(),
+                            borderRadius: BorderRadius.circular(10),
+                            splashColor: Colors.white.withOpacity(0.2),
+                            highlightColor: Colors.white.withOpacity(0.1),
+                            child: const Icon(
+                              Icons.share_rounded,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -178,11 +298,11 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         ],
                       ),
                       padding: const EdgeInsets.all(3),
-                      child: widget.ipo.logo != null
+                      child: ipo.logo != null
                           ? ClipRRect(
                               borderRadius: BorderRadius.circular(8),
                               child: CachedNetworkImage(
-                                imageUrl: widget.ipo.logo!,
+                                imageUrl: ipo.logo!,
                                 fit: BoxFit.contain,
                                 placeholder: (context, url) => const Icon(
                                   Icons.business,
@@ -210,7 +330,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.ipo.name,
+                            ipo.name,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -222,7 +342,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            widget.ipo.sector,
+                            ipo.sector,
                             style: const TextStyle(
                               fontSize: 11,
                               color: Colors.white70,
@@ -348,8 +468,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'GMP',
-                    '${widget.ipo.gmp.formattedPremium} (${widget.ipo.gmp.formattedPercentage})',
-                    AppTheme.getGMPColor(widget.ipo.gmp.safePercentage),
+                    '${ipo.gmp.formattedPremium} (${ipo.gmp.formattedPercentage})',
+                    AppTheme.getGMPColor(ipo.gmp.safePercentage),
                     Icons.trending_up,
                   ),
                 ),
@@ -357,7 +477,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'Expected Prem',
-                    widget.ipo.expectedPremium.displayRange,
+                    ipo.expectedPremium.displayRange,
                     AppColors.info,
                     Icons.analytics,
                   ),
@@ -370,7 +490,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'Face Value',
-                    '₹${widget.ipo.faceValue}',
+                    '₹${ipo.faceValue}',
                     AppColors.primary,
                     Icons.account_balance_wallet,
                   ),
@@ -379,7 +499,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'Issue Size',
-                    widget.ipo.issueSize,
+                    ipo.issueSize,
                     AppColors.secondary,
                     Icons.account_balance,
                   ),
@@ -387,7 +507,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ),
             // Expected Premium Note
-            if (widget.ipo.expectedPremium.note.isNotEmpty) ...[
+            if (ipo.expectedPremium.note.isNotEmpty) ...[
               const SizedBox(height: 14),
               Container(
                 padding: const EdgeInsets.all(10),
@@ -407,7 +527,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        widget.ipo.expectedPremium.note,
+                        ipo.expectedPremium.note,
                         style: const TextStyle(
                           fontSize: 11,
                           color: AppColors.textSecondary,
@@ -513,20 +633,19 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             ),
             const SizedBox(height: 14),
             _buildSubscriptionBar(
-                'Overall', widget.ipo.subscription.times, AppColors.primary),
+                'Overall', ipo.subscription.times, AppColors.primary),
             const SizedBox(height: 8),
             _buildSubscriptionBar(
-                'Retail', widget.ipo.subscription.retail, AppColors.secondary),
+                'Retail', ipo.subscription.retail, AppColors.secondary),
             const SizedBox(height: 8),
             _buildSubscriptionBar(
-                'HNI', widget.ipo.subscription.hni, AppColors.warning),
+                'HNI', ipo.subscription.hni, AppColors.warning),
             const SizedBox(height: 8),
-            _buildSubscriptionBar(
-                'QIB', widget.ipo.subscription.qib, AppColors.info),
-            if (widget.ipo.subscription.employee != null) ...[
+            _buildSubscriptionBar('QIB', ipo.subscription.qib, AppColors.info),
+            if (ipo.subscription.employee != null) ...[
               const SizedBox(height: 8),
-              _buildSubscriptionBar('Employee',
-                  widget.ipo.subscription.employee, AppColors.success),
+              _buildSubscriptionBar(
+                  'Employee', ipo.subscription.employee, AppColors.success),
             ],
           ],
         ),
@@ -604,15 +723,13 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             const SizedBox(height: 14),
             _buildDateItem(
                 'Open Date',
-                '${widget.ipo.offerDate.start} - ${widget.ipo.offerDate.end}',
+                '${ipo.offerDate.start} - ${ipo.offerDate.end}',
                 Icons.calendar_today),
             const SizedBox(height: 8),
-            _buildDateItem('Listing Date',
-                widget.ipo.listingDate ?? 'Coming Soon', Icons.list),
-            const SizedBox(height: 8),
             _buildDateItem(
-                'Allotment Date',
-                widget.ipo.allotmentDate ?? 'Coming Soon',
+                'Listing Date', ipo.listingDate ?? 'Coming Soon', Icons.list),
+            const SizedBox(height: 8),
+            _buildDateItem('Allotment Date', ipo.allotmentDate ?? 'Coming Soon',
                 Icons.assignment_turned_in),
           ],
         ),
@@ -673,7 +790,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             ),
             const SizedBox(height: 14),
             Text(
-              widget.ipo.companyDescription,
+              ipo.companyDescription,
               style: const TextStyle(
                 fontSize: 13,
                 color: AppColors.textPrimary,
@@ -681,12 +798,12 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            _buildInfoRow('Sector', widget.ipo.sector),
+            _buildInfoRow('Sector', ipo.sector),
             const SizedBox(height: 6),
-            _buildInfoRow('Exchange', widget.ipo.exchange),
+            _buildInfoRow('Exchange', ipo.exchange),
 
             // Company Details Section
-            if (widget.ipo.companyDetails != null) ...[
+            if (ipo.companyDetails != null) ...[
               const SizedBox(height: 16),
               const Text(
                 'Company Details',
@@ -697,19 +814,19 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 ),
               ),
               const SizedBox(height: 10),
-              if (widget.ipo.companyDetails!.foundedYear != null) ...[
-                _buildInfoRow('Founded Year',
-                    widget.ipo.companyDetails!.foundedYear.toString()),
-                const SizedBox(height: 6),
-              ],
-              if (widget.ipo.companyDetails!.employees != null) ...[
-                _buildInfoRow('Employees',
-                    widget.ipo.companyDetails!.employees.toString()),
-                const SizedBox(height: 6),
-              ],
-              if (widget.ipo.companyDetails!.headquarters != null) ...[
+              if (ipo.companyDetails!.foundedYear != null) ...[
                 _buildInfoRow(
-                    'Headquarters', widget.ipo.companyDetails!.headquarters!),
+                    'Founded Year', ipo.companyDetails!.foundedYear.toString()),
+                const SizedBox(height: 6),
+              ],
+              if (ipo.companyDetails!.employees != null) ...[
+                _buildInfoRow(
+                    'Employees', ipo.companyDetails!.employees.toString()),
+                const SizedBox(height: 6),
+              ],
+              if (ipo.companyDetails!.headquarters != null) ...[
+                _buildInfoRow(
+                    'Headquarters', ipo.companyDetails!.headquarters!),
                 const SizedBox(height: 6),
               ],
 
@@ -724,19 +841,19 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 ),
               ),
               const SizedBox(height: 10),
-              if (widget.ipo.companyDetails!.phone != null) ...[
+              if (ipo.companyDetails!.phone != null) ...[
                 _buildContactRow(
-                    Icons.phone, 'Phone', widget.ipo.companyDetails!.phone!),
+                    Icons.phone, 'Phone', ipo.companyDetails!.phone!),
                 const SizedBox(height: 6),
               ],
-              if (widget.ipo.companyDetails!.email != null) ...[
+              if (ipo.companyDetails!.email != null) ...[
                 _buildContactRow(
-                    Icons.email, 'Email', widget.ipo.companyDetails!.email!),
+                    Icons.email, 'Email', ipo.companyDetails!.email!),
                 const SizedBox(height: 6),
               ],
-              if (widget.ipo.companyDetails!.website != null) ...[
-                _buildContactRow(Icons.language, 'Website',
-                    widget.ipo.companyDetails!.website!),
+              if (ipo.companyDetails!.website != null) ...[
+                _buildContactRow(
+                    Icons.language, 'Website', ipo.companyDetails!.website!),
                 const SizedBox(height: 6),
               ],
             ],
@@ -834,7 +951,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'EPS (Pre-IPO)',
-                    widget.ipo.valuations.epsPreIpo?.toStringAsFixed(2) ?? '-',
+                    ipo.valuations.epsPreIpo?.toStringAsFixed(2) ?? '-',
                     AppColors.primary,
                     Icons.trending_up,
                   ),
@@ -843,7 +960,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'EPS (Post-IPO)',
-                    widget.ipo.valuations.epsPostIpo?.toStringAsFixed(2) ?? '-',
+                    ipo.valuations.epsPostIpo?.toStringAsFixed(2) ?? '-',
                     AppColors.secondary,
                     Icons.trending_up,
                   ),
@@ -857,7 +974,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'P/E (Pre-IPO)',
-                    widget.ipo.valuations.pePreIpo?.toStringAsFixed(1) ?? '-',
+                    ipo.valuations.pePreIpo?.toStringAsFixed(1) ?? '-',
                     AppColors.warning,
                     Icons.analytics,
                   ),
@@ -866,7 +983,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'P/E (Post-IPO)',
-                    widget.ipo.valuations.pePostIpo?.toStringAsFixed(1) ?? '-',
+                    ipo.valuations.pePostIpo?.toStringAsFixed(1) ?? '-',
                     AppColors.info,
                     Icons.analytics,
                   ),
@@ -880,8 +997,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'ROE',
-                    widget.ipo.valuations.roe != null
-                        ? '${widget.ipo.valuations.roe!.toStringAsFixed(1)}%'
+                    ipo.valuations.roe != null
+                        ? '${ipo.valuations.roe!.toStringAsFixed(1)}%'
                         : '-',
                     AppColors.success,
                     Icons.percent,
@@ -891,8 +1008,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'ROCE',
-                    widget.ipo.valuations.roce != null
-                        ? '${widget.ipo.valuations.roce!.toStringAsFixed(1)}%'
+                    ipo.valuations.roce != null
+                        ? '${ipo.valuations.roce!.toStringAsFixed(1)}%'
                         : '-',
                     AppColors.primary,
                     Icons.percent,
@@ -907,8 +1024,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'PAT Margin',
-                    widget.ipo.valuations.patMargin != null
-                        ? '${widget.ipo.valuations.patMargin!.toStringAsFixed(1)}%'
+                    ipo.valuations.patMargin != null
+                        ? '${ipo.valuations.patMargin!.toStringAsFixed(1)}%'
                         : '-',
                     AppColors.info,
                     Icons.trending_up,
@@ -918,7 +1035,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'Debt/Equity',
-                    widget.ipo.valuations.debtEquity?.toStringAsFixed(2) ?? '-',
+                    ipo.valuations.debtEquity?.toStringAsFixed(2) ?? '-',
                     AppColors.warning,
                     Icons.balance,
                   ),
@@ -932,8 +1049,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'Price/Book',
-                    widget.ipo.valuations.priceToBook?.toStringAsFixed(2) ??
-                        '-',
+                    ipo.valuations.priceToBook?.toStringAsFixed(2) ?? '-',
                     AppColors.secondary,
                     Icons.book,
                   ),
@@ -942,8 +1058,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'RONW',
-                    widget.ipo.valuations.ronw != null
-                        ? '${widget.ipo.valuations.ronw!.toStringAsFixed(1)}%'
+                    ipo.valuations.ronw != null
+                        ? '${ipo.valuations.ronw!.toStringAsFixed(1)}%'
                         : '-',
                     AppColors.success,
                     Icons.account_balance_wallet,
@@ -976,7 +1092,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            if (widget.ipo.financials.isNotEmpty) ...[
+            if (ipo.financials.isNotEmpty) ...[
               // Financial data table header
               Container(
                 padding:
@@ -1027,7 +1143,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ),
               const SizedBox(height: 6),
               // Financial data rows
-              ...widget.ipo.financials.map((financial) => Container(
+              ...ipo.financials.map((financial) => Container(
                     padding: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 10),
                     margin: const EdgeInsets.only(bottom: 3),
@@ -1081,7 +1197,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                   )),
               const SizedBox(height: 14),
               // Additional financial metrics
-              if (widget.ipo.financials.isNotEmpty) ...[
+              if (ipo.financials.isNotEmpty) ...[
                 const Text(
                   'Additional Metrics',
                   style: TextStyle(
@@ -1091,7 +1207,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                   ),
                 ),
                 const SizedBox(height: 10),
-                ...widget.ipo.financials.take(1).map((financial) => Column(
+                ...ipo.financials.take(1).map((financial) => Column(
                       children: [
                         if (financial.assets != null ||
                             financial.netWorth != null)
@@ -1172,8 +1288,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'Pre-Issue Holding',
-                    widget.ipo.promoters.preIssueHolding != null
-                        ? '${widget.ipo.promoters.preIssueHolding!.toStringAsFixed(1)}%'
+                    ipo.promoters.preIssueHolding != null
+                        ? '${ipo.promoters.preIssueHolding!.toStringAsFixed(1)}%'
                         : '-',
                     AppColors.primary,
                     Icons.person,
@@ -1183,8 +1299,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'Post-Issue Holding',
-                    widget.ipo.promoters.postIssueHolding != null
-                        ? '${widget.ipo.promoters.postIssueHolding!.toStringAsFixed(1)}%'
+                    ipo.promoters.postIssueHolding != null
+                        ? '${ipo.promoters.postIssueHolding!.toStringAsFixed(1)}%'
                         : '-',
                     AppColors.secondary,
                     Icons.people,
@@ -1193,7 +1309,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ),
             // Promoter Names
-            if (widget.ipo.promoters.names.isNotEmpty) ...[
+            if (ipo.promoters.names.isNotEmpty) ...[
               const SizedBox(height: 16),
               const Text(
                 'Promoter Names',
@@ -1213,15 +1329,13 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children:
-                      widget.ipo.promoters.names.asMap().entries.map((entry) {
+                  children: ipo.promoters.names.asMap().entries.map((entry) {
                     final index = entry.key;
                     final name = entry.value;
                     return Padding(
                       padding: EdgeInsets.only(
-                          bottom: index < widget.ipo.promoters.names.length - 1
-                              ? 6
-                              : 0),
+                          bottom:
+                              index < ipo.promoters.names.length - 1 ? 6 : 0),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1277,20 +1391,20 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            _buildInfoRow('Issue Size', widget.ipo.issueSize),
+            _buildInfoRow('Issue Size', ipo.issueSize),
             const SizedBox(height: 6),
-            _buildInfoRow('Face Value', '₹${widget.ipo.faceValue}'),
+            _buildInfoRow('Face Value', '₹${ipo.faceValue}'),
             const SizedBox(height: 6),
-            _buildInfoRow('Lot Size', '${widget.ipo.lotSize} shares'),
+            _buildInfoRow('Lot Size', '${ipo.lotSize} shares'),
             const SizedBox(height: 6),
             _buildInfoRow('Category',
-                widget.ipo.category == IPOCategory.sme ? 'SME' : 'Mainboard'),
+                ipo.category == IPOCategory.sme ? 'SME' : 'Mainboard'),
             const SizedBox(height: 6),
-            _buildInfoRow('Offer Price', widget.ipo.offerPrice.formatted),
+            _buildInfoRow('Offer Price', ipo.offerPrice.formatted),
             const SizedBox(height: 6),
-            _buildInfoRow('Exchange', widget.ipo.exchange),
+            _buildInfoRow('Exchange', ipo.exchange),
             const SizedBox(height: 6),
-            _buildInfoRow('Status', widget.ipo.status.toUpperCase()),
+            _buildInfoRow('Status', ipo.status.toUpperCase()),
           ],
         ),
       ),
@@ -1316,8 +1430,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            if (widget.ipo.issueObjectives.isNotEmpty)
-              ...widget.ipo.issueObjectives.asMap().entries.map((entry) {
+            if (ipo.issueObjectives.isNotEmpty)
+              ...ipo.issueObjectives.asMap().entries.map((entry) {
                 final index = entry.key;
                 final objective = entry.value;
                 return Padding(
@@ -1403,31 +1517,31 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ),
             ),
             const SizedBox(height: 10),
-            if (widget.ipo.registrarDetails != null) ...[
-              _buildInfoRow('Name', widget.ipo.registrarDetails!.name),
+            if (ipo.registrarDetails != null) ...[
+              _buildInfoRow('Name', ipo.registrarDetails!.name),
               const SizedBox(height: 8),
-              if (widget.ipo.registrarDetails!.phone != null) ...[
+              if (ipo.registrarDetails!.phone != null) ...[
                 _buildContactRow(
-                    Icons.phone, 'Phone', widget.ipo.registrarDetails!.phone!),
+                    Icons.phone, 'Phone', ipo.registrarDetails!.phone!),
                 const SizedBox(height: 8),
               ],
-              if (widget.ipo.registrarDetails!.email != null) ...[
+              if (ipo.registrarDetails!.email != null) ...[
                 _buildContactRow(
-                    Icons.email, 'Email', widget.ipo.registrarDetails!.email!),
+                    Icons.email, 'Email', ipo.registrarDetails!.email!),
                 const SizedBox(height: 8),
               ],
-              if (widget.ipo.registrarDetails!.website != null) ...[
-                _buildContactRow(Icons.language, 'Website',
-                    widget.ipo.registrarDetails!.website!),
+              if (ipo.registrarDetails!.website != null) ...[
+                _buildContactRow(
+                    Icons.language, 'Website', ipo.registrarDetails!.website!),
                 const SizedBox(height: 8),
               ],
-              if (widget.ipo.registrarDetails!.address != null) ...[
+              if (ipo.registrarDetails!.address != null) ...[
                 _buildContactRow(Icons.location_on, 'Address',
-                    widget.ipo.registrarDetails!.address!),
+                    ipo.registrarDetails!.address!),
                 const SizedBox(height: 8),
               ],
             ] else ...[
-              _buildInfoRow('Name', widget.ipo.registrar ?? 'Not Available'),
+              _buildInfoRow('Name', ipo.registrar ?? 'Not Available'),
               const SizedBox(height: 8),
             ],
 
@@ -1442,14 +1556,13 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ),
             ),
             const SizedBox(height: 10),
-            if (widget.ipo.leadManagers.isNotEmpty) ...[
-              ...widget.ipo.leadManagers.asMap().entries.map((entry) {
+            if (ipo.leadManagers.isNotEmpty) ...[
+              ...ipo.leadManagers.asMap().entries.map((entry) {
                 final index = entry.key;
                 final manager = entry.value;
                 return Padding(
                   padding: EdgeInsets.only(
-                      bottom:
-                          index < widget.ipo.leadManagers.length - 1 ? 8 : 0),
+                      bottom: index < ipo.leadManagers.length - 1 ? 8 : 0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1519,7 +1632,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             const SizedBox(height: 16),
 
             // Fresh Issue Section
-            if (widget.ipo.freshIssue != null) ...[
+            if (ipo.freshIssue != null) ...[
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -1551,8 +1664,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         Expanded(
                           child: _buildMetricItem(
                             'Shares',
-                            widget.ipo.freshIssue!.shares > 0
-                                ? '${(widget.ipo.freshIssue!.shares / 1000000).toStringAsFixed(2)}M'
+                            ipo.freshIssue!.shares > 0
+                                ? '${(ipo.freshIssue!.shares / 1000000).toStringAsFixed(2)}M'
                                 : '-',
                             AppColors.success,
                             Icons.share,
@@ -1562,8 +1675,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         Expanded(
                           child: _buildMetricItem(
                             'Amount',
-                            widget.ipo.freshIssue!.amount.isNotEmpty
-                                ? widget.ipo.freshIssue!.amount
+                            ipo.freshIssue!.amount.isNotEmpty
+                                ? ipo.freshIssue!.amount
                                 : '-',
                             AppColors.success,
                             Icons.currency_rupee,
@@ -1605,7 +1718,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             ],
 
             // OFS Section
-            if (widget.ipo.ofs != null) ...[
+            if (ipo.ofs != null) ...[
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -1637,8 +1750,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         Expanded(
                           child: _buildMetricItem(
                             'Shares',
-                            widget.ipo.ofs!.shares > 0
-                                ? '${(widget.ipo.ofs!.shares / 1000000).toStringAsFixed(2)}M'
+                            ipo.ofs!.shares > 0
+                                ? '${(ipo.ofs!.shares / 1000000).toStringAsFixed(2)}M'
                                 : 'None',
                             AppColors.warning,
                             Icons.share,
@@ -1648,9 +1761,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         Expanded(
                           child: _buildMetricItem(
                             'Amount',
-                            widget.ipo.ofs!.amount.isNotEmpty
-                                ? widget.ipo.ofs!.amount
-                                : '-',
+                            ipo.ofs!.amount.isNotEmpty ? ipo.ofs!.amount : '-',
                             AppColors.warning,
                             Icons.currency_rupee,
                           ),
@@ -1689,8 +1800,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             ],
 
             // Retail Portion
-            if (widget.ipo.retailPortion != null &&
-                widget.ipo.retailPortion!.isNotEmpty) ...[
+            if (ipo.retailPortion != null && ipo.retailPortion!.isNotEmpty) ...[
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(16),
@@ -1713,7 +1823,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      widget.ipo.retailPortion!,
+                      ipo.retailPortion!,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -1755,7 +1865,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ),
             const SizedBox(height: 16),
-            if (widget.ipo.marketLot != null) ...[
+            if (ipo.marketLot != null) ...[
               // Table Header
               Container(
                 padding:
@@ -1821,7 +1931,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               // Retail Row
               _buildMarketLotRow(
                 'Retail',
-                widget.ipo.marketLot!.retail,
+                ipo.marketLot!.retail,
                 AppColors.success,
               ),
               const SizedBox(height: 4),
@@ -1829,7 +1939,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               // sHNI Row
               _buildMarketLotRow(
                 'sHNI',
-                widget.ipo.marketLot!.sHni,
+                ipo.marketLot!.sHni,
                 AppColors.warning,
               ),
               const SizedBox(height: 4),
@@ -1837,7 +1947,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               // bHNI Row
               _buildMarketLotRow(
                 'bHNI',
-                widget.ipo.marketLot!.bHni,
+                ipo.marketLot!.bHni,
                 AppColors.info,
               ),
             ] else ...[
@@ -1950,7 +2060,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ),
             const SizedBox(height: 14),
-            if (widget.ipo.sharesOffered != null) ...[
+            if (ipo.sharesOffered != null) ...[
               // Total Shares
               Container(
                 padding: const EdgeInsets.all(12),
@@ -1974,7 +2084,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                       ),
                     ),
                     Text(
-                      '${(widget.ipo.sharesOffered!.total / 1000000).toStringAsFixed(2)}M',
+                      '${(ipo.sharesOffered!.total / 1000000).toStringAsFixed(2)}M',
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -2002,8 +2112,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         width: itemWidth,
                         child: _buildSharesOfferedItem(
                           'QIB',
-                          widget.ipo.sharesOffered!.qib,
-                          widget.ipo.sharesOffered!.total,
+                          ipo.sharesOffered!.qib,
+                          ipo.sharesOffered!.total,
                           AppColors.primary,
                         ),
                       ),
@@ -2011,8 +2121,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         width: itemWidth,
                         child: _buildSharesOfferedItem(
                           'NII',
-                          widget.ipo.sharesOffered!.nii,
-                          widget.ipo.sharesOffered!.total,
+                          ipo.sharesOffered!.nii,
+                          ipo.sharesOffered!.total,
                           AppColors.secondary,
                         ),
                       ),
@@ -2020,8 +2130,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         width: itemWidth,
                         child: _buildSharesOfferedItem(
                           'bNII',
-                          widget.ipo.sharesOffered!.bNii,
-                          widget.ipo.sharesOffered!.total,
+                          ipo.sharesOffered!.bNii,
+                          ipo.sharesOffered!.total,
                           AppColors.warning,
                         ),
                       ),
@@ -2029,8 +2139,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         width: itemWidth,
                         child: _buildSharesOfferedItem(
                           'sNII',
-                          widget.ipo.sharesOffered!.sNii,
-                          widget.ipo.sharesOffered!.total,
+                          ipo.sharesOffered!.sNii,
+                          ipo.sharesOffered!.total,
                           AppColors.info,
                         ),
                       ),
@@ -2038,8 +2148,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         width: itemWidth,
                         child: _buildSharesOfferedItem(
                           'Retail',
-                          widget.ipo.sharesOffered!.retail,
-                          widget.ipo.sharesOffered!.total,
+                          ipo.sharesOffered!.retail,
+                          ipo.sharesOffered!.total,
                           AppColors.success,
                         ),
                       ),
@@ -2149,9 +2259,9 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ),
             const SizedBox(height: 16),
-            if (widget.ipo.productPortfolio != null) ...[
+            if (ipo.productPortfolio != null) ...[
               // Gold Type
-              if (widget.ipo.productPortfolio!.goldType.isNotEmpty) ...[
+              if (ipo.productPortfolio!.goldType.isNotEmpty) ...[
                 Container(
                   padding: const EdgeInsets.all(16),
                   margin: const EdgeInsets.only(bottom: 16),
@@ -2180,7 +2290,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              widget.ipo.productPortfolio!.goldType,
+                              ipo.productPortfolio!.goldType,
                               style: const TextStyle(
                                 fontSize: 13,
                                 color: AppColors.textSecondary,
@@ -2195,7 +2305,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
 
               // Main Products
-              if (widget.ipo.productPortfolio!.mainProducts.isNotEmpty) ...[
+              if (ipo.productPortfolio!.mainProducts.isNotEmpty) ...[
                 const Text(
                   'Main Products',
                   style: TextStyle(
@@ -2208,7 +2318,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: widget.ipo.productPortfolio!.mainProducts
+                  children: ipo.productPortfolio!.mainProducts
                       .map((product) => Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
@@ -2233,7 +2343,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
 
               // Occasions
-              if (widget.ipo.productPortfolio!.occasions.isNotEmpty) ...[
+              if (ipo.productPortfolio!.occasions.isNotEmpty) ...[
                 const Text(
                   'Target Occasions',
                   style: TextStyle(
@@ -2246,7 +2356,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: widget.ipo.productPortfolio!.occasions
+                  children: ipo.productPortfolio!.occasions
                       .map((occasion) => Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
@@ -2271,7 +2381,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
 
               // Price Segments
-              if (widget.ipo.productPortfolio!.priceSegments.isNotEmpty) ...[
+              if (ipo.productPortfolio!.priceSegments.isNotEmpty) ...[
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -2298,7 +2408,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              widget.ipo.productPortfolio!.priceSegments,
+                              ipo.productPortfolio!.priceSegments,
                               style: const TextStyle(
                                 fontSize: 13,
                                 color: AppColors.textSecondary,
@@ -2352,10 +2462,10 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ),
             const SizedBox(height: 16),
-            if (widget.ipo.anchorInvestors != null &&
-                widget.ipo.anchorInvestors!.investors.isNotEmpty) ...[
+            if (ipo.anchorInvestors != null &&
+                ipo.anchorInvestors!.investors.isNotEmpty) ...[
               // Total Amount
-              if (widget.ipo.anchorInvestors!.totalAmount != null) ...[
+              if (ipo.anchorInvestors!.totalAmount != null) ...[
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -2376,7 +2486,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         ),
                       ),
                       Text(
-                        widget.ipo.anchorInvestors!.totalAmount!,
+                        ipo.anchorInvestors!.totalAmount!,
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
@@ -2408,7 +2518,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: widget.ipo.anchorInvestors!.investors
+                  children: ipo.anchorInvestors!.investors
                       .asMap()
                       .entries
                       .map((entry) {
@@ -2416,11 +2526,10 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     final investor = entry.value;
                     return Padding(
                       padding: EdgeInsets.only(
-                          bottom: index <
-                                  widget.ipo.anchorInvestors!.investors.length -
-                                      1
-                              ? 12
-                              : 0),
+                          bottom:
+                              index < ipo.anchorInvestors!.investors.length - 1
+                                  ? 12
+                                  : 0),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -2502,7 +2611,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ),
             const SizedBox(height: 16),
-            if (widget.ipo.peers.isNotEmpty) ...[
+            if (ipo.peers.isNotEmpty) ...[
               // Table Header
               Container(
                 padding:
@@ -2567,17 +2676,17 @@ class _IPODetailScreenState extends State<IPODetailScreen>
 
               // Current IPO Row
               _buildPeerRow(
-                widget.ipo.name,
-                widget.ipo.valuations.priceToBook,
-                widget.ipo.valuations.pePostIpo,
-                widget.ipo.valuations.ronw,
+                ipo.name,
+                ipo.valuations.priceToBook,
+                ipo.valuations.pePostIpo,
+                ipo.valuations.ronw,
                 AppColors.primary,
                 isCurrentIPO: true,
               ),
               const SizedBox(height: 4),
 
               // Peer Rows
-              ...widget.ipo.peers.map((peer) => Padding(
+              ...ipo.peers.map((peer) => Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: _buildPeerRow(
                       peer.name,
@@ -2691,7 +2800,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ),
             const SizedBox(height: 16),
-            if (widget.ipo.biddingTimings != null) ...[
+            if (ipo.biddingTimings != null) ...[
               // HNI Timing
               Container(
                 padding: const EdgeInsets.all(16),
@@ -2720,7 +2829,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            widget.ipo.biddingTimings!.hni,
+                            ipo.biddingTimings!.hni,
                             style: const TextStyle(
                               fontSize: 13,
                               color: AppColors.textSecondary,
@@ -2760,7 +2869,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            widget.ipo.biddingTimings!.retail,
+                            ipo.biddingTimings!.retail,
                             style: const TextStyle(
                               fontSize: 13,
                               color: AppColors.textSecondary,
@@ -2845,8 +2954,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ),
             const SizedBox(height: 16),
-            if (widget.ipo.documents.isNotEmpty) ...[
-              ...widget.ipo.documents.map((document) => Container(
+            if (ipo.documents.isNotEmpty) ...[
+              ...ipo.documents.map((document) => Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -2982,8 +3091,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ),
             const SizedBox(height: 16),
-            if (widget.ipo.strengths.isNotEmpty)
-              ...widget.ipo.strengths.map((strength) => Padding(
+            if (ipo.strengths.isNotEmpty)
+              ...ipo.strengths.map((strength) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -3050,8 +3159,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ),
             const SizedBox(height: 16),
-            if (widget.ipo.weaknesses.isNotEmpty)
-              ...widget.ipo.weaknesses.map((weakness) => Padding(
+            if (ipo.weaknesses.isNotEmpty)
+              ...ipo.weaknesses.map((weakness) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,

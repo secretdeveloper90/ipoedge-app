@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/ipo_model.dart';
-import '../services/ipo_service.dart';
+import '../services/firebase_ipo_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ipo_card.dart';
 import '../widgets/loading_shimmer.dart';
@@ -19,7 +19,6 @@ class IPOListScreen extends StatefulWidget {
 }
 
 class _IPOListScreenState extends State<IPOListScreen> {
-  final IPOService _ipoService = IPOService();
   List<IPO> _ipos = [];
   bool _isLoading = true;
   String _error = '';
@@ -39,9 +38,9 @@ class _IPOListScreenState extends State<IPOListScreen> {
     try {
       List<IPO> ipos;
       if (widget.category == 'all') {
-        ipos = await _ipoService.getAllIPOs();
+        ipos = await FirebaseIPOService.getAllIPOs();
       } else {
-        ipos = await _ipoService.getIPOsByCategory(widget.category);
+        ipos = await FirebaseIPOService.getIPOsByCategory(widget.category);
       }
 
       setState(() {

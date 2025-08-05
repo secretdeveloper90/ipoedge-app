@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/ipo_model.dart';
-import '../services/ipo_service.dart';
+import '../services/firebase_ipo_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ipo_card.dart';
 import '../widgets/loading_shimmer.dart';
@@ -17,7 +17,6 @@ class MainboardScreen extends StatefulWidget {
 class _MainboardScreenState extends State<MainboardScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final IPOService _ipoService = IPOService();
 
   @override
   void initState() {
@@ -161,20 +160,17 @@ class _MainboardScreenState extends State<MainboardScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          IPOStatusListView(
+          const IPOStatusListView(
             category: 'mainboard',
             status: 'current',
-            ipoService: _ipoService,
           ),
-          IPOStatusListView(
+          const IPOStatusListView(
             category: 'mainboard',
             status: 'upcoming',
-            ipoService: _ipoService,
           ),
-          IPOStatusListView(
+          const IPOStatusListView(
             category: 'mainboard',
             status: 'listed',
-            ipoService: _ipoService,
           ),
         ],
       ),
@@ -185,13 +181,11 @@ class _MainboardScreenState extends State<MainboardScreen>
 class IPOStatusListView extends StatefulWidget {
   final String category;
   final String status;
-  final IPOService ipoService;
 
   const IPOStatusListView({
     super.key,
     required this.category,
     required this.status,
-    required this.ipoService,
   });
 
   @override
@@ -220,10 +214,17 @@ class _IPOStatusListViewState extends State<IPOStatusListView>
     });
 
     try {
-      final ipos = await widget.ipoService.getIPOsByCategoryAndStatus(
-        widget.category,
-        widget.status,
-      );
+      List<IPO> ipos;
+
+      // Get IPOs by category first
+      final allIPOs =
+          await FirebaseIPOService.getIPOsByCategory(widget.category);
+
+      // Filter by status
+      ipos = allIPOs
+          .where(
+              (ipo) => ipo.status.toLowerCase() == widget.status.toLowerCase())
+          .toList();
 
       setState(() {
         _ipos = ipos;

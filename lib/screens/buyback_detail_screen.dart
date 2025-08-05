@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/buyback_model.dart';
 import '../theme/app_theme.dart';
+import '../services/firebase_buyback_service.dart';
 
 class BuybackDetailScreen extends StatefulWidget {
   final Buyback buyback;
@@ -17,11 +18,16 @@ class BuybackDetailScreen extends StatefulWidget {
 class _BuybackDetailScreenState extends State<BuybackDetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  Buyback? _currentBuyback;
+  bool _isLoading = false;
+  String _error = '';
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _currentBuyback = widget.buyback;
+    _refreshBuybackData();
   }
 
   @override
@@ -30,8 +36,80 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
     super.dispose();
   }
 
+  Future<void> _refreshBuybackData() async {
+    setState(() {
+      _isLoading = true;
+      _error = '';
+    });
+
+    try {
+      final freshBuyback =
+          await FirebaseBuybackService.getBuybackById(widget.buyback.id);
+      if (freshBuyback != null && mounted) {
+        setState(() {
+          _currentBuyback = freshBuyback;
+          _isLoading = false;
+        });
+      } else if (mounted) {
+        setState(() {
+          _error = 'Buyback not found';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Failed to load buyback details: $e';
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Buyback get buyback => _currentBuyback ?? widget.buyback;
+
   @override
   Widget build(BuildContext context) {
+    if (_error.isNotEmpty) {
+      return Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: AppBar(
+          title: const Text('Buyback Details'),
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _refreshBuybackData,
+            ),
+          ],
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Colors.red,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                _error,
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _refreshBuybackData,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: Column(
@@ -113,32 +191,75 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
                       ),
                     ),
                   ),
-                  // Modern compact share button
-                  Container(
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 0.5,
-                      ),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () => _shareBuyback(),
-                        borderRadius: BorderRadius.circular(10),
-                        splashColor: Colors.white.withOpacity(0.2),
-                        highlightColor: Colors.white.withOpacity(0.1),
-                        child: const Icon(
-                          Icons.share_rounded,
-                          color: Colors.white,
-                          size: 16,
+                  // Action buttons row
+                  Row(
+                    children: [
+                      // Refresh button
+                      Container(
+                        width: 34,
+                        height: 34,
+                        margin: const EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 0.5,
+                          ),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _isLoading ? null : _refreshBuybackData,
+                            borderRadius: BorderRadius.circular(10),
+                            splashColor: Colors.white.withOpacity(0.2),
+                            highlightColor: Colors.white.withOpacity(0.1),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.refresh,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                          ),
                         ),
                       ),
-                    ),
+                      // Modern compact share button
+                      Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 0.5,
+                          ),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => _shareBuyback(),
+                            borderRadius: BorderRadius.circular(10),
+                            splashColor: Colors.white.withOpacity(0.2),
+                            highlightColor: Colors.white.withOpacity(0.1),
+                            child: const Icon(
+                              Icons.share_rounded,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -175,7 +296,7 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
-                          widget.buyback.logo,
+                          buyback.logo,
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
                             return const Icon(
@@ -194,7 +315,7 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.buyback.companyName,
+                            buyback.companyName,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -206,7 +327,7 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            'Buyback Price: ${widget.buyback.formattedBuybackPrice}',
+                            'Buyback Price: ${buyback.formattedBuybackPrice}',
                             style: const TextStyle(
                               fontSize: 11,
                               color: Colors.white70,
@@ -333,7 +454,7 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'Buyback Price',
-                    widget.buyback.formattedBuybackPrice,
+                    buyback.formattedBuybackPrice,
                     AppColors.primary,
                     Icons.currency_rupee,
                   ),
@@ -342,7 +463,7 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'Issue Size',
-                    widget.buyback.issueSize,
+                    buyback.issueSize,
                     AppColors.secondary,
                     Icons.account_balance_wallet,
                   ),
@@ -355,7 +476,7 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'Shares Count',
-                    widget.buyback.formattedSharesCount,
+                    buyback.formattedSharesCount,
                     AppColors.warning,
                     Icons.pie_chart,
                   ),
@@ -364,7 +485,7 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'Percentage',
-                    widget.buyback.formattedPercentage,
+                    buyback.formattedPercentage,
                     AppColors.info,
                     Icons.percent,
                   ),
@@ -420,11 +541,11 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            _buildInfoRow('Company Name', widget.buyback.companyName),
+            _buildInfoRow('Company Name', buyback.companyName),
             const SizedBox(height: 6),
-            _buildInfoRow('Status', widget.buyback.statusDisplayName),
+            _buildInfoRow('Status', buyback.statusDisplayName),
             const SizedBox(height: 6),
-            _buildInfoRow('Method', widget.buyback.methodDisplayName),
+            _buildInfoRow('Method', buyback.methodDisplayName),
           ],
         ),
       ),
@@ -488,7 +609,7 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
               child: Row(
                 children: [
                   Icon(
-                    widget.buyback.method.toLowerCase() == 'tender'
+                    buyback.method.toLowerCase() == 'tender'
                         ? Icons.gavel
                         : Icons.store,
                     color: AppColors.secondary,
@@ -500,7 +621,7 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.buyback.methodDisplayName,
+                          buyback.methodDisplayName,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -509,7 +630,7 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          widget.buyback.method.toLowerCase() == 'tender'
+                          buyback.method.toLowerCase() == 'tender'
                               ? 'Shareholders can tender their shares at the specified price'
                               : 'Company will buy shares from the open market',
                           style: const TextStyle(
@@ -548,14 +669,11 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            _buildInfoRow(
-                'Total Shares', widget.buyback.sharesCount.toString()),
+            _buildInfoRow('Total Shares', buyback.sharesCount.toString()),
             const SizedBox(height: 6),
-            _buildInfoRow(
-                'Formatted Count', widget.buyback.formattedSharesCount),
+            _buildInfoRow('Formatted Count', buyback.formattedSharesCount),
             const SizedBox(height: 6),
-            _buildInfoRow(
-                'Percentage of Capital', widget.buyback.formattedPercentage),
+            _buildInfoRow('Percentage of Capital', buyback.formattedPercentage),
             const SizedBox(height: 14),
             Container(
               padding: const EdgeInsets.all(16),
@@ -571,7 +689,7 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'This represents ${widget.buyback.formattedPercentage} of the company\'s total share capital.',
+                      'This represents ${buyback.formattedPercentage} of the company\'s total share capital.',
                       style: const TextStyle(
                         fontSize: 13,
                         color: AppColors.textSecondary,
@@ -606,10 +724,10 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            _buildInfoRow('Buyback Price per Share',
-                widget.buyback.formattedBuybackPrice),
+            _buildInfoRow(
+                'Buyback Price per Share', buyback.formattedBuybackPrice),
             const SizedBox(height: 6),
-            _buildInfoRow('Total Issue Size', widget.buyback.issueSize),
+            _buildInfoRow('Total Issue Size', buyback.issueSize),
             const SizedBox(height: 14),
             Container(
               padding: const EdgeInsets.all(16),
@@ -637,7 +755,7 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Total Value = ${widget.buyback.formattedSharesCount} shares × ${widget.buyback.formattedBuybackPrice}',
+                    'Total Value = ${buyback.formattedSharesCount} shares × ${buyback.formattedBuybackPrice}',
                     style: const TextStyle(
                       fontSize: 13,
                       color: AppColors.textSecondary,
@@ -671,31 +789,31 @@ class _BuybackDetailScreenState extends State<BuybackDetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            if (widget.buyback.recordDate != null ||
-                widget.buyback.issueDate != null ||
-                widget.buyback.closeDate != null) ...[
+            if (buyback.recordDate != null ||
+                buyback.issueDate != null ||
+                buyback.closeDate != null) ...[
               _buildTimelineItem(
                 'Record Date',
-                widget.buyback.recordDate,
+                buyback.recordDate,
                 Icons.event_note,
                 AppColors.info,
                 'Date to determine eligible shareholders',
               ),
-              if (widget.buyback.issueDate != null) ...[
+              if (buyback.issueDate != null) ...[
                 const SizedBox(height: 8),
                 _buildTimelineItem(
                   'Issue Date',
-                  widget.buyback.issueDate,
+                  buyback.issueDate,
                   Icons.play_arrow,
                   AppColors.success,
                   'Buyback offer opens',
                 ),
               ],
-              if (widget.buyback.closeDate != null) ...[
+              if (buyback.closeDate != null) ...[
                 const SizedBox(height: 8),
                 _buildTimelineItem(
                   'Close Date',
-                  widget.buyback.closeDate,
+                  buyback.closeDate,
                   Icons.stop,
                   AppColors.error,
                   'Buyback offer closes',

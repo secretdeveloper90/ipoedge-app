@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/broker.dart';
 import '../theme/app_theme.dart';
+import '../services/firebase_broker_service.dart';
 
 class BrokerDetailScreen extends StatefulWidget {
   final Broker broker;
@@ -17,11 +18,16 @@ class BrokerDetailScreen extends StatefulWidget {
 class _BrokerDetailScreenState extends State<BrokerDetailScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
+  Broker? _currentBroker;
+  bool _isLoading = false;
+  String _error = '';
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _currentBroker = widget.broker;
+    _refreshBrokerData();
   }
 
   @override
@@ -30,8 +36,80 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
     super.dispose();
   }
 
+  Future<void> _refreshBrokerData() async {
+    setState(() {
+      _isLoading = true;
+      _error = '';
+    });
+
+    try {
+      final freshBroker =
+          await FirebaseBrokerService.getBrokerById(widget.broker.id);
+      if (freshBroker != null && mounted) {
+        setState(() {
+          _currentBroker = freshBroker;
+          _isLoading = false;
+        });
+      } else if (mounted) {
+        setState(() {
+          _error = 'Broker not found';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Failed to load broker details: $e';
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Broker get broker => _currentBroker ?? widget.broker;
+
   @override
   Widget build(BuildContext context) {
+    if (_error.isNotEmpty) {
+      return Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: AppBar(
+          title: const Text('Broker Details'),
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _refreshBrokerData,
+            ),
+          ],
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Colors.red,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                _error,
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _refreshBrokerData,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: Column(
@@ -113,32 +191,75 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
                       ),
                     ),
                   ),
-                  // Modern compact share button
-                  Container(
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 0.5,
-                      ),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () => _shareBroker(),
-                        borderRadius: BorderRadius.circular(10),
-                        splashColor: Colors.white.withOpacity(0.2),
-                        highlightColor: Colors.white.withOpacity(0.1),
-                        child: const Icon(
-                          Icons.share_rounded,
-                          color: Colors.white,
-                          size: 16,
+                  // Action buttons row
+                  Row(
+                    children: [
+                      // Refresh button
+                      Container(
+                        width: 34,
+                        height: 34,
+                        margin: const EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 0.5,
+                          ),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _isLoading ? null : _refreshBrokerData,
+                            borderRadius: BorderRadius.circular(10),
+                            splashColor: Colors.white.withOpacity(0.2),
+                            highlightColor: Colors.white.withOpacity(0.1),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.refresh,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                          ),
                         ),
                       ),
-                    ),
+                      // Modern compact share button
+                      Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 0.5,
+                          ),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => _shareBroker(),
+                            borderRadius: BorderRadius.circular(10),
+                            splashColor: Colors.white.withOpacity(0.2),
+                            highlightColor: Colors.white.withOpacity(0.1),
+                            child: const Icon(
+                              Icons.share_rounded,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -175,7 +296,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
-                          widget.broker.logo,
+                          broker.logo,
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
                             return const Icon(
@@ -194,7 +315,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.broker.name,
+                            broker.name,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -231,7 +352,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      widget.broker.formattedRating,
+                                      broker.formattedRating,
                                       style: const TextStyle(
                                         fontSize: 12,
                                         color: Colors.white,
@@ -266,7 +387,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      widget.broker.activeClients,
+                                      broker.activeClients,
                                       style: const TextStyle(
                                         fontSize: 12,
                                         color: Colors.white,
@@ -362,7 +483,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
             ),
             const SizedBox(height: 14),
             Text(
-              widget.broker.description,
+              broker.description,
               style: const TextStyle(
                 fontSize: 13,
                 color: AppColors.textPrimary,
@@ -399,7 +520,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'Active Clients',
-                    widget.broker.activeClients,
+                    broker.activeClients,
                     AppColors.primary,
                     Icons.people,
                   ),
@@ -408,7 +529,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'Rating',
-                    widget.broker.formattedRating,
+                    broker.formattedRating,
                     AppColors.warning,
                     Icons.star,
                   ),
@@ -421,7 +542,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'Account Opening',
-                    widget.broker.accountOpening,
+                    broker.accountOpening,
                     AppColors.success,
                     Icons.account_balance_wallet,
                   ),
@@ -430,7 +551,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
                 Expanded(
                   child: _buildMetricItem(
                     'Maintenance',
-                    widget.broker.accountMaintenance,
+                    broker.accountMaintenance,
                     AppColors.info,
                     Icons.settings,
                   ),
@@ -535,7 +656,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
               child: Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: widget.broker.services.map((service) {
+                children: broker.services.map((service) {
                   return Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
@@ -590,7 +711,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
               child: Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: widget.broker.otherInvestments.map((investment) {
+                children: broker.otherInvestments.map((investment) {
                   return _buildInvestmentOption(investment);
                 }).toList(),
               ),
@@ -739,7 +860,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
                     ],
                   ),
                   const SizedBox(height: 12),
-                  ...widget.broker.pros.map((pro) {
+                  ...broker.pros.map((pro) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Row(
@@ -806,7 +927,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
                     ],
                   ),
                   const SizedBox(height: 12),
-                  ...widget.broker.cons.map((con) {
+                  ...broker.cons.map((con) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Row(
@@ -864,10 +985,9 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            _buildChargeItem('Account Opening', widget.broker.accountOpening),
-            _buildChargeItem(
-                'Account Maintenance', widget.broker.accountMaintenance),
-            _buildChargeItem('Call & Trade', widget.broker.callTrade),
+            _buildChargeItem('Account Opening', broker.accountOpening),
+            _buildChargeItem('Account Maintenance', broker.accountMaintenance),
+            _buildChargeItem('Call & Trade', broker.callTrade),
           ],
         ),
       ),
@@ -894,21 +1014,19 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
             ),
             const SizedBox(height: 14),
             _buildChargeItem(
-                'Equity Delivery', widget.broker.brokerage.equityDelivery),
+                'Equity Delivery', broker.brokerage.equityDelivery),
             _buildChargeItem(
-                'Equity Intraday', widget.broker.brokerage.equityIntraday),
+                'Equity Intraday', broker.brokerage.equityIntraday),
+            _buildChargeItem('Equity Futures', broker.brokerage.equityFutures),
+            _buildChargeItem('Equity Options', broker.brokerage.equityOptions),
             _buildChargeItem(
-                'Equity Futures', widget.broker.brokerage.equityFutures),
+                'Currency Futures', broker.brokerage.currencyFutures),
             _buildChargeItem(
-                'Equity Options', widget.broker.brokerage.equityOptions),
+                'Currency Options', broker.brokerage.currencyOptions),
             _buildChargeItem(
-                'Currency Futures', widget.broker.brokerage.currencyFutures),
+                'Commodity Futures', broker.brokerage.commodityFutures),
             _buildChargeItem(
-                'Currency Options', widget.broker.brokerage.currencyOptions),
-            _buildChargeItem(
-                'Commodity Futures', widget.broker.brokerage.commodityFutures),
-            _buildChargeItem(
-                'Commodity Options', widget.broker.brokerage.commodityOptions),
+                'Commodity Options', broker.brokerage.commodityOptions),
           ],
         ),
       ),
@@ -934,22 +1052,18 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
               ),
             ),
             const SizedBox(height: 14),
+            _buildChargeItem('Equity Delivery', broker.margins.equityDelivery),
+            _buildChargeItem('Equity Intraday', broker.margins.equityIntraday),
+            _buildChargeItem('Equity Futures', broker.margins.equityFutures),
+            _buildChargeItem('Equity Options', broker.margins.equityOptions),
             _buildChargeItem(
-                'Equity Delivery', widget.broker.margins.equityDelivery),
+                'Currency Futures', broker.margins.currencyFutures),
             _buildChargeItem(
-                'Equity Intraday', widget.broker.margins.equityIntraday),
+                'Currency Options', broker.margins.currencyOptions),
             _buildChargeItem(
-                'Equity Futures', widget.broker.margins.equityFutures),
+                'Commodity Futures', broker.margins.commodityFutures),
             _buildChargeItem(
-                'Equity Options', widget.broker.margins.equityOptions),
-            _buildChargeItem(
-                'Currency Futures', widget.broker.margins.currencyFutures),
-            _buildChargeItem(
-                'Currency Options', widget.broker.margins.currencyOptions),
-            _buildChargeItem(
-                'Commodity Futures', widget.broker.margins.commodityFutures),
-            _buildChargeItem(
-                'Commodity Options', widget.broker.margins.commodityOptions),
+                'Commodity Options', broker.margins.commodityOptions),
           ],
         ),
       ),
@@ -975,17 +1089,13 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            _buildChargeSection(
-                'Delivery Trading', widget.broker.charges.delivery),
+            _buildChargeSection('Delivery Trading', broker.charges.delivery),
             const SizedBox(height: 14),
-            _buildChargeSection(
-                'Intraday Trading', widget.broker.charges.intraday),
+            _buildChargeSection('Intraday Trading', broker.charges.intraday),
             const SizedBox(height: 14),
-            _buildChargeSection(
-                'Futures Trading', widget.broker.charges.futures),
+            _buildChargeSection('Futures Trading', broker.charges.futures),
             const SizedBox(height: 14),
-            _buildChargeSection(
-                'Options Trading', widget.broker.charges.options),
+            _buildChargeSection('Options Trading', broker.charges.options),
           ],
         ),
       ),
@@ -1132,7 +1242,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            ...widget.broker.platforms.map((platform) {
+            ...broker.platforms.map((platform) {
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(16),
@@ -1188,7 +1298,7 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            ...widget.broker.features.map((feature) {
+            ...broker.features.map((feature) {
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(16),
@@ -1253,17 +1363,17 @@ class _BrokerDetailScreenState extends State<BrokerDetailScreen>
             ),
             const SizedBox(height: 14),
             _buildFeatureToggle(
-                '3-in-1 Account', widget.broker.additionalFeatures.account3in1),
+                '3-in-1 Account', broker.additionalFeatures.account3in1),
             _buildFeatureToggle('Free Trading Calls',
-                widget.broker.additionalFeatures.freeTradingCalls),
+                broker.additionalFeatures.freeTradingCalls),
             _buildFeatureToggle(
-                'Free Research', widget.broker.additionalFeatures.freeResearch),
+                'Free Research', broker.additionalFeatures.freeResearch),
             _buildFeatureToggle(
-                'SMS Alerts', widget.broker.additionalFeatures.smsAlerts),
-            _buildFeatureToggle('Margin Funding',
-                widget.broker.additionalFeatures.marginFunding),
+                'SMS Alerts', broker.additionalFeatures.smsAlerts),
+            _buildFeatureToggle(
+                'Margin Funding', broker.additionalFeatures.marginFunding),
             _buildFeatureToggle('Margin Against Shares',
-                widget.broker.additionalFeatures.marginAgainstShare),
+                broker.additionalFeatures.marginAgainstShare),
           ],
         ),
       ),

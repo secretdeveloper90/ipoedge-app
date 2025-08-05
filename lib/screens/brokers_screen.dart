@@ -4,7 +4,7 @@ import '../widgets/common_app_bar.dart';
 import '../widgets/broker_card.dart';
 import '../widgets/loading_shimmer.dart';
 import '../models/broker.dart';
-import '../services/broker_service.dart';
+import '../services/firebase_broker_service.dart';
 import 'broker_detail_screen.dart';
 
 class BrokersScreen extends StatefulWidget {
@@ -15,8 +15,6 @@ class BrokersScreen extends StatefulWidget {
 }
 
 class _BrokersScreenState extends State<BrokersScreen> {
-  final BrokerService _brokerService = BrokerService();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +28,7 @@ class _BrokersScreenState extends State<BrokersScreen> {
 
   Widget _buildBrokersList(String category) {
     return FutureBuilder<List<Broker>>(
-      future: _brokerService.getBrokers(category: category),
+      future: _loadBrokers(category),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return ListView.builder(
@@ -81,7 +79,11 @@ class _BrokersScreenState extends State<BrokersScreen> {
   }
 
   Future<List<Broker>> _loadBrokers(String category) async {
-    return await _brokerService.getBrokers(category: category);
+    if (category == 'all') {
+      return await FirebaseBrokerService.getAllBrokers();
+    } else {
+      return await FirebaseBrokerService.getBrokersByType(category);
+    }
   }
 
   Widget _buildErrorState() {
