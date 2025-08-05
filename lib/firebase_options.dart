@@ -17,29 +17,17 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -59,4 +47,43 @@ class DefaultFirebaseOptions {
     projectId: 'ipoedge-app',
     storageBucket: 'ipoedge-app.firebasestorage.app',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBa4KFpMfN2vrseO_OaAUR33dngaz89XXM',
+    appId: '1:808916156790:web:c7552efdb7733ec4527a57',
+    messagingSenderId: '808916156790',
+    projectId: 'ipoedge-app',
+    authDomain: 'ipoedge-app.firebaseapp.com',
+    storageBucket: 'ipoedge-app.firebasestorage.app',
+    measurementId: 'G-CDDP92ZC3J',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyAGoq12r7y8oDKb13szGExlYASaUKQoB3E',
+    appId: '1:808916156790:ios:e406cd25e726164b527a57',
+    messagingSenderId: '808916156790',
+    projectId: 'ipoedge-app',
+    storageBucket: 'ipoedge-app.firebasestorage.app',
+    iosBundleId: 'com.ipoedge.app',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyAGoq12r7y8oDKb13szGExlYASaUKQoB3E',
+    appId: '1:808916156790:ios:330eed291f94b228527a57',
+    messagingSenderId: '808916156790',
+    projectId: 'ipoedge-app',
+    storageBucket: 'ipoedge-app.firebasestorage.app',
+    iosBundleId: 'com.example.helloFlutter',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBa4KFpMfN2vrseO_OaAUR33dngaz89XXM',
+    appId: '1:808916156790:web:30734fd8e697ad9a527a57',
+    messagingSenderId: '808916156790',
+    projectId: 'ipoedge-app',
+    authDomain: 'ipoedge-app.firebaseapp.com',
+    storageBucket: 'ipoedge-app.firebasestorage.app',
+    measurementId: 'G-1P3ME45QG9',
+  );
+
 }
