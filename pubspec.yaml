@@ -59,6 +59,10 @@ dependencies:
   # Shared preferences for local storage
   shared_preferences: ^2.2.2
 
+  # Firebase dependencies
+  firebase_core: ^2.24.2
+  firebase_analytics: ^10.7.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
