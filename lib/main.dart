@@ -1,12 +1,28 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'theme/app_theme.dart';
 import 'screens/splash_screen.dart';
 import 'screens/signin_screen.dart';
 import 'screens/signup_screen.dart';
 import 'firebase_options.dart';
+import 'services/firebase_messaging_service.dart';
+import 'services/notification_helper.dart';
+
+/// Background message handler for Firebase Messaging
+/// This function must be a top-level function
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Initialize Firebase if not already initialized
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  log('Handling a background message: ${message.messageId}');
+  log('Message data: ${message.data}');
+  log('Message notification: ${message.notification?.title}');
+}
 
 void main() async {
   // Set preferred orientations and system UI
@@ -16,6 +32,15 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Set background message handler for Firebase Messaging
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // Initialize Firebase Messaging Service
+  await FirebaseMessagingService().initialize();
+
+  // Initialize Notification Helper
+  await NotificationHelper().initialize();
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

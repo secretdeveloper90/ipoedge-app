@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../theme/app_theme.dart';
 import 'home_screen.dart';
+import '../widgets/notification_permission_dialog.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -142,7 +143,8 @@ class _SplashScreenState extends State<SplashScreen>
     // Navigate to home screen after animations
     await Future.delayed(const Duration(milliseconds: 2000));
     if (mounted) {
-      Navigator.of(context).pushReplacement(
+      Navigator.of(context)
+          .pushReplacement(
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
               const HomeScreen(),
@@ -154,7 +156,21 @@ class _SplashScreenState extends State<SplashScreen>
             );
           },
         ),
-      );
+      )
+          .then((_) {
+        // Show notification permission dialog after navigation
+        if (mounted) {
+          Future.delayed(const Duration(milliseconds: 1000), () {
+            if (mounted) {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const NotificationPermissionDialog(),
+              );
+            }
+          });
+        }
+      });
     }
   }
 
