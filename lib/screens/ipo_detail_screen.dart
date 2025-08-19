@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_html/flutter_html.dart';
 import '../models/ipo_model.dart';
 import '../models/ipo.dart';
 import '../models/firebase_ipo_model.dart';
@@ -436,15 +437,14 @@ class _IPODetailScreenState extends State<IPODetailScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildKeyMetricsCard(),
+          _buildIPOOverviewCard(),
           const SizedBox(height: 10),
-          _buildSubscriptionCard(),
+          _buildSubscriptionRateTable(),
+          const SizedBox(height: 10),
+          _buildSharesOnOfferCard(),
           const SizedBox(height: 10),
           _buildDatesCard(),
           const SizedBox(height: 10),
-          _buildCompanyInfoCard(),
-          const SizedBox(height: 10),
-          _buildProductPortfolioCard(),
         ],
       ),
     );
@@ -456,15 +456,10 @@ class _IPODetailScreenState extends State<IPODetailScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildValuationsCard(),
-          const SizedBox(height: 10),
           _buildFinancialPerformanceCard(),
           const SizedBox(height: 10),
           _buildPromoterInfoCard(),
           const SizedBox(height: 10),
-          _buildAnchorInvestorsCard(),
-          const SizedBox(height: 10),
-          _buildPeerComparisonCard(),
         ],
       ),
     );
@@ -476,17 +471,13 @@ class _IPODetailScreenState extends State<IPODetailScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildIssueDetailsCard(),
+          _buildCompanyInfoCard(),
           const SizedBox(height: 10),
           _buildObjectivesCard(),
           const SizedBox(height: 10),
           _buildRegistrarCard(),
           const SizedBox(height: 10),
-          _buildFreshIssueOFSCard(),
-          const SizedBox(height: 10),
-          _buildMarketLotCard(),
-          const SizedBox(height: 10),
-          _buildSharesOfferedCard(),
+          _buildLeadManagersCard(),
           const SizedBox(height: 10),
           _buildBiddingTimingsCard(),
           const SizedBox(height: 10),
@@ -506,109 +497,10 @@ class _IPODetailScreenState extends State<IPODetailScreen>
           const SizedBox(height: 10),
           _buildWeaknessesCard(),
           const SizedBox(height: 10),
+          _buildFAQCard(),
+          const SizedBox(height: 10),
           _buildRecommendationCard(),
         ],
-      ),
-    );
-  }
-
-  Widget _buildKeyMetricsCard() {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Key Metrics',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMetricItem(
-                    'GMP',
-                    '${ipo.gmp.formattedPremium} (${ipo.gmp.formattedPercentage})',
-                    AppTheme.getGMPColor(ipo.gmp.safePercentage),
-                    Icons.trending_up,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: _buildMetricItem(
-                    'Expected Prem',
-                    ipo.expectedPremium.displayRange,
-                    AppColors.info,
-                    Icons.analytics,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMetricItem(
-                    'Face Value',
-                    '₹${ipo.faceValue}',
-                    AppColors.primary,
-                    Icons.account_balance_wallet,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: _buildMetricItem(
-                    'Issue Size',
-                    ipo.issueSize,
-                    AppColors.secondary,
-                    Icons.account_balance,
-                  ),
-                ),
-              ],
-            ),
-            // Expected Premium Note
-            if (ipo.expectedPremium.note.isNotEmpty) ...[
-              const SizedBox(height: 14),
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppColors.info.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.info.withOpacity(0.3)),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(
-                      Icons.info_outline,
-                      color: AppColors.info,
-                      size: 14,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        ipo.expectedPremium.note,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textSecondary,
-                          height: 1.3,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
-        ),
       ),
     );
   }
@@ -681,7 +573,26 @@ class _IPODetailScreenState extends State<IPODetailScreen>
     );
   }
 
-  Widget _buildSubscriptionCard() {
+  Widget _buildIPOOverviewCard() {
+    // Get IPO overview data from Firebase IPO if available
+    CompanyIPOOverview? ipoOverview;
+    if (firebaseIPO != null) {
+      ipoOverview = firebaseIPO!.companyIpoOverview;
+    }
+
+    // Check if we have IPO overview data to display
+    final hasData = ipoOverview != null &&
+        (ipoOverview.minInvestment != null ||
+            ipoOverview.lotSize != null ||
+            ipoOverview.priceRangeMin != null ||
+            ipoOverview.issueSize != null ||
+            ipoOverview.postIssuePromoterHoldingPercent != null);
+
+    // Don't show the card if no data is available
+    if (!hasData) {
+      return const SizedBox.shrink();
+    }
+
     return Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
@@ -692,7 +603,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Subscription Status',
+              'IPO Overview',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -700,24 +611,712 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            _buildSubscriptionBar(
-                'Overall', ipo.subscription.times, AppColors.primary),
-            const SizedBox(height: 8),
-            _buildSubscriptionBar(
-                'Retail', ipo.subscription.retail, AppColors.secondary),
-            const SizedBox(height: 8),
-            _buildSubscriptionBar(
-                'HNI', ipo.subscription.hni, AppColors.warning),
-            const SizedBox(height: 8),
-            _buildSubscriptionBar('QIB', ipo.subscription.qib, AppColors.info),
-            if (ipo.subscription.employee != null) ...[
-              const SizedBox(height: 8),
-              _buildSubscriptionBar(
-                  'Employee', ipo.subscription.employee, AppColors.success),
+
+            // Minimum Investment
+            if (ipoOverview!.minInvestment != null) ...[
+              _buildOverviewItem(
+                'Minimum Investment',
+                '₹${_formatNumber(ipoOverview.minInvestment!)}',
+                Icons.account_balance_wallet,
+                AppColors.primary,
+              ),
+              const SizedBox(height: 10),
+            ],
+
+            // Lot Size
+            if (ipoOverview.lotSize != null) ...[
+              _buildOverviewItem(
+                'Lot Size',
+                '${ipoOverview.lotSize}',
+                Icons.inventory,
+                AppColors.secondary,
+              ),
+              const SizedBox(height: 10),
+            ],
+
+            // Minimum & Maximum Lot
+            if (ipoOverview.minLot != null && ipoOverview.maxLot != null) ...[
+              _buildOverviewItem(
+                'Minimum Lot - Maximum Lot',
+                '${ipoOverview.minLot} - ${ipoOverview.maxLot}',
+                Icons.format_list_numbered,
+                AppColors.info,
+              ),
+              const SizedBox(height: 10),
+            ] else if (ipoOverview.minLot != null) ...[
+              _buildOverviewItem(
+                'Minimum Lot',
+                '${ipoOverview.minLot}',
+                Icons.format_list_numbered,
+                AppColors.info,
+              ),
+              const SizedBox(height: 10),
+            ] else if (ipoOverview.maxLot != null) ...[
+              _buildOverviewItem(
+                'Maximum Lot',
+                '${ipoOverview.maxLot}',
+                Icons.format_list_numbered,
+                AppColors.info,
+              ),
+              const SizedBox(height: 10),
+            ],
+
+            // Number of Shares
+            if (ipoOverview.noOfShares != null) ...[
+              _buildOverviewItem(
+                'Number of Shares',
+                _formatShares(ipoOverview.noOfShares!),
+                Icons.pie_chart,
+                AppColors.success,
+              ),
+              const SizedBox(height: 10),
+            ],
+
+            // Issue Price Band
+            if (ipoOverview.priceRangeMin != null &&
+                ipoOverview.priceRangeMax != null) ...[
+              _buildOverviewItem(
+                'Issue Price Band',
+                '₹${ipoOverview.priceRangeMin} - ₹${ipoOverview.priceRangeMax}',
+                Icons.trending_up,
+                AppColors.warning,
+              ),
+              const SizedBox(height: 10),
+            ],
+
+            // Post Issue Promoter Holding
+            if (ipoOverview.postIssuePromoterHoldingPercent != null) ...[
+              _buildOverviewItem(
+                'Post Issue Promoter Holding',
+                '${ipoOverview.postIssuePromoterHoldingPercent!.toStringAsFixed(2)}%',
+                Icons.person,
+                AppColors.primary,
+              ),
+              const SizedBox(height: 10),
+            ],
+
+            // Issue Size
+            if (ipoOverview.issueSize != null) ...[
+              _buildOverviewItem(
+                'Issue Size',
+                _formatIssueSize(ipoOverview.issueSize!),
+                Icons.account_balance,
+                AppColors.secondary,
+              ),
+              const SizedBox(height: 10),
             ],
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildOverviewItem(
+      String label, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color.withOpacity(0.12),
+            color.withOpacity(0.06),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withOpacity(0.15),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(
+              icon,
+              size: 18,
+              color: color,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: color.withOpacity(0.8),
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatNumber(int number) {
+    if (number >= 10000000) {
+      return '${(number / 10000000).toStringAsFixed(1)} Cr';
+    } else if (number >= 100000) {
+      return '${(number / 100000).toStringAsFixed(1)} L';
+    } else if (number >= 1000) {
+      return '${(number / 1000).toStringAsFixed(1)} K';
+    } else {
+      return number.toString();
+    }
+  }
+
+  String _formatIssueSize(int issueSize) {
+    if (issueSize >= 10000000) {
+      return '₹${(issueSize / 10000000).toStringAsFixed(1)} Cr';
+    } else if (issueSize >= 100000) {
+      return '₹${(issueSize / 100000).toStringAsFixed(1)} L';
+    } else {
+      return '₹${issueSize.toString()}';
+    }
+  }
+
+  Future<void> _launchURL(String url) async {
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Could not open document'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error opening document'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Widget _buildSubscriptionRateTable() {
+    // Get subscription rate data from Firebase IPO if available
+    SubscriptionRate? subscriptionRate;
+    if (firebaseIPO != null) {
+      subscriptionRate = firebaseIPO!.subscriptionRate;
+    }
+
+    // Check if we have subscription data to display
+    final hasHeaderData = subscriptionRate?.subscriptionHeaderData != null;
+    final hasDetails = subscriptionRate?.subscriptionDetails != null &&
+        subscriptionRate!.subscriptionDetails!.isNotEmpty;
+
+    // Don't show the card if no data is available
+    if (!hasHeaderData && !hasDetails) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.table_chart, color: AppColors.primary, size: 20),
+                SizedBox(width: 8),
+                Text(
+                  'Subscription Status',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Current subscription summary (if available)
+            if (hasHeaderData) ...[
+              _buildCurrentSubscriptionSummary(
+                  subscriptionRate!.subscriptionHeaderData!),
+              const SizedBox(height: 16),
+            ],
+
+            // Day-wise subscription table (if available)
+            if (hasDetails) ...[
+              _buildDayWiseSubscriptionTable(
+                  subscriptionRate!.subscriptionDetails!),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCurrentSubscriptionSummary(SubscriptionHeaderData headerData) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        // color: AppColors.primary.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.trending_up, color: AppColors.primary, size: 16),
+              const SizedBox(width: 6),
+              const Text(
+                'Current Subscription',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ),
+              const Spacer(),
+              if (headerData.date != null) ...[
+                Text(
+                  'As of ${headerData.date}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildSubscriptionBar(
+              'Overall', ipo.subscription.times, AppColors.primary),
+          const SizedBox(height: 8),
+          _buildSubscriptionBar(
+              'Retail', ipo.subscription.retail, AppColors.secondary),
+          const SizedBox(height: 8),
+          _buildSubscriptionBar('HNI', ipo.subscription.hni, AppColors.warning),
+          const SizedBox(height: 8),
+          _buildSubscriptionBar('QIB', ipo.subscription.qib, AppColors.info),
+          if (ipo.subscription.employee != null) ...[
+            const SizedBox(height: 8),
+            _buildSubscriptionBar(
+                'Employee', ipo.subscription.employee, AppColors.success),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSharesOnOfferCard() {
+    // Get shares on offer data from Firebase IPO if available
+    SharesOnOffer? sharesOnOffer;
+    if (firebaseIPO != null) {
+      sharesOnOffer = firebaseIPO!.sharesOnOffer;
+    }
+
+    // Check if we have shares on offer data to display
+    final hasData = sharesOnOffer != null &&
+        (sharesOnOffer.totalSharesOffered != null ||
+            sharesOnOffer.freshIssue != null ||
+            sharesOnOffer.offerForSale != null ||
+            sharesOnOffer.postIssuePromoterHoldingPercent != null);
+
+    // Don't show the card if no data is available
+    if (!hasData) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'NUMBER OF SHARES ON OFFER',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // First row: Total and Fresh Issue
+            Row(
+              children: [
+                Expanded(
+                  child: _buildMetricItem(
+                    'Total',
+                    _formatShares(sharesOnOffer!.totalSharesOffered),
+                    AppColors.primary,
+                    Icons.pie_chart,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _buildMetricItem(
+                    'Fresh Issue',
+                    _formatShares(sharesOnOffer.freshIssue),
+                    AppColors.secondary,
+                    Icons.add_circle_outline,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+
+            // Second row: Offer for Sale and Promoter Holding
+            Row(
+              children: [
+                Expanded(
+                  child: _buildMetricItem(
+                    'Offer for Sale',
+                    _formatShares(sharesOnOffer.offerForSale),
+                    AppColors.warning,
+                    Icons.swap_horiz,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _buildMetricItem(
+                    'Post Issue Promoter %',
+                    sharesOnOffer.postIssuePromoterHoldingPercent != null
+                        ? '${sharesOnOffer.postIssuePromoterHoldingPercent!.toStringAsFixed(2)}%'
+                        : '-',
+                    AppColors.info,
+                    Icons.person,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatShares(int? shares) {
+    if (shares == null || shares == 0) return '-';
+
+    if (shares >= 10000000) {
+      // Convert to millions (M)
+      final millions = shares / 1000000;
+      return '${millions.toStringAsFixed(1)} M';
+    } else if (shares >= 100000) {
+      // Convert to lakhs (L)
+      final lakhs = shares / 100000;
+      return '${lakhs.toStringAsFixed(1)} L';
+    } else if (shares >= 1000) {
+      // Convert to thousands (K)
+      final thousands = shares / 1000;
+      return '${thousands.toStringAsFixed(1)} K';
+    } else {
+      return shares.toString();
+    }
+  }
+
+  Widget _buildDayWiseSubscriptionTable(List<SubscriptionDetail> details) {
+    // Get allotment data for category reservations
+    AllotmentTableData? allotmentData;
+    if (firebaseIPO != null) {
+      allotmentData = firebaseIPO!.allotment.tableData;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.calendar_today, color: AppColors.primary, size: 16),
+            SizedBox(width: 6),
+            Text(
+              'Day-wise Subscription',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey[300]!),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            children: [
+              // Table header
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    topRight: Radius.circular(8),
+                  ),
+                ),
+                child: const Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        'Day',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        'RII',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        'NII',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        'QIB',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Category Reservation row
+              if (allotmentData != null) ...[
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.05),
+                    border: Border(
+                      bottom: BorderSide(color: Colors.grey[300]!),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Expanded(
+                        flex: 3,
+                        child: Text(
+                          'Category Reservation',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          allotmentData.retailIndividualInvestor != null
+                              ? '${allotmentData.retailIndividualInvestor}%'
+                              : '-',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.secondary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          allotmentData.nonInstitutionalInvestor != null
+                              ? '${allotmentData.nonInstitutionalInvestor}%'
+                              : '-',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.warning,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          allotmentData.qualifiedInstitutionalBuyers != null
+                              ? '${allotmentData.qualifiedInstitutionalBuyers}%'
+                              : '-',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.info,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              // Table rows
+              ...details.asMap().entries.map((entry) {
+                final index = entry.key;
+                final detail = entry.value;
+                final isLastRow = index == details.length - 1;
+
+                return Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+                  decoration: BoxDecoration(
+                    color: index % 2 == 0 ? Colors.white : Colors.grey[50],
+                    borderRadius: isLastRow
+                        ? const BorderRadius.only(
+                            bottomLeft: Radius.circular(8),
+                            bottomRight: Radius.circular(8),
+                          )
+                        : null,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Html(
+                          data: detail.day ?? '-',
+                          style: {
+                            "body": Style(
+                              fontSize: FontSize(12),
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textPrimary,
+                              textAlign: TextAlign.center,
+                              margin: Margins.zero,
+                              padding: HtmlPaddings.zero,
+                            ),
+                            "br": Style(
+                              fontSize: FontSize(12),
+                            ),
+                          },
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          detail.retailIndividualInvestor != null
+                              ? '${detail.retailIndividualInvestor!.toStringAsFixed(2)}x'
+                              : '-',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textPrimary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          detail.nonInstitutionalInvestor != null
+                              ? '${detail.nonInstitutionalInvestor!.toStringAsFixed(2)}x'
+                              : '-',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textPrimary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          detail.qualifiedInstitutionalBuyers != null
+                              ? '${detail.qualifiedInstitutionalBuyers!.toStringAsFixed(2)}x'
+                              : '-',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textPrimary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -789,16 +1388,105 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            _buildDateItem(
-                'Open Date',
+            // Use importantDates for comprehensive date information
+            if (importantDates.openDate != null &&
+                importantDates.closeDate != null) ...[
+              _buildDateItem(
+                'Open Date - close Date',
+                '${_formatDate(importantDates.openDate!)} - ${_formatDate(importantDates.closeDate!)}',
+                Icons.calendar_today,
+              ),
+              const SizedBox(height: 10),
+            ] else ...[
+              _buildDateItem(
+                'Open Date -  close Date',
                 '${ipo.offerDate.start} - ${ipo.offerDate.end}',
-                Icons.calendar_today),
-            const SizedBox(height: 8),
-            _buildDateItem(
-                'Listing Date', ipo.listingDate ?? 'Coming Soon', Icons.list),
-            const SizedBox(height: 8),
-            _buildDateItem('Allotment Date', ipo.allotmentDate ?? 'Coming Soon',
-                Icons.assignment_turned_in),
+                Icons.calendar_today,
+              ),
+              const SizedBox(height: 10),
+            ],
+            if (importantDates.allotmentDate != null) ...[
+              _buildDateItem(
+                'Allotment Date',
+                _formatDate(importantDates.allotmentDate!),
+                Icons.assignment_turned_in,
+              ),
+              const SizedBox(height: 10),
+            ] else if (ipo.allotmentDate != null) ...[
+              _buildDateItem(
+                'Allotment Date',
+                ipo.allotmentDate!,
+                Icons.assignment_turned_in,
+              ),
+              const SizedBox(height: 10),
+            ] else ...[
+              _buildDateItem(
+                'Allotment Date',
+                'To be announced',
+                Icons.assignment_turned_in,
+              ),
+              const SizedBox(height: 10),
+            ],
+            if (importantDates.refundDate != null) ...[
+              _buildDateItem(
+                'Refund Date',
+                _formatDate(importantDates.refundDate!),
+                Icons.money_off,
+              ),
+              const SizedBox(height: 10),
+            ],
+            if (importantDates.dematCreditDate != null) ...[
+              _buildDateItem(
+                'Demat Credit Date',
+                _formatDate(importantDates.dematCreditDate!),
+                Icons.account_balance_wallet,
+              ),
+              const SizedBox(height: 10),
+            ],
+            if (importantDates.listingDate != null) ...[
+              _buildDateItem(
+                'Listing Date',
+                _formatDate(importantDates.listingDate!),
+                Icons.list,
+              ),
+              const SizedBox(height: 10),
+            ] else if (ipo.listingDate != null) ...[
+              _buildDateItem(
+                'Listing Date',
+                ipo.listingDate!,
+                Icons.list,
+              ),
+              const SizedBox(height: 10),
+            ] else ...[
+              _buildDateItem(
+                'Listing Date',
+                'Coming Soon',
+                Icons.list,
+              ),
+              const SizedBox(height: 10),
+            ],
+
+            // Listing on Exchange(s)
+            if (importantDates.exchangeFlags != null &&
+                importantDates.exchangeFlags!.isNotEmpty) ...[
+              _buildDateItem(
+                'Listing on Exchange(s)',
+                importantDates.exchangeFlags!,
+                Icons.account_balance,
+              ),
+            ] else if (ipo.exchange.isNotEmpty) ...[
+              _buildDateItem(
+                'Listing on Exchange(s)',
+                ipo.exchange,
+                Icons.account_balance,
+              ),
+            ] else ...[
+              _buildDateItem(
+                'Listing on Exchange(s)',
+                'To be announced',
+                Icons.account_balance,
+              ),
+            ],
           ],
         ),
       ),
@@ -806,35 +1494,100 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   }
 
   Widget _buildDateItem(String label, String value, IconData icon) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: AppColors.primary),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
+    // Determine if this is a placeholder/unknown date
+    final isPlaceholder =
+        value == 'Coming Soon' || value == 'To be announced' || value.isEmpty;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isPlaceholder
+            ? Colors.grey[50]
+            : AppColors.primary.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isPlaceholder
+              ? Colors.grey[200]!
+              : AppColors.primary.withOpacity(0.2),
+          width: 1,
         ),
-      ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: isPlaceholder
+                  ? Colors.grey[300]
+                  : AppColors.primary.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(
+              icon,
+              size: 16,
+              color: isPlaceholder ? Colors.grey[600] : AppColors.primary,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isPlaceholder
+                        ? Colors.grey[600]
+                        : AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: isPlaceholder
+                        ? Colors.grey[600]
+                        : AppColors.textPrimary,
+                    fontStyle:
+                        isPlaceholder ? FontStyle.italic : FontStyle.normal,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  /// Formats a date string to a more readable format
+  String _formatDate(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      final months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
+      ];
+
+      return '${date.day} ${months[date.month - 1]}, ${date.year}';
+    } catch (e) {
+      // If parsing fails, return the original string
+      return dateString;
+    }
   }
 
   // Placeholder methods for remaining cards
@@ -857,13 +1610,58 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            Text(
-              ipo.companyDescription,
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppColors.textPrimary,
-                height: 1.4,
-              ),
+            Html(
+              data: ipo.companyDescription,
+              style: {
+                "body": Style(
+                  fontSize: FontSize(13),
+                  color: AppColors.textPrimary,
+                  lineHeight: LineHeight(1.4),
+                  margin: Margins.zero,
+                  padding: HtmlPaddings.zero,
+                ),
+                "p": Style(
+                  fontSize: FontSize(13),
+                  color: AppColors.textPrimary,
+                  lineHeight: LineHeight(1.4),
+                  margin: Margins.only(bottom: 8),
+                ),
+                "div": Style(
+                  fontSize: FontSize(13),
+                  color: AppColors.textPrimary,
+                  lineHeight: LineHeight(1.4),
+                  margin: Margins.only(bottom: 8),
+                ),
+                "span": Style(
+                  fontSize: FontSize(13),
+                  color: AppColors.textPrimary,
+                  lineHeight: LineHeight(1.4),
+                ),
+                "strong": Style(
+                  fontWeight: FontWeight.bold,
+                ),
+                "b": Style(
+                  fontWeight: FontWeight.bold,
+                ),
+                "em": Style(
+                  fontStyle: FontStyle.italic,
+                ),
+                "i": Style(
+                  fontStyle: FontStyle.italic,
+                ),
+                "ul": Style(
+                  margin: Margins.only(bottom: 8),
+                ),
+                "ol": Style(
+                  margin: Margins.only(bottom: 8),
+                ),
+                "li": Style(
+                  fontSize: FontSize(13),
+                  color: AppColors.textPrimary,
+                  lineHeight: LineHeight(1.4),
+                  margin: Margins.only(bottom: 4),
+                ),
+              },
             ),
             const SizedBox(height: 14),
             _buildInfoRow('Sector', ipo.sector),
@@ -924,6 +1722,29 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     Icons.language, 'Website', ipo.companyDetails!.website!),
                 const SizedBox(height: 6),
               ],
+            ],
+
+            // Management Section (from Firebase data)
+            if (firebaseIPO?.information.management != null &&
+                firebaseIPO!.information.management!.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              const Text(
+                'Key Management',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 10),
+              ...firebaseIPO!.information.management!
+                  .take(2) // Take only first two members
+                  .map((member) => Column(
+                        children: [
+                          _buildManagementRow(member.name, member.designation),
+                          const SizedBox(height: 8),
+                        ],
+                      )),
             ],
           ],
         ),
@@ -994,149 +1815,57 @@ class _IPODetailScreenState extends State<IPODetailScreen>
     );
   }
 
-  Widget _buildValuationsCard() {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Valuations & Ratios',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 14),
-            // EPS Row
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMetricItem(
-                    'EPS (Pre-IPO)',
-                    ipo.valuations.epsPreIpo?.toStringAsFixed(2) ?? '-',
-                    AppColors.primary,
-                    Icons.trending_up,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildMetricItem(
-                    'EPS (Post-IPO)',
-                    ipo.valuations.epsPostIpo?.toStringAsFixed(2) ?? '-',
-                    AppColors.secondary,
-                    Icons.trending_up,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            // P/E Row
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMetricItem(
-                    'P/E (Pre-IPO)',
-                    ipo.valuations.pePreIpo?.toStringAsFixed(1) ?? '-',
-                    AppColors.warning,
-                    Icons.analytics,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildMetricItem(
-                    'P/E (Post-IPO)',
-                    ipo.valuations.pePostIpo?.toStringAsFixed(1) ?? '-',
-                    AppColors.info,
-                    Icons.analytics,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            // ROE and ROCE Row
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMetricItem(
-                    'ROE',
-                    ipo.valuations.roe != null
-                        ? '${ipo.valuations.roe!.toStringAsFixed(1)}%'
-                        : '-',
-                    AppColors.success,
-                    Icons.percent,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildMetricItem(
-                    'ROCE',
-                    ipo.valuations.roce != null
-                        ? '${ipo.valuations.roce!.toStringAsFixed(1)}%'
-                        : '-',
-                    AppColors.primary,
-                    Icons.percent,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            // PAT Margin and Debt-to-Equity Row
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMetricItem(
-                    'PAT Margin',
-                    ipo.valuations.patMargin != null
-                        ? '${ipo.valuations.patMargin!.toStringAsFixed(1)}%'
-                        : '-',
-                    AppColors.info,
-                    Icons.trending_up,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildMetricItem(
-                    'Debt/Equity',
-                    ipo.valuations.debtEquity?.toStringAsFixed(2) ?? '-',
-                    AppColors.warning,
-                    Icons.balance,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            // Price-to-Book and RONW Row
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMetricItem(
-                    'Price/Book',
-                    ipo.valuations.priceToBook?.toStringAsFixed(2) ?? '-',
-                    AppColors.secondary,
-                    Icons.book,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildMetricItem(
-                    'RONW',
-                    ipo.valuations.ronw != null
-                        ? '${ipo.valuations.ronw!.toStringAsFixed(1)}%'
-                        : '-',
-                    AppColors.success,
-                    Icons.account_balance_wallet,
-                  ),
-                ),
-              ],
-            ),
-          ],
+  Widget _buildManagementRow(String name, String designation) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: AppColors.primary.withOpacity(0.1),
+          width: 1,
         ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: const Icon(
+              Icons.person,
+              size: 16,
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  designation,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1161,161 +1890,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             ),
             const SizedBox(height: 14),
             if (ipo.financials.isNotEmpty) ...[
-              // Financial data table header
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        'Year',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        'Revenue (₹Cr)',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        'Profit (₹Cr)',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 6),
-              // Financial data rows
-              ...ipo.financials.map((financial) => Container(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 10),
-                    margin: const EdgeInsets.only(bottom: 3),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Text(
-                            financial.year,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            financial.revenue?.toStringAsFixed(2) ?? '-',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textPrimary,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            financial.profit?.toStringAsFixed(2) ?? '-',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: financial.profit != null &&
-                                      financial.profit! > 0
-                                  ? AppColors.success
-                                  : financial.profit != null &&
-                                          financial.profit! < 0
-                                      ? AppColors.error
-                                      : AppColors.textPrimary,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )),
-              const SizedBox(height: 14),
-              // Additional financial metrics
-              if (ipo.financials.isNotEmpty) ...[
-                const Text(
-                  'Additional Metrics',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                ...ipo.financials.take(1).map((financial) => Column(
-                      children: [
-                        if (financial.assets != null ||
-                            financial.netWorth != null)
-                          Row(
-                            children: [
-                              if (financial.assets != null)
-                                Expanded(
-                                  child: _buildMetricItem(
-                                    'Total Assets',
-                                    financial.formattedAssets,
-                                    AppColors.info,
-                                    Icons.account_balance,
-                                  ),
-                                ),
-                              if (financial.assets != null &&
-                                  financial.netWorth != null)
-                                const SizedBox(width: 12),
-                              if (financial.netWorth != null)
-                                Expanded(
-                                  child: _buildMetricItem(
-                                    'Net Worth',
-                                    financial.formattedNetWorth,
-                                    AppColors.success,
-                                    Icons.account_balance_wallet,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        if (financial.totalBorrowing != null) ...[
-                          const SizedBox(height: 8),
-                          _buildMetricItem(
-                            'Total Borrowing',
-                            financial.formattedTotalBorrowing,
-                            AppColors.warning,
-                            Icons.credit_card,
-                          ),
-                        ],
-                      ],
-                    )),
-              ],
+              // Enhanced Financial data table
+              _buildFinancialTable(ipo.financials),
             ] else
               const Text(
                 'Financial performance data will be updated soon.',
@@ -1439,47 +2015,13 @@ class _IPODetailScreenState extends State<IPODetailScreen>
     );
   }
 
-  // Remaining placeholder methods for Details and Analysis tabs
-  Widget _buildIssueDetailsCard() {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Issue Details',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 14),
-            _buildInfoRow('Issue Size', ipo.issueSize),
-            const SizedBox(height: 6),
-            _buildInfoRow('Face Value', '₹${ipo.faceValue}'),
-            const SizedBox(height: 6),
-            _buildInfoRow('Lot Size', '${ipo.lotSize} shares'),
-            const SizedBox(height: 6),
-            _buildInfoRow('Category',
-                ipo.category == IPOCategory.sme ? 'SME' : 'Mainboard'),
-            const SizedBox(height: 6),
-            _buildInfoRow('Offer Price', ipo.offerPrice.formatted),
-            const SizedBox(height: 6),
-            _buildInfoRow('Exchange', ipo.exchange),
-            const SizedBox(height: 6),
-            _buildInfoRow('Status', ipo.status.toUpperCase()),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildObjectivesCard() {
+    // Get the raw object of the issue content from Firebase IPO if available
+    String? objectOfTheIssue;
+    if (firebaseIPO != null) {
+      objectOfTheIssue = firebaseIPO!.information.objectOfTheIssue;
+    }
+
     return Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
@@ -1490,7 +2032,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Issue Objectives',
+              'Object of the Issue',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -1498,7 +2040,57 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ),
             ),
             const SizedBox(height: 14),
-            if (ipo.issueObjectives.isNotEmpty)
+            if (objectOfTheIssue != null && objectOfTheIssue.isNotEmpty)
+              Html(
+                data: objectOfTheIssue,
+                style: {
+                  "body": Style(
+                    fontSize: FontSize(13),
+                    color: AppColors.textPrimary,
+                    lineHeight: LineHeight(1.4),
+                    margin: Margins.zero,
+                    padding: HtmlPaddings.zero,
+                  ),
+                  "p": Style(
+                    fontSize: FontSize(13),
+                    color: AppColors.textPrimary,
+                    lineHeight: LineHeight(1.4),
+                    margin: Margins.only(bottom: 8),
+                  ),
+                  "div": Style(
+                    fontSize: FontSize(13),
+                    color: AppColors.textPrimary,
+                    lineHeight: LineHeight(1.4),
+                    margin: Margins.only(bottom: 8),
+                  ),
+                  "ul": Style(
+                    margin: Margins.only(bottom: 8),
+                  ),
+                  "ol": Style(
+                    margin: Margins.only(bottom: 8),
+                  ),
+                  "li": Style(
+                    fontSize: FontSize(13),
+                    color: AppColors.textPrimary,
+                    lineHeight: LineHeight(1.4),
+                    margin: Margins.only(bottom: 4),
+                  ),
+                  "strong": Style(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  "b": Style(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  "em": Style(
+                    fontStyle: FontStyle.italic,
+                  ),
+                  "i": Style(
+                    fontStyle: FontStyle.italic,
+                  ),
+                },
+              )
+            else if (ipo.issueObjectives.isNotEmpty)
+              // Fallback to legacy issue objectives display
               ...ipo.issueObjectives.asMap().entries.map((entry) {
                 final index = entry.key;
                 final objective = entry.value;
@@ -1542,7 +2134,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               })
             else
               const Text(
-                'Issue objectives will be updated soon.',
+                'Object of the issue will be updated soon.',
                 style: TextStyle(
                   fontSize: 13,
                   color: AppColors.textSecondary,
@@ -1556,745 +2148,660 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   }
 
   Widget _buildRegistrarCard() {
+    // Get registrars from Firebase data if available
+    List<LeadManagerRegistrar> leadManagersAndRegistrars = [];
+    if (firebaseIPO != null) {
+      leadManagersAndRegistrars = firebaseIPO!.leadManagersAndRegistrars;
+    }
+
+    // Filter only registrars
+    final registrars = leadManagersAndRegistrars
+        .where((item) => item.designation.toLowerCase().contains('registrar'))
+        .toList();
+
     return Card(
-      elevation: 4,
+      elevation: 6,
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Registrar & Lead Managers',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 14),
-
-            // Registrar Information
-            const Text(
-              'Registrar',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 10),
-            if (ipo.registrarDetails != null) ...[
-              _buildInfoRow('Name', ipo.registrarDetails!.name),
-              const SizedBox(height: 8),
-              if (ipo.registrarDetails!.phone != null) ...[
-                _buildContactRow(
-                    Icons.phone, 'Phone', ipo.registrarDetails!.phone!),
-                const SizedBox(height: 8),
-              ],
-              if (ipo.registrarDetails!.email != null) ...[
-                _buildContactRow(
-                    Icons.email, 'Email', ipo.registrarDetails!.email!),
-                const SizedBox(height: 8),
-              ],
-              if (ipo.registrarDetails!.website != null) ...[
-                _buildContactRow(
-                    Icons.language, 'Website', ipo.registrarDetails!.website!),
-                const SizedBox(height: 8),
-              ],
-              if (ipo.registrarDetails!.address != null) ...[
-                _buildContactRow(Icons.location_on, 'Address',
-                    ipo.registrarDetails!.address!),
-                const SizedBox(height: 8),
-              ],
-            ] else ...[
-              _buildInfoRow('Name', ipo.registrar ?? 'Not Available'),
-              const SizedBox(height: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.blue.shade50,
+              Colors.white,
             ],
-
-            // Lead Managers
-            const SizedBox(height: 12),
-            const Text(
-              'Lead Managers',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 10),
-            if (ipo.leadManagers.isNotEmpty) ...[
-              ...ipo.leadManagers.asMap().entries.map((entry) {
-                final index = entry.key;
-                final manager = entry.value;
-                return Padding(
-                  padding: EdgeInsets.only(
-                      bottom: index < ipo.leadManagers.length - 1 ? 8 : 0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        margin: const EdgeInsets.only(top: 6, right: 12),
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          manager,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: AppColors.textPrimary,
-                            height: 1.4,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            ] else ...[
-              const Text(
-                'Lead managers information not available.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-          ],
+          ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildFreshIssueOFSCard() {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.account_balance, color: AppColors.primary, size: 24),
-                SizedBox(width: 8),
-                Text(
-                  'Issue Structure',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Modern Header
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.assignment_ind,
+                      color: Colors.blue.shade700,
+                      size: 24,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Fresh Issue Section
-            if (ipo.freshIssue != null) ...[
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.success.withOpacity(0.3)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.add_circle,
-                            color: AppColors.success, size: 20),
-                        SizedBox(width: 8),
-                        Text(
-                          'Fresh Issue',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.success,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildMetricItem(
-                            'Shares',
-                            ipo.freshIssue!.shares > 0
-                                ? '${(ipo.freshIssue!.shares / 1000000).toStringAsFixed(2)}M'
-                                : '-',
-                            AppColors.success,
-                            Icons.share,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildMetricItem(
-                            'Amount',
-                            ipo.freshIssue!.amount.isNotEmpty
-                                ? ipo.freshIssue!.amount
-                                : '-',
-                            AppColors.success,
-                            Icons.currency_rupee,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-            ] else ...[
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[200]!),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.info_outline,
-                        color: AppColors.textSecondary, size: 20),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Fresh issue details will be available soon.',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-
-            // OFS Section
-            if (ipo.ofs != null) ...[
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.warning.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.warning.withOpacity(0.3)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.swap_horiz,
-                            color: AppColors.warning, size: 20),
-                        SizedBox(width: 8),
-                        Text(
-                          'Offer for Sale (OFS)',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.warning,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildMetricItem(
-                            'Shares',
-                            ipo.ofs!.shares > 0
-                                ? '${(ipo.ofs!.shares / 1000000).toStringAsFixed(2)}M'
-                                : 'None',
-                            AppColors.warning,
-                            Icons.share,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildMetricItem(
-                            'Amount',
-                            ipo.ofs!.amount.isNotEmpty ? ipo.ofs!.amount : '-',
-                            AppColors.warning,
-                            Icons.currency_rupee,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ] else ...[
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[200]!),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.info_outline,
-                        color: AppColors.textSecondary, size: 20),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'OFS details will be available soon.',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-
-            // Retail Portion
-            if (ipo.retailPortion != null && ipo.retailPortion!.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.info.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.info.withOpacity(0.3)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.people, color: AppColors.info, size: 20),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Retail Portion:',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      ipo.retailPortion!,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.info,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMarketLotCard() {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.shopping_cart, color: AppColors.primary, size: 24),
-                SizedBox(width: 8),
-                Text(
-                  'Market Lot Details',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (ipo.marketLot != null) ...[
-              // Table Header
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        'Category',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        'Shares',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        'Amount(₹)',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        'Applications',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Retail Row
-              _buildMarketLotRow(
-                'Retail',
-                ipo.marketLot!.retail,
-                AppColors.success,
-              ),
-              const SizedBox(height: 4),
-
-              // sHNI Row
-              _buildMarketLotRow(
-                'sHNI',
-                ipo.marketLot!.sHni,
-                AppColors.warning,
-              ),
-              const SizedBox(height: 4),
-
-              // bHNI Row
-              _buildMarketLotRow(
-                'bHNI',
-                ipo.marketLot!.bHni,
-                AppColors.info,
-              ),
-            ] else ...[
-              const Text(
-                'Market lot details not available.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMarketLotRow(
-      String category, MarketLotDetails details, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.2)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: Text(
-              category,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              details.shares > 0 ? details.shares.toString() : '-',
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.textPrimary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              details.amount > 0
-                  ? '₹${details.amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}'
-                  : '-',
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.textPrimary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              details.applications > 0
-                  ? details.applications.toString().replaceAllMapped(
-                      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                      (Match m) => '${m[1]},')
-                  : '-',
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.textPrimary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSharesOfferedCard() {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.pie_chart, color: AppColors.primary, size: 22),
-                SizedBox(width: 6),
-                Flexible(
-                  child: Text(
-                    'Shares Offered Breakdown',
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Registrar',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary,
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
+                ],
+              ),
+              const SizedBox(height: 18),
+
+              // Registrar Information
+              if (registrars.isNotEmpty) ...[
+                ...registrars
+                    .map((registrar) => _buildModernRegistrarItem(registrar)),
+              ] else if (ipo.registrarDetails != null) ...[
+                // Fallback to legacy data
+                _buildModernLegacyRegistrarInfo(),
+              ] else ...[
+                _buildModernNoDataMessage(
+                    'Registrar information will be available soon.',
+                    Icons.assignment_ind),
               ],
-            ),
-            const SizedBox(height: 14),
-            if (ipo.sharesOffered != null) ...[
-              // Total Shares
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Flexible(
-                      child: Text(
-                        'Total Shares Offered',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    Text(
-                      '${(ipo.sharesOffered!.total / 1000000).toStringAsFixed(2)}M',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Breakdown Grid - Using Wrap for better responsiveness
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  // Calculate optimal item width based on available space
-                  final availableWidth = constraints.maxWidth;
-                  final itemWidth =
-                      (availableWidth - 8) / 2; // 2 columns with 8px gap
-
-                  return Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      SizedBox(
-                        width: itemWidth,
-                        child: _buildSharesOfferedItem(
-                          'QIB',
-                          ipo.sharesOffered!.qib,
-                          ipo.sharesOffered!.total,
-                          AppColors.primary,
-                        ),
-                      ),
-                      SizedBox(
-                        width: itemWidth,
-                        child: _buildSharesOfferedItem(
-                          'NII',
-                          ipo.sharesOffered!.nii,
-                          ipo.sharesOffered!.total,
-                          AppColors.secondary,
-                        ),
-                      ),
-                      SizedBox(
-                        width: itemWidth,
-                        child: _buildSharesOfferedItem(
-                          'bNII',
-                          ipo.sharesOffered!.bNii,
-                          ipo.sharesOffered!.total,
-                          AppColors.warning,
-                        ),
-                      ),
-                      SizedBox(
-                        width: itemWidth,
-                        child: _buildSharesOfferedItem(
-                          'sNII',
-                          ipo.sharesOffered!.sNii,
-                          ipo.sharesOffered!.total,
-                          AppColors.info,
-                        ),
-                      ),
-                      SizedBox(
-                        width: itemWidth,
-                        child: _buildSharesOfferedItem(
-                          'Retail',
-                          ipo.sharesOffered!.retail,
-                          ipo.sharesOffered!.total,
-                          AppColors.success,
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ] else ...[
-              const Text(
-                'Shares offered breakdown not available.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textSecondary,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildSharesOfferedItem(
-      String category, int shares, int total, Color color) {
-    final percentage =
-        total > 0 ? (shares / total * 100).toStringAsFixed(1) : '0.0';
-    final sharesInM =
-        shares > 0 ? (shares / 1000000).toStringAsFixed(2) : '0.00';
+  Widget _buildLeadManagersCard() {
+    // Get lead managers from Firebase data if available
+    List<LeadManagerRegistrar> leadManagersAndRegistrars = [];
+    if (firebaseIPO != null) {
+      leadManagersAndRegistrars = firebaseIPO!.leadManagersAndRegistrars;
+    }
 
+    // Filter only lead managers
+    final leadManagers = leadManagersAndRegistrars
+        .where(
+            (item) => item.designation.toLowerCase().contains('lead manager'))
+        .toList();
+
+    return Card(
+      elevation: 6,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.green.shade50,
+              Colors.white,
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Modern Header
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.green.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.group,
+                      color: Colors.green.shade700,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Lead Managers',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+
+              // Lead Managers Information
+              if (leadManagers.isNotEmpty) ...[
+                ...leadManagers
+                    .map((manager) => _buildModernLeadManagerItem(manager)),
+              ] else if (ipo.leadManagers.isNotEmpty) ...[
+                // Fallback to legacy data
+                ...ipo.leadManagers.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final manager = entry.value;
+                  return Padding(
+                    padding: EdgeInsets.only(
+                        bottom: index < ipo.leadManagers.length - 1 ? 12 : 0),
+                    child: _buildModernSimpleManagerItem(manager),
+                  );
+                }),
+              ] else ...[
+                _buildModernNoDataMessage(
+                    'Lead managers information will be available soon.',
+                    Icons.group),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.primary, size: 20),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLeadManagerRegistrarItem(LeadManagerRegistrar item) {
     return Container(
-      height: 70, // Fixed height to prevent overflow
-      padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.3)),
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[200]!),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Flexible(
-            child: Text(
-              category,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: color,
+          // Name and designation
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                margin: const EdgeInsets.only(top: 6, right: 12),
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.name,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                        height: 1.3,
+                      ),
+                    ),
+                    if (item.designation.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        item.designation,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          // Contact information
+          if (item.email != null || item.address != null) ...[
+            const SizedBox(height: 8),
+            if (item.email != null) ...[
+              _buildContactInfo(Icons.email, item.email!),
+              const SizedBox(height: 4),
+            ],
+            if (item.address != null) ...[
+              _buildContactInfo(Icons.location_on, item.address!),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContactInfo(IconData icon, String info) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(width: 20), // Align with bullet point
+        Icon(icon, size: 14, color: AppColors.textSecondary),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            info,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.textSecondary,
+              height: 1.3,
             ),
           ),
-          const SizedBox(height: 1),
-          Flexible(
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSimpleManagerItem(String manager) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 6,
+          height: 6,
+          margin: const EdgeInsets.only(top: 6, right: 12),
+          decoration: const BoxDecoration(
+            color: AppColors.primary,
+            shape: BoxShape.circle,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            manager,
+            style: const TextStyle(
+              fontSize: 14,
+              color: AppColors.textPrimary,
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildModernRegistrarItem(LeadManagerRegistrar registrar) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue.shade200, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.business,
+                  color: Colors.blue.shade700,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      registrar.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      registrar.designation,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.blue.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          // Additional Details Section
+          if (registrar.email != null || registrar.address != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue.shade100),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (registrar.email != null) ...[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.email_outlined,
+                          size: 16,
+                          color: Colors.blue.shade600,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Email:',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            registrar.email!,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  if (registrar.email != null && registrar.address != null) ...[
+                    const SizedBox(height: 8),
+                  ],
+                  if (registrar.address != null) ...[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.location_on_outlined,
+                          size: 16,
+                          color: Colors.blue.shade600,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Address:',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            registrar.address!,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textPrimary,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModernLeadManagerItem(LeadManagerRegistrar manager) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green.shade200, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.green.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.account_balance,
+                  color: Colors.green.shade700,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      manager.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      manager.designation,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.green.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          // Additional Details Section
+          if (manager.email != null || manager.address != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green.shade100),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (manager.email != null) ...[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.email_outlined,
+                          size: 16,
+                          color: Colors.green.shade600,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Email:',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            manager.email!,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  if (manager.email != null && manager.address != null) ...[
+                    const SizedBox(height: 8),
+                  ],
+                  if (manager.address != null) ...[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.location_on_outlined,
+                          size: 16,
+                          color: Colors.green.shade600,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Address:',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            manager.address!,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textPrimary,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModernSimpleManagerItem(String manager) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green.shade200, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.green.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(
+              Icons.account_balance,
+              color: Colors.green.shade700,
+              size: 16,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
             child: Text(
-              shares > 0 ? '${sharesInM}M' : '-',
+              manager,
               style: const TextStyle(
-                fontSize: 11,
+                fontSize: 15,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Flexible(
-            child: Text(
-              shares > 0 ? '($percentage%)' : '(-)',
-              style: TextStyle(
-                fontSize: 10,
-                color: color,
-                fontWeight: FontWeight.w500,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -2302,540 +2809,202 @@ class _IPODetailScreenState extends State<IPODetailScreen>
     );
   }
 
-  Widget _buildProductPortfolioCard() {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.inventory, color: AppColors.primary, size: 24),
-                SizedBox(width: 8),
-                Text(
-                  'Product Portfolio',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (ipo.productPortfolio != null) ...[
-              // Gold Type
-              if (ipo.productPortfolio!.goldType.isNotEmpty) ...[
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: AppColors.warning.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border:
-                        Border.all(color: AppColors.warning.withOpacity(0.3)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.diamond,
-                          color: AppColors.warning, size: 20),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Gold Type',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              ipo.productPortfolio!.goldType,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-
-              // Main Products
-              if (ipo.productPortfolio!.mainProducts.isNotEmpty) ...[
-                const Text(
-                  'Main Products',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: ipo.productPortfolio!.mainProducts
-                      .map((product) => Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                  color: AppColors.primary.withOpacity(0.3)),
-                            ),
-                            child: Text(
-                              product.toUpperCase(),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                ),
-                const SizedBox(height: 16),
-              ],
-
-              // Occasions
-              if (ipo.productPortfolio!.occasions.isNotEmpty) ...[
-                const Text(
-                  'Target Occasions',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: ipo.productPortfolio!.occasions
-                      .map((occasion) => Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: AppColors.success.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                  color: AppColors.success.withOpacity(0.3)),
-                            ),
-                            child: Text(
-                              occasion.toUpperCase(),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.success,
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                ),
-                const SizedBox(height: 16),
-              ],
-
-              // Price Segments
-              if (ipo.productPortfolio!.priceSegments.isNotEmpty) ...[
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.info.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.info.withOpacity(0.3)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.price_change,
-                          color: AppColors.info, size: 20),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Price Segments',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              ipo.productPortfolio!.priceSegments,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ] else ...[
-              const Text(
-                'Product portfolio information not available.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-          ],
-        ),
+  Widget _buildModernLegacyRegistrarInfo() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue.shade200, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildAnchorInvestorsCard() {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.anchor, color: AppColors.primary, size: 24),
-                SizedBox(width: 8),
-                Text(
-                  'Anchor Investors',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (ipo.anchorInvestors != null &&
-                ipo.anchorInvestors!.investors.isNotEmpty) ...[
-              // Total Amount
-              if (ipo.anchorInvestors!.totalAmount != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border:
-                        Border.all(color: AppColors.success.withOpacity(0.3)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Total Anchor Investment',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      Text(
-                        ipo.anchorInvestors!.totalAmount!,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.success,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-
-              // Investors List
-              const Text(
-                'Anchor Investors List',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[200]!),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: ipo.anchorInvestors!.investors
-                      .asMap()
-                      .entries
-                      .map((entry) {
-                    final index = entry.key;
-                    final investor = entry.value;
-                    return Padding(
-                      padding: EdgeInsets.only(
-                          bottom:
-                              index < ipo.anchorInvestors!.investors.length - 1
-                                  ? 12
-                                  : 0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 24,
-                            height: 24,
-                            margin: const EdgeInsets.only(right: 12),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                  color: AppColors.primary.withOpacity(0.3)),
-                            ),
-                            child: Center(
-                              child: Text(
-                                '${index + 1}',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              investor,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: AppColors.textPrimary,
-                                height: 1.4,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ] else ...[
-              const Text(
-                'Anchor investor information not available.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPeerComparisonCard() {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.compare_arrows, color: AppColors.primary, size: 24),
-                SizedBox(width: 8),
-                Text(
-                  'Peer Comparison',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (ipo.peers.isNotEmpty) ...[
-              // Table Header
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: Colors.blue.shade50,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        'Company',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        'P/B Ratio',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        'P/E Ratio',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        'RONW (%)',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
+                child: Icon(
+                  Icons.business,
+                  color: Colors.blue.shade700,
+                  size: 20,
                 ),
               ),
-              const SizedBox(height: 8),
-
-              // Current IPO Row
-              _buildPeerRow(
-                ipo.name,
-                ipo.valuations.priceToBook,
-                ipo.valuations.pePostIpo,
-                ipo.valuations.ronw,
-                AppColors.primary,
-                isCurrentIPO: true,
-              ),
-              const SizedBox(height: 4),
-
-              // Peer Rows
-              ...ipo.peers.map((peer) => Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: _buildPeerRow(
-                      peer.name,
-                      peer.pbRatio,
-                      peer.peRatio,
-                      peer.ronw,
-                      AppColors.textSecondary,
-                    ),
-                  )),
-            ] else ...[
-              const Text(
-                'Peer comparison data not available.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                  fontStyle: FontStyle.italic,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  ipo.registrarDetails!.name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 12),
+          const Divider(height: 1, color: Colors.grey),
+          const SizedBox(height: 12),
+          if (ipo.registrarDetails!.phone != null) ...[
+            _buildModernContactRow(
+                Icons.phone, 'Phone', ipo.registrarDetails!.phone!),
+            const SizedBox(height: 8),
           ],
-        ),
+          if (ipo.registrarDetails!.email != null) ...[
+            _buildModernContactRow(
+                Icons.email, 'Email', ipo.registrarDetails!.email!),
+            const SizedBox(height: 8),
+          ],
+          if (ipo.registrarDetails!.website != null) ...[
+            _buildModernContactRow(
+                Icons.language, 'Website', ipo.registrarDetails!.website!),
+            const SizedBox(height: 8),
+          ],
+          if (ipo.registrarDetails!.address != null) ...[
+            _buildModernContactRow(
+                Icons.location_on, 'Address', ipo.registrarDetails!.address!),
+          ],
+        ],
       ),
     );
   }
 
-  Widget _buildPeerRow(
-      String name, double? pbRatio, double? peRatio, double? ronw, Color color,
-      {bool isCurrentIPO = false}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      decoration: BoxDecoration(
-        color: isCurrentIPO ? color.withOpacity(0.1) : Colors.grey[50],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isCurrentIPO ? color.withOpacity(0.3) : Colors.grey[200]!,
+  Widget _buildModernContactRow(IconData icon, String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          icon,
+          size: 16,
+          color: Colors.blue.shade600,
         ),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 60,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Colors.blue.shade600,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildModernNoDataMessage(String message, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Row(
         children: [
+          Icon(
+            icon,
+            color: Colors.grey.shade400,
+            size: 24,
+          ),
+          const SizedBox(width: 12),
           Expanded(
-            flex: 3,
             child: Text(
-              name.isNotEmpty ? name : 'N/A',
+              message,
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: isCurrentIPO ? FontWeight.bold : FontWeight.w600,
-                color: isCurrentIPO ? color : AppColors.textPrimary,
+                color: Colors.grey.shade600,
+                fontStyle: FontStyle.italic,
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegacyRegistrarInfo() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildInfoRow('Name', ipo.registrarDetails!.name),
+          if (ipo.registrarDetails!.phone != null) ...[
+            const SizedBox(height: 8),
+            _buildContactRow(
+                Icons.phone, 'Phone', ipo.registrarDetails!.phone!),
+          ],
+          if (ipo.registrarDetails!.email != null) ...[
+            const SizedBox(height: 8),
+            _buildContactRow(
+                Icons.email, 'Email', ipo.registrarDetails!.email!),
+          ],
+          if (ipo.registrarDetails!.website != null) ...[
+            const SizedBox(height: 8),
+            _buildContactRow(
+                Icons.language, 'Website', ipo.registrarDetails!.website!),
+          ],
+          if (ipo.registrarDetails!.address != null) ...[
+            const SizedBox(height: 8),
+            _buildContactRow(
+                Icons.location_on, 'Address', ipo.registrarDetails!.address!),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNoDataMessage(String message) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.info_outline,
+              size: 16, color: AppColors.textSecondary),
+          const SizedBox(width: 8),
           Expanded(
-            flex: 2,
             child: Text(
-              pbRatio != null && pbRatio > 0 ? pbRatio.toStringAsFixed(2) : '-',
+              message,
               style: const TextStyle(
                 fontSize: 14,
-                color: AppColors.textPrimary,
+                color: AppColors.textSecondary,
+                fontStyle: FontStyle.italic,
               ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              peRatio != null && peRatio > 0 ? peRatio.toStringAsFixed(2) : '-',
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.textPrimary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              ronw != null && ronw > 0 ? ronw.toStringAsFixed(1) : '-',
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.textPrimary,
-              ),
-              textAlign: TextAlign.center,
             ),
           ),
         ],
@@ -2844,6 +3013,10 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   }
 
   Widget _buildBiddingTimingsCard() {
+    //  Static IPO bidding timings for display
+    const String hniTiming = "10:00 AM – 4:00 PM (or before)";
+    const String retailTiming = "10:00 AM – 4:00 PM (or before)";
+
     return Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -2868,129 +3041,114 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ),
             const SizedBox(height: 16),
-            if (ipo.biddingTimings != null) ...[
-              // HNI Timing
-              Container(
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.warning.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.warning.withOpacity(0.3)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.business,
-                        color: AppColors.warning, size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'HNI (High Net Worth Individual)',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            ipo.biddingTimings!.hni,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
 
-              // Retail Timing
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.success.withOpacity(0.3)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.people,
-                        color: AppColors.success, size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Retail Investors',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            ipo.biddingTimings!.retail,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+            // HNI Timing Section
+            Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: AppColors.warning.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.warning.withOpacity(0.3)),
               ),
-
-              // Important Note
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.info.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.info.withOpacity(0.3)),
-                ),
-                child: const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: AppColors.info,
-                      size: 16,
-                    ),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Please ensure to submit your bids before the specified cut-off times to avoid rejection.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                          height: 1.3,
+              child: Row(
+                children: [
+                  const Icon(Icons.business,
+                      color: AppColors.warning, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'HNI (High Net Worth Individual)',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
+                        const SizedBox(height: 4),
+                        Text(
+                          hniTiming,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Retail Timing Section
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.success.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.success.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.people, color: AppColors.success, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Retail Investors',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          retailTiming,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Important Note Section
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.info.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.info.withOpacity(0.3)),
+              ),
+              child: const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline, color: AppColors.info, size: 16),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Please ensure you submit your bids before 4:00 PM to avoid rejection.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                        height: 1.3,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ] else ...[
-              const Text(
-                'Bidding timings information not available.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
+            ),
           ],
         ),
       ),
@@ -2998,6 +3156,18 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   }
 
   Widget _buildDocumentsCard() {
+    // Get IPO overview data from Firebase IPO if available
+    CompanyIPOOverview? ipoOverview;
+    if (firebaseIPO != null) {
+      ipoOverview = firebaseIPO!.companyIpoOverview;
+    }
+
+    // Check if we have any documents to display
+    final hasFirebaseDoc = ipoOverview?.ipoRhpDocument != null &&
+        ipoOverview!.ipoRhpDocument!.isNotEmpty;
+    final hasLegacyDocs = ipo.documents.isNotEmpty;
+    final hasAnyDocs = hasFirebaseDoc || hasLegacyDocs;
+
     return Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -3022,82 +3192,148 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ),
             const SizedBox(height: 16),
-            if (ipo.documents.isNotEmpty) ...[
-              ...ipo.documents.map((document) => Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[200]!),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            Icons.picture_as_pdf,
-                            color: AppColors.primary,
-                            size: 20,
-                          ),
+            if (hasAnyDocs) ...[
+              // Firebase IPO Document (RHP)
+              if (hasFirebaseDoc) ...[
+                Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                document.title,
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary,
-                                ),
+                        child: const Icon(
+                          Icons.picture_as_pdf,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Red Herring Prospectus (RHP)',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
                               ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Text(
-                                    document.type.toUpperCase(),
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      color: AppColors.textSecondary,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'RHP • Official IPO Document',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () =>
+                            _openDocument(ipoOverview!.ipoRhpDocument!),
+                        icon: const Icon(
+                          Icons.open_in_new,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                        tooltip: 'Open in browser',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              // Legacy documents
+              if (hasLegacyDocs) ...[
+                ...ipo.documents.map((document) => Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[200]!),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.picture_as_pdf,
+                              color: AppColors.primary,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  document.title,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textPrimary,
                                   ),
-                                  if (document.size != null) ...[
-                                    const Text(' • ',
-                                        style: TextStyle(
-                                            color: AppColors.textSecondary)),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
                                     Text(
-                                      document.size!,
+                                      document.type.toUpperCase(),
                                       style: const TextStyle(
                                         fontSize: 13,
                                         color: AppColors.textSecondary,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
+                                    if (document.size != null) ...[
+                                      const Text(' • ',
+                                          style: TextStyle(
+                                              color: AppColors.textSecondary)),
+                                      Text(
+                                        document.size!,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
                                   ],
-                                ],
-                              ),
-                            ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        IconButton(
-                          onPressed: () => _openDocument(document.url),
-                          icon: const Icon(
-                            Icons.open_in_new,
-                            color: AppColors.primary,
-                            size: 20,
+                          IconButton(
+                            onPressed: () => _openDocument(document.url),
+                            icon: const Icon(
+                              Icons.open_in_new,
+                              color: AppColors.primary,
+                              size: 20,
+                            ),
+                            tooltip: 'Open in browser',
                           ),
-                          tooltip: 'Open in browser',
-                        ),
-                      ],
-                    ),
-                  )),
+                        ],
+                      ),
+                    )),
+              ],
             ] else ...[
               Container(
                 padding: const EdgeInsets.all(16),
@@ -3135,6 +3371,12 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   }
 
   Widget _buildStrengthsCard() {
+    // Get strengths from Firebase IPO if available, otherwise use legacy data
+    List<StrengthRisk>? strengths;
+    if (firebaseIPO != null) {
+      strengths = firebaseIPO!.strengthsAndRisks.strengths;
+    }
+
     return Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -3144,11 +3386,22 @@ class _IPODetailScreenState extends State<IPODetailScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Icons.thumb_up, color: AppColors.success, size: 24),
-                SizedBox(width: 8),
-                Text(
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.trending_up_rounded,
+                    color: AppColors.success,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
                   'Strengths',
                   style: TextStyle(
                     fontSize: 18,
@@ -3159,41 +3412,56 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ),
             const SizedBox(height: 16),
-            if (ipo.strengths.isNotEmpty)
-              ...ipo.strengths.map((strength) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 6,
-                          height: 6,
-                          margin: const EdgeInsets.only(top: 6, right: 12),
-                          decoration: const BoxDecoration(
-                            color: AppColors.success,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            strength,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: AppColors.textPrimary,
-                              height: 1.4,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ))
+            if (strengths != null && strengths.isNotEmpty)
+              ...strengths.asMap().entries.map((entry) {
+                final index = entry.key;
+                final strength = entry.value;
+                return _buildStrengthRiskItem(
+                  title: strength.title,
+                  description: strength.description,
+                  isStrength: true,
+                  index: index,
+                );
+              })
+            else if (ipo.strengths.isNotEmpty)
+              // Fallback to legacy strengths display
+              ...ipo.strengths.asMap().entries.map((entry) {
+                final index = entry.key;
+                final strength = entry.value;
+                return _buildStrengthRiskItem(
+                  title: strength,
+                  description: '',
+                  isStrength: true,
+                  index: index,
+                );
+              })
             else
-              const Text(
-                'Strengths analysis will be updated soon.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                  fontStyle: FontStyle.italic,
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[200]!),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: AppColors.textSecondary,
+                      size: 20,
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Strengths analysis will be updated soon.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
           ],
@@ -3203,6 +3471,12 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   }
 
   Widget _buildWeaknessesCard() {
+    // Get risks from Firebase IPO if available, otherwise use legacy data
+    List<StrengthRisk>? risks;
+    if (firebaseIPO != null) {
+      risks = firebaseIPO!.strengthsAndRisks.risks;
+    }
+
     return Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -3212,12 +3486,23 @@ class _IPODetailScreenState extends State<IPODetailScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Icons.thumb_down, color: AppColors.error, size: 24),
-                SizedBox(width: 8),
-                Text(
-                  'Weaknesses',
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.trending_down_rounded,
+                    color: AppColors.error,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Risks & Weaknesses',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -3227,45 +3512,162 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ),
             const SizedBox(height: 16),
-            if (ipo.weaknesses.isNotEmpty)
-              ...ipo.weaknesses.map((weakness) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 6,
-                          height: 6,
-                          margin: const EdgeInsets.only(top: 6, right: 12),
-                          decoration: const BoxDecoration(
-                            color: AppColors.error,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            weakness,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: AppColors.textPrimary,
-                              height: 1.4,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ))
+            if (risks != null && risks.isNotEmpty)
+              ...risks.asMap().entries.map((entry) {
+                final index = entry.key;
+                final risk = entry.value;
+                return _buildStrengthRiskItem(
+                  title: risk.title,
+                  description: risk.description,
+                  isStrength: false,
+                  index: index,
+                );
+              })
+            else if (ipo.weaknesses.isNotEmpty)
+              // Fallback to legacy weaknesses display
+              ...ipo.weaknesses.asMap().entries.map((entry) {
+                final index = entry.key;
+                final weakness = entry.value;
+                return _buildStrengthRiskItem(
+                  title: weakness,
+                  description: '',
+                  isStrength: false,
+                  index: index,
+                );
+              })
             else
-              const Text(
-                'Weaknesses analysis will be updated soon.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                  fontStyle: FontStyle.italic,
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[200]!),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: AppColors.textSecondary,
+                      size: 20,
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Risk analysis will be updated soon.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildStrengthRiskItem({
+    required String title,
+    required String description,
+    required bool isStrength,
+    required int index,
+  }) {
+    final color = isStrength ? AppColors.success : AppColors.error;
+    final icon =
+        isStrength ? Icons.check_circle_outline : Icons.warning_amber_rounded;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Icon(
+                  icon,
+                  size: 16,
+                  color: color,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: color,
+                        height: 1.3,
+                      ),
+                    ),
+                    if (description.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Html(
+                        data: description,
+                        style: {
+                          "body": Style(
+                            fontSize: FontSize(13),
+                            color: AppColors.textPrimary,
+                            lineHeight: LineHeight(1.4),
+                            margin: Margins.zero,
+                            padding: HtmlPaddings.zero,
+                          ),
+                          "p": Style(
+                            fontSize: FontSize(13),
+                            color: AppColors.textPrimary,
+                            lineHeight: LineHeight(1.4),
+                            margin: Margins.zero,
+                          ),
+                          "div": Style(
+                            fontSize: FontSize(13),
+                            color: AppColors.textPrimary,
+                            lineHeight: LineHeight(1.4),
+                            margin: Margins.zero,
+                          ),
+                          "strong": Style(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          "b": Style(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          "em": Style(
+                            fontStyle: FontStyle.italic,
+                          ),
+                          "i": Style(
+                            fontStyle: FontStyle.italic,
+                          ),
+                        },
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -3323,6 +3725,187 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     ),
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFAQCard() {
+    // Get FAQs from Firebase IPO if available
+    List<FAQ>? faqs;
+    if (firebaseIPO != null) {
+      faqs = firebaseIPO!.faqs;
+    }
+
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.info.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.help_outline_rounded,
+                    color: AppColors.info,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Frequently Asked Questions',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (faqs != null && faqs.isNotEmpty)
+              ...faqs.asMap().entries.map((entry) {
+                final index = entry.key;
+                final faq = entry.value;
+                return _buildFAQItem(faq, index);
+              })
+            else
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[200]!),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: AppColors.textSecondary,
+                      size: 20,
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'FAQs will be updated soon.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFAQItem(FAQ faq, int index) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.cardBorder.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
+          splashColor: AppColors.primary.withOpacity(0.05),
+          highlightColor: AppColors.primary.withOpacity(0.02),
+        ),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          leading: Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: AppColors.info.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: Text(
+                'Q${index + 1}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.info,
+                ),
+              ),
+            ),
+          ),
+          title: Text(
+            faq.question,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+              height: 1.3,
+            ),
+          ),
+          iconColor: AppColors.info,
+          collapsedIconColor: AppColors.textSecondary,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.info.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: AppColors.info.withOpacity(0.1),
+                  width: 1,
+                ),
+              ),
+              child: Html(
+                data: faq.answer,
+                style: {
+                  "body": Style(
+                    fontSize: FontSize(13),
+                    color: AppColors.textPrimary,
+                    lineHeight: LineHeight(1.5),
+                    margin: Margins.zero,
+                    padding: HtmlPaddings.zero,
+                  ),
+                  "p": Style(
+                    fontSize: FontSize(13),
+                    color: AppColors.textPrimary,
+                    lineHeight: LineHeight(1.5),
+                    margin: Margins.only(bottom: 8),
+                  ),
+                  "strong": Style(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  "b": Style(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  "em": Style(
+                    fontStyle: FontStyle.italic,
+                  ),
+                  "i": Style(
+                    fontStyle: FontStyle.italic,
+                  ),
+                },
               ),
             ),
           ],
@@ -3450,5 +4033,214 @@ class _IPODetailScreenState extends State<IPODetailScreen>
         );
       }
     }
+  }
+
+  Widget _buildFinancialTable(List<Financial> financials) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[300]!),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          // Table header
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(8),
+                topRight: Radius.circular(8),
+              ),
+            ),
+            child: const Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    'Period',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    'Revenue\n(₹Cr)',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    'Net Profit\n(₹Cr)',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    'Cash Flow\n(₹Cr)',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    'Free Cash\n(₹Cr)',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    'Margins',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Table rows
+          ...financials.asMap().entries.map((entry) {
+            final index = entry.key;
+            final financial = entry.value;
+            final isLastRow = index == financials.length - 1;
+
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+              decoration: BoxDecoration(
+                color: index % 2 == 0 ? Colors.white : Colors.grey[50],
+                borderRadius: isLastRow
+                    ? const BorderRadius.only(
+                        bottomLeft: Radius.circular(8),
+                        bottomRight: Radius.circular(8),
+                      )
+                    : null,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      financial.year,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      financial.revenue?.toStringAsFixed(1) ?? '-',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textPrimary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      financial.profit?.toStringAsFixed(1) ?? '-',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: financial.profit != null && financial.profit! > 0
+                            ? AppColors.success
+                            : financial.profit != null && financial.profit! < 0
+                                ? AppColors.error
+                                : AppColors.textPrimary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      financial.cashFlowFromOperations?.toStringAsFixed(1) ??
+                          '-',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: financial.cashFlowFromOperations != null &&
+                                financial.cashFlowFromOperations! > 0
+                            ? AppColors.success
+                            : financial.cashFlowFromOperations != null &&
+                                    financial.cashFlowFromOperations! < 0
+                                ? AppColors.error
+                                : AppColors.textPrimary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      financial.freeCashFlow?.toStringAsFixed(1) ?? '-',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: financial.freeCashFlow != null &&
+                                financial.freeCashFlow! > 0
+                            ? AppColors.success
+                            : financial.freeCashFlow != null &&
+                                    financial.freeCashFlow! < 0
+                                ? AppColors.error
+                                : AppColors.textPrimary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      financial.margins?.toStringAsFixed(1) != null
+                          ? '${financial.margins!.toStringAsFixed(1)}%'
+                          : '-',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textPrimary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
   }
 }

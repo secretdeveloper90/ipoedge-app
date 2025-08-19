@@ -531,6 +531,9 @@ class Financial {
   final double? assets;
   final double? netWorth;
   final double? totalBorrowing;
+  final double? cashFlowFromOperations;
+  final double? freeCashFlow;
+  final double? margins;
 
   const Financial({
     required this.year,
@@ -539,6 +542,9 @@ class Financial {
     this.assets,
     this.netWorth,
     this.totalBorrowing,
+    this.cashFlowFromOperations,
+    this.freeCashFlow,
+    this.margins,
   });
 
   /// Returns formatted revenue with fallback
@@ -562,6 +568,19 @@ class Financial {
       ? '₹${totalBorrowing!.toStringAsFixed(2)} Cr'
       : '-';
 
+  /// Returns formatted cash flow from operations with fallback
+  String get formattedCashFlowFromOperations => cashFlowFromOperations != null
+      ? '₹${cashFlowFromOperations!.toStringAsFixed(2)} Cr'
+      : '-';
+
+  /// Returns formatted free cash flow with fallback
+  String get formattedFreeCashFlow =>
+      freeCashFlow != null ? '₹${freeCashFlow!.toStringAsFixed(2)} Cr' : '-';
+
+  /// Returns formatted margins with fallback
+  String get formattedMargins =>
+      margins != null ? '${margins!.toStringAsFixed(1)}%' : '-';
+
   factory Financial.fromJson(Map<String, dynamic> json) {
     return Financial(
       year: json['year'],
@@ -570,6 +589,9 @@ class Financial {
       assets: json['assets']?.toDouble(),
       netWorth: json['netWorth']?.toDouble(),
       totalBorrowing: json['totalBorrowing']?.toDouble(),
+      cashFlowFromOperations: json['cashFlowFromOperations']?.toDouble(),
+      freeCashFlow: json['freeCashFlow']?.toDouble(),
+      margins: json['margins']?.toDouble(),
     );
   }
 
@@ -581,6 +603,9 @@ class Financial {
       'assets': assets,
       'netWorth': netWorth,
       'totalBorrowing': totalBorrowing,
+      'cashFlowFromOperations': cashFlowFromOperations,
+      'freeCashFlow': freeCashFlow,
+      'margins': margins,
     };
   }
 }

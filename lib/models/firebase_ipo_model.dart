@@ -1,5 +1,6 @@
 import 'ipo.dart';
 import 'ipo_model.dart';
+import '../utils/html_parser_utils.dart';
 
 /// Firebase IPO model that matches the new data structure
 class FirebaseIPO {
@@ -161,7 +162,7 @@ class FirebaseIPO {
       sector: stockData.sectorName ?? '',
       registrar: _getRegistrar(),
       leadManagers: _getLeadManagers(),
-      financials: [], // Empty for now
+      financials: _parseFinancials(),
       valuations: valuations,
       promoters: promoters,
       issueObjectives: _getIssueObjectives(),
@@ -230,5 +231,18 @@ class FirebaseIPO {
 
   List<String> _getRisks() {
     return strengthsAndRisks.risks?.map((item) => item.title).toList() ?? [];
+  }
+
+  List<Financial> _parseFinancials() {
+    if (financials == null || financials!.isEmpty) {
+      return [];
+    }
+
+    try {
+      return HtmlParserUtils.parseFinancialTable(financials!);
+    } catch (e) {
+      print('Error parsing financial data: $e');
+      return [];
+    }
   }
 }
