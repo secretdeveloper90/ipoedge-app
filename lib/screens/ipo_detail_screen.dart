@@ -6,6 +6,7 @@ import '../models/ipo.dart';
 import '../models/firebase_ipo_model.dart';
 import '../theme/app_theme.dart';
 import '../services/firebase_ipo_service.dart';
+import '../widgets/ipo_timeline.dart';
 
 class IPODetailScreen extends StatefulWidget {
   final IPO? ipo;
@@ -113,6 +114,23 @@ class _IPODetailScreenState extends State<IPODetailScreen>
       return firebaseIPO!.toLegacyIPO();
     }
     return legacyIPO!;
+  }
+
+  // Helper to get ImportantDates for timeline
+  ImportantDates get importantDates {
+    if (firebaseIPO != null) {
+      return firebaseIPO!.importantDates;
+    }
+    // For legacy IPO, create ImportantDates from available data
+    return ImportantDates(
+      openDate: legacyIPO?.offerDate.start,
+      closeDate: legacyIPO?.offerDate.end,
+      allotmentDate: legacyIPO?.allotmentDate,
+      listingDate: legacyIPO?.listingDate,
+      refundDate: null,
+      dematCreditDate: null,
+      exchangeFlags: legacyIPO?.exchange,
+    );
   }
 
   @override
@@ -399,6 +417,11 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                     ),
                   ],
                 ),
+              ),
+              // Add timeline component
+              IPOTimeline(
+                importantDates: importantDates,
+                status: ipo.status,
               ),
             ],
           ),
