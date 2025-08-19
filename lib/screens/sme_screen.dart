@@ -110,7 +110,7 @@ class _SMEScreenState extends State<SMEScreen>
                 ),
                 unselectedLabelStyle: const TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 9,
+                  fontSize: 10,
                   letterSpacing: 0.2,
                   height: 1.1,
                 ),

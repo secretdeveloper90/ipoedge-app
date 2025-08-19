@@ -104,13 +104,13 @@ class _MainboardScreenState extends State<MainboardScreen>
                 unselectedLabelColor: Colors.white.withOpacity(0.85),
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.w800,
-                  fontSize: 12,
+                  fontSize: 10,
                   letterSpacing: 0.3,
                   height: 1.1,
                 ),
                 unselectedLabelStyle: const TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 11,
+                  fontSize: 10,
                   letterSpacing: 0.2,
                   height: 1.1,
                 ),

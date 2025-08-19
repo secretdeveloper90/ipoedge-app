@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:share_plus/share_plus.dart';
+import '../models/ipo.dart';
 import '../models/ipo_model.dart';
 import '../models/firebase_ipo_model.dart';
 import '../theme/app_theme.dart';
@@ -542,7 +544,194 @@ class IPOCard extends StatelessWidget {
     );
   }
 
-  void _shareIPO() {
-    // Share functionality will be implemented with share_plus package
+  void _shareIPO() async {
+    try {
+      // Create modern, attractive share message with comprehensive IPO details
+      final StringBuffer shareMessage = StringBuffer();
+
+      // Header with attractive design
+      shareMessage.writeln('🚀 IPO ALERT - $companyName 🚀');
+      shareMessage.writeln();
+
+      // Key IPO Details Section
+      shareMessage.writeln('📊 KEY DETAILS');
+
+      // Open-Close Dates
+      if (offerDateFormatted.isNotEmpty) {
+        shareMessage.writeln('📅 Offer Period: $offerDateFormatted');
+      }
+
+      // Allotment Date
+      String allotmentDate = '';
+      if (firebaseIpo != null) {
+        final allotment = firebaseIpo!.importantDates.allotmentDate;
+        if (allotment != null && allotment.isNotEmpty) {
+          allotmentDate = _formatDate(allotment);
+        }
+      } else if (ipo != null && ipo!.allotmentDate != null) {
+        allotmentDate = _formatDate(ipo!.allotmentDate!);
+      }
+      if (allotmentDate.isNotEmpty) {
+        shareMessage.writeln('🎯 Allotment Date: $allotmentDate');
+      } else {
+        shareMessage.writeln('🎯 Allotment Date: TBA');
+      }
+
+      // Listing Date
+      String listingDate = '';
+      if (firebaseIpo != null) {
+        final listing = firebaseIpo!.importantDates.listingDate;
+        if (listing != null && listing.isNotEmpty) {
+          listingDate = _formatDate(listing);
+        }
+      } else if (ipo != null && ipo!.listingDate != null) {
+        listingDate = _formatDate(ipo!.listingDate!);
+      }
+      if (listingDate.isNotEmpty) {
+        shareMessage.writeln('📋 Listing Date: $listingDate');
+      } else {
+        shareMessage.writeln('📋 Listing Date: TBA');
+      }
+
+      // Price Range
+      String priceInfo = '';
+      if (firebaseIpo != null) {
+        final priceMin = firebaseIpo!.companyIpoOverview.priceRangeMin;
+        final priceMax = firebaseIpo!.companyIpoOverview.priceRangeMax;
+        if (priceMin != null && priceMax != null) {
+          priceInfo = '₹$priceMin - ₹$priceMax per share';
+        } else if (firebaseIpo!.companyIpoOverview.issuePrice != null) {
+          priceInfo =
+              '₹${firebaseIpo!.companyIpoOverview.issuePrice} per share';
+        }
+      } else if (ipo != null) {
+        priceInfo =
+            '₹${ipo!.offerPrice.min} - ₹${ipo!.offerPrice.max} per share';
+      }
+      if (priceInfo.isNotEmpty) {
+        shareMessage.writeln('💰 Price Range: $priceInfo');
+      }
+
+      // Lot Size
+      String lotInfo = '';
+      if (firebaseIpo != null &&
+          firebaseIpo!.companyIpoOverview.lotSize != null) {
+        lotInfo = '${firebaseIpo!.companyIpoOverview.lotSize} shares';
+      } else if (ipo != null) {
+        lotInfo = '${ipo!.lotSize} shares';
+      }
+      if (lotInfo.isNotEmpty) {
+        shareMessage.writeln('📦 Lot Size: $lotInfo');
+      }
+
+      // Minimum Investment
+      String minInvestment = '';
+      if (firebaseIpo != null) {
+        final lotSize = firebaseIpo!.companyIpoOverview.lotSize;
+        final priceMin = firebaseIpo!.companyIpoOverview.priceRangeMin;
+        if (lotSize != null && priceMin != null) {
+          final investment = lotSize * priceMin;
+          minInvestment = '₹${_formatCurrency(investment)}';
+        }
+      } else if (ipo != null) {
+        final investment = ipo!.lotSize * ipo!.offerPrice.min;
+        minInvestment = '₹${_formatCurrency(investment.toInt())}';
+      }
+      if (minInvestment.isNotEmpty) {
+        shareMessage.writeln('💵 Min Investment: $minInvestment');
+      }
+
+      // Issue Size
+      String issueSizeInfo = '';
+      if (firebaseIpo != null &&
+          firebaseIpo!.companyIpoOverview.issueSize != null) {
+        issueSizeInfo =
+            _formatIssueSize(firebaseIpo!.companyIpoOverview.issueSize!);
+      } else if (ipo != null) {
+        issueSizeInfo = ipo!.issueSize;
+      }
+      if (issueSizeInfo.isNotEmpty) {
+        shareMessage.writeln('💼 Issue Size: $issueSizeInfo');
+      }
+
+      // Category
+      String category = '';
+      if (firebaseIpo != null) {
+        if (firebaseIpo!.stockData.isSme == true) {
+          category = 'SME';
+        } else {
+          category = 'Mainboard';
+        }
+      } else if (ipo != null) {
+        category = ipo!.category == IPOCategory.sme ? 'SME' : 'Mainboard';
+      }
+      if (category.isNotEmpty) {
+        shareMessage.writeln('🏢 Category: $category');
+      }
+
+      shareMessage.writeln();
+
+      // Footer with app promotion and links
+      shareMessage.writeln('📱 Get real-time IPO updates on IPO Edge');
+      shareMessage.writeln('🔔 Never miss an IPO opportunity!');
+      shareMessage.writeln();
+      shareMessage.writeln('🌐 Website: www.ipoedge.in');
+      shareMessage.writeln('📲 App: Coming Soon');
+      shareMessage.writeln('📱 Social Media: Coming Soon');
+      shareMessage.writeln();
+
+      // Share the message using the share_plus package
+      await Share.share(shareMessage.toString());
+
+      debugPrint('IPO shared successfully');
+    } catch (e) {
+      debugPrint('Error sharing IPO: $e');
+    }
+  }
+
+  /// Helper method to format issue size in crores
+  String _formatIssueSize(int issueSize) {
+    if (issueSize >= 10000000) {
+      return '₹${(issueSize / 10000000).toStringAsFixed(1)} Cr';
+    } else if (issueSize >= 100000) {
+      return '₹${(issueSize / 100000).toStringAsFixed(1)} L';
+    } else {
+      return '₹${issueSize.toString()}';
+    }
+  }
+
+  /// Helper method to format date to readable format
+  String _formatDate(String date) {
+    try {
+      final DateTime parsedDate = DateTime.parse(date);
+      const List<String> months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
+      ];
+      return '${parsedDate.day} ${months[parsedDate.month - 1]} ${parsedDate.year}';
+    } catch (e) {
+      return date;
+    }
+  }
+
+  /// Helper method to format currency with proper suffixes
+  String _formatCurrency(int amount) {
+    if (amount >= 10000000) {
+      return '${(amount / 10000000).toStringAsFixed(1)} Cr';
+    } else if (amount >= 100000) {
+      return '${(amount / 100000).toStringAsFixed(1)} L';
+    } else {
+      return amount.toString();
+    }
   }
 }
