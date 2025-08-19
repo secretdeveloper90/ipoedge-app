@@ -3,16 +3,20 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/ipo_model.dart';
 import '../models/ipo.dart';
+import '../models/firebase_ipo_model.dart';
 import '../theme/app_theme.dart';
 import '../services/firebase_ipo_service.dart';
 
 class IPODetailScreen extends StatefulWidget {
-  final IPO ipo;
+  final IPO? ipo;
+  final FirebaseIPO? firebaseIpo;
 
   const IPODetailScreen({
     super.key,
-    required this.ipo,
-  });
+    this.ipo,
+    this.firebaseIpo,
+  }) : assert(ipo != null || firebaseIpo != null,
+            'Either ipo or firebaseIpo must be provided');
 
   @override
   State<IPODetailScreen> createState() => _IPODetailScreenState();
@@ -22,6 +26,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   IPO? _currentIPO;
+  FirebaseIPO? _currentFirebaseIPO;
   bool _isLoading = false;
   String _error = '';
 
@@ -30,6 +35,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _currentIPO = widget.ipo;
+    _currentFirebaseIPO = widget.firebaseIpo;
     _refreshIPOData();
   }
 
@@ -46,15 +52,23 @@ class _IPODetailScreenState extends State<IPODetailScreen>
     });
 
     try {
-      final freshIPO = await FirebaseIPOService.getIPOById(widget.ipo.id);
-      if (freshIPO != null && mounted) {
+      // Only refresh if we have a legacy IPO (for backward compatibility)
+      if (widget.ipo != null) {
+        final freshIPO = await FirebaseIPOService.getIPOById(widget.ipo!.id);
+        if (freshIPO != null && mounted) {
+          setState(() {
+            _currentIPO = freshIPO;
+            _isLoading = false;
+          });
+        } else if (mounted) {
+          setState(() {
+            _error = 'IPO not found';
+            _isLoading = false;
+          });
+        }
+      } else {
+        // For Firebase IPO, we already have the data
         setState(() {
-          _currentIPO = freshIPO;
-          _isLoading = false;
-        });
-      } else if (mounted) {
-        setState(() {
-          _error = 'IPO not found';
           _isLoading = false;
         });
       }
@@ -68,7 +82,38 @@ class _IPODetailScreenState extends State<IPODetailScreen>
     }
   }
 
-  IPO get ipo => _currentIPO ?? widget.ipo;
+  // Helper getters to work with both data structures
+  String get companyName {
+    if (_currentFirebaseIPO != null) {
+      return _currentFirebaseIPO!.companyHeaders.companyName;
+    }
+    return _currentIPO?.name ?? widget.ipo?.name ?? '';
+  }
+
+  String? get companyLogo {
+    if (_currentFirebaseIPO != null) {
+      return _currentFirebaseIPO!.companyHeaders.companyLogo;
+    }
+    return _currentIPO?.logo ?? widget.ipo?.logo;
+  }
+
+  String get sector {
+    if (_currentFirebaseIPO != null) {
+      return _currentFirebaseIPO!.stockData.sectorName ?? '';
+    }
+    return _currentIPO?.sector ?? widget.ipo?.sector ?? '';
+  }
+
+  IPO? get legacyIPO => _currentIPO ?? widget.ipo;
+  FirebaseIPO? get firebaseIPO => _currentFirebaseIPO;
+
+  // For backward compatibility, provide an ipo getter that works with existing code
+  IPO get ipo {
+    if (firebaseIPO != null) {
+      return firebaseIPO!.toLegacyIPO();
+    }
+    return legacyIPO!;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -298,11 +343,11 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         ],
                       ),
                       padding: const EdgeInsets.all(3),
-                      child: ipo.logo != null
+                      child: companyLogo != null
                           ? ClipRRect(
                               borderRadius: BorderRadius.circular(8),
                               child: CachedNetworkImage(
-                                imageUrl: ipo.logo!,
+                                imageUrl: companyLogo!,
                                 fit: BoxFit.contain,
                                 placeholder: (context, url) => const Icon(
                                   Icons.business,
@@ -330,7 +375,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            ipo.name,
+                            companyName,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -342,7 +387,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            ipo.sector,
+                            sector,
                             style: const TextStyle(
                               fontSize: 11,
                               color: Colors.white70,
@@ -3348,7 +3393,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   void _applyForIPO() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Apply for ${widget.ipo.name} IPO - Feature coming soon'),
+        content: Text('Apply for $companyName IPO - Feature coming soon'),
         duration: const Duration(seconds: 2),
         backgroundColor: AppColors.primary,
       ),

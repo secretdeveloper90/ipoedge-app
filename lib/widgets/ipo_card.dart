@@ -1,17 +1,143 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/ipo_model.dart';
+import '../models/firebase_ipo_model.dart';
 import '../theme/app_theme.dart';
 
 class IPOCard extends StatelessWidget {
-  final IPO ipo;
+  final IPO? ipo;
+  final FirebaseIPO? firebaseIpo;
   final VoidCallback? onTap;
 
   const IPOCard({
     super.key,
-    required this.ipo,
+    this.ipo,
+    this.firebaseIpo,
     this.onTap,
-  });
+  }) : assert(ipo != null || firebaseIpo != null,
+            'Either ipo or firebaseIpo must be provided');
+
+  // Helper getters to work with both data structures
+  String get companyName =>
+      firebaseIpo?.companyHeaders.companyName ?? ipo?.name ?? '';
+  String? get companyLogo =>
+      firebaseIpo?.companyHeaders.companyLogo ?? ipo?.logo;
+  String get offerDateFormatted {
+    if (firebaseIpo != null) {
+      final openDate = firebaseIpo!.importantDates.openDate ?? '';
+      final closeDate = firebaseIpo!.importantDates.closeDate ?? '';
+      return '$openDate - $closeDate';
+    }
+    return ipo?.offerDate.formatted ?? '';
+  }
+
+  String get offerPriceFormatted {
+    if (firebaseIpo != null) {
+      final min = firebaseIpo!.companyIpoOverview.priceRangeMin;
+      final max = firebaseIpo!.companyIpoOverview.priceRangeMax;
+      if (min != null && max != null && min > 0 && max > 0) {
+        return '₹$min - ₹$max';
+      }
+      return 'Price TBA';
+    }
+    return ipo?.offerPrice.formatted ?? 'Price TBA';
+  }
+
+  String get lotSizeFormatted {
+    if (firebaseIpo != null) {
+      return '${firebaseIpo!.companyIpoOverview.lotSize ?? 0}';
+    }
+    return '${ipo?.lotSize ?? 0}';
+  }
+
+  String get subscriptionFormatted {
+    if (firebaseIpo != null) {
+      final totalSubs =
+          firebaseIpo!.subscriptionRate.subscriptionHeaderData?.totalSubscribed;
+      return totalSubs != null ? '${totalSubs.toStringAsFixed(1)}x' : '-';
+    }
+    return ipo?.subscription.formattedTimes ?? '-';
+  }
+
+  double get subscriptionTimes {
+    if (firebaseIpo != null) {
+      return firebaseIpo!
+              .subscriptionRate.subscriptionHeaderData?.totalSubscribed ??
+          0.0;
+    }
+    return ipo?.subscription.displayTimes ?? 0.0;
+  }
+
+  bool get hasListingData {
+    if (firebaseIpo != null) {
+      return firebaseIpo!.listingGains?.listingOpenPrice != null;
+    }
+    return false; // For now, only Firebase IPOs have listing data
+  }
+
+  bool get shouldShowListingSection {
+    if (firebaseIpo != null) {
+      // Only show for listed IPOs, not for current/upcoming
+      final status = _getIPOStatus();
+      return hasListingData && status == 'listed';
+    }
+    return false;
+  }
+
+  String _getIPOStatus() {
+    if (firebaseIpo != null) {
+      final now = DateTime.now();
+      final openDate =
+          DateTime.tryParse(firebaseIpo!.importantDates.openDate ?? '');
+      final closeDate =
+          DateTime.tryParse(firebaseIpo!.importantDates.closeDate ?? '');
+      final listingDate =
+          DateTime.tryParse(firebaseIpo!.importantDates.listingDate ?? '');
+
+      if (listingDate != null && now.isAfter(listingDate)) {
+        return 'listed';
+      } else if (openDate != null && closeDate != null) {
+        if (now.isBefore(openDate)) {
+          return 'upcoming';
+        } else if (now.isAfter(closeDate)) {
+          return 'closed';
+        } else {
+          return 'current';
+        }
+      }
+      return 'upcoming';
+    }
+    return ipo?.status ?? 'upcoming';
+  }
+
+  String get listingPriceFormatted {
+    if (firebaseIpo != null) {
+      final listingOpen = firebaseIpo!.listingGains?.listingOpenPrice;
+      if (listingOpen != null) {
+        return '₹${listingOpen.toStringAsFixed(1)}';
+      }
+    }
+    return '₹0.0';
+  }
+
+  String get premiumMessage {
+    if (firebaseIpo != null) {
+      final gainPercent = firebaseIpo!.listingGains?.currentGainPercent;
+      if (gainPercent != null) {
+        final isPositive = gainPercent >= 0;
+        final premiumText = isPositive ? 'premium' : 'discount';
+        return 'at a $premiumText of ${gainPercent.abs().toStringAsFixed(1)}%';
+      }
+    }
+    return 'at listing price';
+  }
+
+  double get listingGainPercentage {
+    if (firebaseIpo != null) {
+      return firebaseIpo!.listingGains?.currentGainPercent ?? 0.0;
+    }
+    return 0.0;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,11 +217,11 @@ class IPOCard extends StatelessWidget {
               width: 1,
             ),
           ),
-          child: ipo.logo != null
+          child: companyLogo != null
               ? ClipRRect(
                   borderRadius: BorderRadius.circular(17),
                   child: CachedNetworkImage(
-                    imageUrl: ipo.logo!,
+                    imageUrl: companyLogo!,
                     fit: BoxFit.contain,
                     placeholder: (context, url) => Container(
                       decoration: BoxDecoration(
@@ -146,7 +272,7 @@ class IPOCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                ipo.name,
+                companyName,
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -174,7 +300,7 @@ class IPOCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      ipo.offerDate.formatted,
+                      offerDateFormatted,
                       style: const TextStyle(
                         fontSize: 10,
                         color: AppColors.primary,
@@ -243,7 +369,7 @@ class IPOCard extends StatelessWidget {
             Expanded(
               child: _buildSimpleMetricItem(
                 '₹ Offer Price',
-                ipo.offerPrice.formatted,
+                offerPriceFormatted,
                 null,
                 const Color(0xFF2E7D32),
               ),
@@ -256,9 +382,9 @@ class IPOCard extends StatelessWidget {
             ),
             Expanded(
               child: _buildSimpleMetricItem(
-                '📄 Lot Size',
-                '${ipo.lotSize}',
-                null,
+                'Lot Size',
+                lotSizeFormatted,
+                Icons.line_weight,
                 const Color(0xFFE65100),
               ),
             ),
@@ -270,17 +396,19 @@ class IPOCard extends StatelessWidget {
             ),
             Expanded(
               child: _buildSimpleMetricItem(
-                '👥 subs',
-                ipo.subscription.formattedTimes,
-                null,
-                AppTheme.getSubscriptionColor(ipo.subscription.displayTimes),
+                'Subscription',
+                subscriptionFormatted,
+                Icons.subscriptions_outlined,
+                AppTheme.getSubscriptionColor(subscriptionTimes),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        // Expected Premium with enhanced styling
-        _buildExpectedPremiumRow(),
+        if (shouldShowListingSection) ...[
+          const SizedBox(height: 12),
+          // Listing Information with enhanced styling
+          _buildListingInfoRow(),
+        ],
       ],
     );
   }
@@ -289,17 +417,33 @@ class IPOCard extends StatelessWidget {
       String label, String value, IconData? icon, Color color) {
     return Column(
       children: [
-        // Title with emoji icon - centered
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-            fontWeight: FontWeight.w600,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
+        // Title with icon - centered
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 14,
+                color: Colors.grey.shade600,
+              ),
+              const SizedBox(width: 4),
+            ],
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 4),
         // Value below - centered
@@ -318,10 +462,9 @@ class IPOCard extends StatelessWidget {
     );
   }
 
-  Widget _buildExpectedPremiumRow() {
-    final hasGMP = ipo.expectedPremium.hasRange;
-    final gmpColor = hasGMP
-        ? AppTheme.getGMPColor(ipo.gmp.safePercentage)
+  Widget _buildListingInfoRow() {
+    final listingColor = hasListingData
+        ? AppTheme.getGMPColor(listingGainPercentage)
         : Colors.grey.shade500;
 
     return Container(
@@ -332,13 +475,13 @@ class IPOCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            gmpColor.withOpacity(0.08),
-            gmpColor.withOpacity(0.04),
+            listingColor.withOpacity(0.08),
+            listingColor.withOpacity(0.04),
           ],
         ),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: gmpColor.withOpacity(0.15),
+          color: listingColor.withOpacity(0.15),
           width: 1,
         ),
       ),
@@ -348,60 +491,52 @@ class IPOCard extends StatelessWidget {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: gmpColor.withOpacity(0.12),
+              color: listingColor.withOpacity(0.12),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
-              hasGMP ? Icons.trending_up_rounded : Icons.help_outline_rounded,
-              color: gmpColor,
+              listingGainPercentage >= 0
+                  ? Icons.trending_up_rounded
+                  : Icons.trending_down_rounded,
+              color: listingColor,
               size: 14,
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Row(
-              children: [
-                Text(
-                  'Exp. Premium: ',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: gmpColor.withOpacity(0.8),
-                    fontWeight: FontWeight.w600,
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Listing Price: ',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: listingColor.withOpacity(0.8),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: Text(
-                    hasGMP
-                        ? '₹${ipo.expectedPremium.displayRange} (${ipo.gmp.formattedPercentage})'
-                        : 'Not Available',
+                  TextSpan(
+                    text: listingPriceFormatted,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: gmpColor,
+                      color: listingColor,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                  TextSpan(
+                    text: ' $premiumMessage',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: listingColor.withOpacity(0.8),
+                    ),
+                  ),
+                ],
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          if (hasGMP)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-              decoration: BoxDecoration(
-                color: gmpColor.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                'GMP',
-                style: TextStyle(
-                  fontSize: 8,
-                  fontWeight: FontWeight.w700,
-                  color: gmpColor,
-                ),
-              ),
-            ),
         ],
       ),
     );

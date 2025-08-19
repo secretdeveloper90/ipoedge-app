@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/ipo_model.dart';
+import '../models/firebase_ipo_model.dart';
 import '../services/firebase_ipo_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ipo_card.dart';
@@ -21,7 +21,7 @@ class _SMEScreenState extends State<SMEScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       setState(() {});
     });
@@ -123,7 +123,7 @@ class _SMEScreenState extends State<SMEScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       child: const Text(
-                        'CURRENT',
+                        'CURRENT & UPCOMING',
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
@@ -134,18 +134,7 @@ class _SMEScreenState extends State<SMEScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       child: const Text(
-                        'UPCOMING',
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                  ),
-                  Tab(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      child: const Text(
-                        'LISTED',
+                        'RECENTLY LISTED',
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
@@ -159,18 +148,14 @@ class _SMEScreenState extends State<SMEScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          const SMEIPOStatusListView(
+        children: const [
+          SMEIPOStatusListView(
             category: 'sme',
-            status: 'current',
+            status: 'current_upcoming',
           ),
-          const SMEIPOStatusListView(
+          SMEIPOStatusListView(
             category: 'sme',
-            status: 'upcoming',
-          ),
-          const SMEIPOStatusListView(
-            category: 'sme',
-            status: 'listed',
+            status: 'recently_listed',
           ),
         ],
       ),
@@ -194,7 +179,7 @@ class SMEIPOStatusListView extends StatefulWidget {
 
 class _SMEIPOStatusListViewState extends State<SMEIPOStatusListView>
     with AutomaticKeepAliveClientMixin {
-  List<IPO> _ipos = [];
+  List<FirebaseIPO> _firebaseIpos = [];
   bool _isLoading = true;
   String _error = '';
 
@@ -208,29 +193,29 @@ class _SMEIPOStatusListViewState extends State<SMEIPOStatusListView>
   }
 
   Future<void> _loadIPOs() async {
+    print(
+        '🚀 SME Loading IPOs for category: ${widget.category}, status: ${widget.status}');
     setState(() {
       _isLoading = true;
       _error = '';
     });
 
     try {
-      List<IPO> ipos;
+      // Use the new Firebase service method to get IPOs by category and status
+      final firebaseIPOs =
+          await FirebaseIPOService.getFirebaseIPOsByCategoryAndStatus(
+        widget.category,
+        widget.status,
+      );
 
-      // Get IPOs by category first
-      final allIPOs =
-          await FirebaseIPOService.getIPOsByCategory(widget.category);
-
-      // Filter by status
-      ipos = allIPOs
-          .where(
-              (ipo) => ipo.status.toLowerCase() == widget.status.toLowerCase())
-          .toList();
-
+      print(
+          '📱 SME UI received ${firebaseIPOs.length} IPOs for ${widget.category}/${widget.status}');
       setState(() {
-        _ipos = ipos;
+        _firebaseIpos = firebaseIPOs;
         _isLoading = false;
       });
     } catch (e) {
+      print('❌ SME UI Error loading IPOs: $e');
       setState(() {
         _error = 'Failed to load IPOs: $e';
         _isLoading = false;
@@ -281,7 +266,7 @@ class _SMEIPOStatusListViewState extends State<SMEIPOStatusListView>
       );
     }
 
-    if (_ipos.isEmpty) {
+    if (_firebaseIpos.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -312,16 +297,17 @@ class _SMEIPOStatusListViewState extends State<SMEIPOStatusListView>
       onRefresh: _loadIPOs,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: _ipos.length,
+        itemCount: _firebaseIpos.length,
         itemBuilder: (context, index) {
-          final ipo = _ipos[index];
+          final firebaseIpo = _firebaseIpos[index];
           return IPOCard(
-            ipo: ipo,
+            firebaseIpo: firebaseIpo,
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => IPODetailScreen(ipo: ipo),
+                  builder: (context) =>
+                      IPODetailScreen(firebaseIpo: firebaseIpo),
                 ),
               );
             },

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/ipo_model.dart';
+import '../models/firebase_ipo_model.dart';
 import '../services/firebase_ipo_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ipo_card.dart';
@@ -21,7 +21,7 @@ class _MainboardScreenState extends State<MainboardScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       setState(() {});
     });
@@ -104,13 +104,13 @@ class _MainboardScreenState extends State<MainboardScreen>
                 unselectedLabelColor: Colors.white.withOpacity(0.85),
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.w800,
-                  fontSize: 10,
+                  fontSize: 12,
                   letterSpacing: 0.3,
                   height: 1.1,
                 ),
                 unselectedLabelStyle: const TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 9,
+                  fontSize: 11,
                   letterSpacing: 0.2,
                   height: 1.1,
                 ),
@@ -123,7 +123,7 @@ class _MainboardScreenState extends State<MainboardScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       child: const Text(
-                        'CURRENT',
+                        'CURRENT & UPCOMING',
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
@@ -134,18 +134,7 @@ class _MainboardScreenState extends State<MainboardScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       child: const Text(
-                        'UPCOMING',
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                  ),
-                  Tab(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      child: const Text(
-                        'LISTED',
+                        'RECENTLY LISTED',
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
@@ -159,18 +148,14 @@ class _MainboardScreenState extends State<MainboardScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          const IPOStatusListView(
+        children: const [
+          IPOStatusListView(
             category: 'mainboard',
-            status: 'current',
+            status: 'current_upcoming',
           ),
-          const IPOStatusListView(
+          IPOStatusListView(
             category: 'mainboard',
-            status: 'upcoming',
-          ),
-          const IPOStatusListView(
-            category: 'mainboard',
-            status: 'listed',
+            status: 'recently_listed',
           ),
         ],
       ),
@@ -194,7 +179,7 @@ class IPOStatusListView extends StatefulWidget {
 
 class _IPOStatusListViewState extends State<IPOStatusListView>
     with AutomaticKeepAliveClientMixin {
-  List<IPO> _ipos = [];
+  List<FirebaseIPO> _firebaseIpos = [];
   bool _isLoading = true;
   String _error = '';
 
@@ -208,29 +193,29 @@ class _IPOStatusListViewState extends State<IPOStatusListView>
   }
 
   Future<void> _loadIPOs() async {
+    print(
+        '🚀 Loading IPOs for category: ${widget.category}, status: ${widget.status}');
     setState(() {
       _isLoading = true;
       _error = '';
     });
 
     try {
-      List<IPO> ipos;
+      // Use the new Firebase service method to get IPOs by category and status
+      final firebaseIPOs =
+          await FirebaseIPOService.getFirebaseIPOsByCategoryAndStatus(
+        widget.category,
+        widget.status,
+      );
 
-      // Get IPOs by category first
-      final allIPOs =
-          await FirebaseIPOService.getIPOsByCategory(widget.category);
-
-      // Filter by status
-      ipos = allIPOs
-          .where(
-              (ipo) => ipo.status.toLowerCase() == widget.status.toLowerCase())
-          .toList();
-
+      print(
+          '📱 UI received ${firebaseIPOs.length} IPOs for ${widget.category}/${widget.status}');
       setState(() {
-        _ipos = ipos;
+        _firebaseIpos = firebaseIPOs;
         _isLoading = false;
       });
     } catch (e) {
+      print('❌ UI Error loading IPOs: $e');
       setState(() {
         _error = 'Failed to load IPOs: $e';
         _isLoading = false;
@@ -281,7 +266,7 @@ class _IPOStatusListViewState extends State<IPOStatusListView>
       );
     }
 
-    if (_ipos.isEmpty) {
+    if (_firebaseIpos.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -312,16 +297,17 @@ class _IPOStatusListViewState extends State<IPOStatusListView>
       onRefresh: _loadIPOs,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: _ipos.length,
+        itemCount: _firebaseIpos.length,
         itemBuilder: (context, index) {
-          final ipo = _ipos[index];
+          final firebaseIpo = _firebaseIpos[index];
           return IPOCard(
-            ipo: ipo,
+            firebaseIpo: firebaseIpo,
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => IPODetailScreen(ipo: ipo),
+                  builder: (context) =>
+                      IPODetailScreen(firebaseIpo: firebaseIpo),
                 ),
               );
             },
