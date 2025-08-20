@@ -92,15 +92,20 @@ class AuthService {
     }
 
     // Listen to auth state changes for automatic persistence
-    _firebaseAuth.authStateChanges().listen((User? user) {
+    _firebaseAuth.authStateChanges().listen((User? user) async {
       if (user != null) {
         // User signed in
         _isLoggedIn = true;
         _userEmail = user.email;
         _userName = user.displayName; // Get name directly from Firebase
         _userPhotoUrl = user.photoURL ?? _generateAvatarUrl(user.email ?? '');
-        _userPhoneNumber = user.phoneNumber;
+
+        // Get mobile number from Firestore (important for persistence)
+        final userData = await _getUserDataFromFirestore(user.uid);
+        _userPhoneNumber = userData?['mobile'] ?? user.phoneNumber;
+
         print('🔄 Auth state changed: User signed in - $_userName');
+        print('   Mobile: $_userPhoneNumber');
       } else {
         // User signed out
         _isLoggedIn = false;
@@ -430,6 +435,9 @@ class AuthService {
   // Get current Firebase user
   User? get currentFirebaseUser => _firebaseAuth.currentUser;
 
+  // Get Firebase Auth instance for listening to auth state changes
+  FirebaseAuth get firebaseAuth => _firebaseAuth;
+
   // Check if user is already authenticated when app starts
   Future<bool> checkAuthState() async {
     try {
@@ -439,7 +447,11 @@ class AuthService {
         _userEmail = user.email;
         _userName = user.displayName ?? 'User';
         _userPhotoUrl = user.photoURL;
-        _userPhoneNumber = user.phoneNumber;
+
+        // Get mobile number from Firestore
+        final userData = await _getUserDataFromFirestore(user.uid);
+        _userPhoneNumber = userData?['mobile'] ?? user.phoneNumber;
+
         return true;
       }
     } catch (e) {

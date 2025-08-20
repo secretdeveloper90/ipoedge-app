@@ -776,9 +776,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      AuthService().userPhoneNumber != null
-                          ? AuthService().userPhoneNumber!
-                          : 'Welcome back!',
+                      'Welcome back!',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.8),
                         fontSize: 12,

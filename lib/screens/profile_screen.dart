@@ -24,6 +24,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       DrawerService().setScaffoldKey(_scaffoldKey);
     });
+
+    // Listen to auth state changes to refresh the UI when user data is restored
+    _listenToAuthStateChanges();
+  }
+
+  void _listenToAuthStateChanges() {
+    // Listen to Firebase auth state changes to rebuild UI when data is restored
+    AuthService().firebaseAuth.authStateChanges().listen((user) {
+      if (mounted) {
+        // Small delay to ensure Firestore data is fetched
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            setState(() {
+              // This will trigger a rebuild with updated user data
+            });
+          }
+        });
+      }
+    });
   }
 
   @override
