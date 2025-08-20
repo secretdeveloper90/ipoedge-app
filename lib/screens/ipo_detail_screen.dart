@@ -9,6 +9,7 @@ import '../models/firebase_ipo_model.dart';
 import '../theme/app_theme.dart';
 import '../services/firebase_ipo_service.dart';
 import '../widgets/ipo_timeline.dart';
+import 'allotment_check_webview_screen.dart';
 
 class IPODetailScreen extends StatefulWidget {
   final IPO? ipo;
@@ -4258,14 +4259,33 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   }
 
   void _checkAllotment() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content:
-            Text('Check allotment for $companyName IPO - Feature coming soon'),
-        duration: const Duration(seconds: 2),
-        backgroundColor: AppColors.secondary,
-      ),
-    );
+    // Get the registrar allotment URL from Firebase IPO data
+    String? allotmentUrl;
+    if (_currentFirebaseIPO != null) {
+      allotmentUrl = _currentFirebaseIPO!.companyHeaders.registrarAllotmentUrl;
+    }
+
+    if (allotmentUrl != null && allotmentUrl.isNotEmpty) {
+      // Navigate to the allotment check webview screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AllotmentCheckWebViewScreen(
+            url: allotmentUrl!,
+            companyName: companyName,
+          ),
+        ),
+      );
+    } else {
+      // Show error message if URL is not available
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Allotment check URL not available for $companyName'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
   }
 
   _ButtonData _getButtonData(DateTime now) {
