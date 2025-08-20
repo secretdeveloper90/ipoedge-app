@@ -79,37 +79,20 @@ class IPOCard extends StatelessWidget {
 
   bool get shouldShowListingSection {
     if (firebaseIpo != null) {
-      // Only show for listed IPOs, not for current/upcoming
+      // Show listing section for recently listed and gain/loss analysis IPOs
       final status = _getIPOStatus();
-      return hasListingData && status == 'listed';
+      final hasListing = hasListingData;
+      return hasListing &&
+          (status == 'recently_listed' || status == 'gain_loss_analysis');
     }
     return false;
   }
 
   String _getIPOStatus() {
     if (firebaseIpo != null) {
-      final now = DateTime.now();
-      final openDate =
-          DateTime.tryParse(firebaseIpo!.importantDates.openDate ?? '');
-      final closeDate =
-          DateTime.tryParse(firebaseIpo!.importantDates.closeDate ?? '');
-      final listingDate =
-          DateTime.tryParse(firebaseIpo!.importantDates.listingDate ?? '');
-
-      if (listingDate != null && now.isAfter(listingDate)) {
-        return 'listed';
-      } else if (openDate != null && closeDate != null) {
-        if (now.isBefore(openDate)) {
-          return 'upcoming';
-        } else if (now.isAfter(closeDate)) {
-          return 'closed';
-        } else {
-          return 'current';
-        }
-      }
-      return 'upcoming';
+      return firebaseIpo!.category ?? 'upcoming';
     }
-    return ipo?.status ?? 'upcoming';
+    return 'upcoming';
   }
 
   String get listingPriceFormatted {
@@ -139,6 +122,31 @@ class IPOCard extends StatelessWidget {
       return firebaseIpo!.listingGains?.currentGainPercent ?? 0.0;
     }
     return 0.0;
+  }
+
+  bool get shouldShowExpectedPremiumSection {
+    if (firebaseIpo != null) {
+      final status = _getIPOStatus();
+      return hasExpectedPremiumData &&
+          (status == 'upcoming_open' || status == 'listing_soon');
+    }
+    return false;
+  }
+
+  bool get hasExpectedPremiumData {
+    if (firebaseIpo != null) {
+      // Check if expectedPremium field exists and is not empty
+      return firebaseIpo!.expectedPremium != null &&
+          firebaseIpo!.expectedPremium!.isNotEmpty;
+    }
+    return false;
+  }
+
+  String get expectedPremiumFormatted {
+    if (firebaseIpo != null && firebaseIpo!.expectedPremium != null) {
+      return firebaseIpo!.expectedPremium!;
+    }
+    return '-';
   }
 
   @override
@@ -411,6 +419,11 @@ class IPOCard extends StatelessWidget {
           // Listing Information with enhanced styling
           _buildListingInfoRow(),
         ],
+        if (shouldShowExpectedPremiumSection) ...[
+          const SizedBox(height: 12),
+          // Expected Premium Information
+          _buildExpectedPremiumRow(),
+        ],
       ],
     );
   }
@@ -531,6 +544,76 @@ class IPOCard extends StatelessWidget {
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: listingColor.withOpacity(0.8),
+                    ),
+                  ),
+                ],
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExpectedPremiumRow() {
+    final premiumColor = hasExpectedPremiumData
+        ? Colors.orange.shade600 // Use orange color for expected premium
+        : Colors.grey.shade500;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            premiumColor.withOpacity(0.08),
+            premiumColor.withOpacity(0.04),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: premiumColor.withOpacity(0.15),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: premiumColor.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.star_outline_rounded,
+              color: premiumColor,
+              size: 14,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Expected Premium: ',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: premiumColor.withOpacity(0.8),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  TextSpan(
+                    text: expectedPremiumFormatted,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: premiumColor,
                     ),
                   ),
                 ],

@@ -842,6 +842,71 @@ class IPODocument {
   }
 }
 
+class DocumentLinks {
+  final String? anchor;
+  final String? drhp;
+  final String? rhp;
+
+  const DocumentLinks({
+    this.anchor,
+    this.drhp,
+    this.rhp,
+  });
+
+  factory DocumentLinks.fromJson(Map<String, dynamic> json) {
+    return DocumentLinks(
+      anchor: json['anchor'],
+      drhp: json['drhp'],
+      rhp: json['rhp'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'anchor': anchor,
+      'drhp': drhp,
+      'rhp': rhp,
+    };
+  }
+
+  /// Convert DocumentLinks to list of IPODocument objects
+  List<IPODocument> toIPODocuments() {
+    List<IPODocument> documents = [];
+
+    if (anchor != null && anchor!.isNotEmpty) {
+      documents.add(IPODocument(
+        title: 'Anchor Investor Document',
+        url: anchor!,
+        type: 'ANCHOR',
+      ));
+    }
+
+    if (drhp != null && drhp!.isNotEmpty) {
+      documents.add(IPODocument(
+        title: 'Draft Red Herring Prospectus (DRHP)',
+        url: drhp!,
+        type: 'DRHP',
+      ));
+    }
+
+    if (rhp != null && rhp!.isNotEmpty) {
+      documents.add(IPODocument(
+        title: 'Red Herring Prospectus (RHP)',
+        url: rhp!,
+        type: 'RHP',
+      ));
+    }
+
+    return documents;
+  }
+
+  /// Check if any document links are available
+  bool get hasAnyDocuments =>
+      (anchor != null && anchor!.isNotEmpty) ||
+      (drhp != null && drhp!.isNotEmpty) ||
+      (rhp != null && rhp!.isNotEmpty);
+}
+
 class FreshIssue {
   final int shares;
   final String amount;

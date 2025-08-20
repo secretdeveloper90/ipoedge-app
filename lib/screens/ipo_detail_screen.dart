@@ -3157,208 +3157,283 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   }
 
   Widget _buildDocumentsCard() {
-    // Get IPO overview data from Firebase IPO if available
-    CompanyIPOOverview? ipoOverview;
+    // Get document links from Firebase IPO if available
+    DocumentLinks? documentLinks;
     if (firebaseIPO != null) {
-      ipoOverview = firebaseIPO!.companyIpoOverview;
+      documentLinks = firebaseIPO!.documentLinks;
     }
 
-    // Check if we have any documents to display
-    final hasFirebaseDoc = ipoOverview?.ipoRhpDocument != null &&
-        ipoOverview!.ipoRhpDocument!.isNotEmpty;
-    final hasLegacyDocs = ipo.documents.isNotEmpty;
-    final hasAnyDocs = hasFirebaseDoc || hasLegacyDocs;
+    // Check if we have document links to display
+    final hasDocumentLinks = documentLinks?.hasAnyDocuments == true;
 
-    return Card(
-      elevation: 4,
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white,
+            Colors.grey.shade50,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+            spreadRadius: 0,
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+            spreadRadius: 0,
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Icons.description, color: AppColors.primary, size: 24),
-                SizedBox(width: 8),
-                Text(
-                  'IPO Documents',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.primary,
+                        AppColors.primary.withOpacity(0.8),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.description_rounded,
+                    color: Colors.white,
+                    size: 24,
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (hasAnyDocs) ...[
-              // Firebase IPO Document (RHP)
-              if (hasFirebaseDoc) ...[
-                Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey[200]!),
-                  ),
-                  child: Row(
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.picture_as_pdf,
-                          color: AppColors.primary,
-                          size: 20,
+                      Text(
+                        'IPO Documents',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                          letterSpacing: -0.5,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Red Herring Prospectus (RHP)',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'RHP • Official IPO Document',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: AppColors.textSecondary,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
+                      SizedBox(height: 2),
+                      Text(
+                        'Prospectus and regulatory documents',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w500,
                         ),
-                      ),
-                      IconButton(
-                        onPressed: () =>
-                            _openDocument(ipoOverview!.ipoRhpDocument!),
-                        icon: const Icon(
-                          Icons.open_in_new,
-                          color: AppColors.primary,
-                          size: 20,
-                        ),
-                        tooltip: 'Open in browser',
                       ),
                     ],
                   ),
                 ),
               ],
-              // Legacy documents
-              if (hasLegacyDocs) ...[
-                ...ipo.documents.map((document) => Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[200]!),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(
-                              Icons.picture_as_pdf,
-                              color: AppColors.primary,
-                              size: 20,
-                            ),
+            ),
+            const SizedBox(height: 24),
+            if (hasDocumentLinks) ...[
+              // Document Links from Firebase
+              ...documentLinks!.toIPODocuments().asMap().entries.map((entry) {
+                final index = entry.key;
+                final document = entry.value;
+                return AnimatedContainer(
+                  duration: Duration(milliseconds: 300 + (index * 100)),
+                  curve: Curves.easeOutCubic,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => _openDocument(document.url),
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.white,
+                              Colors.grey.shade50,
+                            ],
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  document.title,
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary,
-                                  ),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.grey.shade200,
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors:
+                                      _getDocumentGradientColors(document.type),
                                 ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Text(
-                                      document.type.toUpperCase(),
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        color: AppColors.textSecondary,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: _getDocumentGradientColors(
+                                            document.type)[0]
+                                        .withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                _getDocumentIcon(document.type),
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    document.title,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textPrimary,
+                                      letterSpacing: -0.3,
                                     ),
-                                    if (document.size != null) ...[
-                                      const Text(' • ',
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: _getDocumentGradientColors(
+                                                  document.type)[0]
+                                              .withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                        ),
+                                        child: Text(
+                                          document.type,
                                           style: TextStyle(
-                                              color: AppColors.textSecondary)),
-                                      Text(
-                                        document.size!,
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: AppColors.textSecondary,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                            color: _getDocumentGradientColors(
+                                                document.type)[0],
+                                            letterSpacing: 0.5,
+                                          ),
                                         ),
                                       ),
                                     ],
-                                  ],
-                                ),
-                              ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          IconButton(
-                            onPressed: () => _openDocument(document.url),
-                            icon: const Icon(
-                              Icons.open_in_new,
-                              color: AppColors.primary,
-                              size: 20,
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.open_in_new_rounded,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
                             ),
-                            tooltip: 'Open in browser',
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    )),
-              ],
+                    ),
+                  ),
+                );
+              }),
             ] else ...[
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[200]!),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.grey.shade50,
+                      Colors.grey.shade100,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.grey.shade200,
+                    width: 1,
+                  ),
                 ),
-                child: const Row(
+                child: Column(
                   children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: AppColors.textSecondary,
-                      size: 20,
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Icon(
+                        Icons.description_outlined,
+                        color: Colors.grey.shade500,
+                        size: 32,
+                      ),
                     ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'IPO documents will be available soon.',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
-                          fontStyle: FontStyle.italic,
-                        ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Documents Coming Soon',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'IPO documents will be available once published by regulatory authorities.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                        height: 1.4,
                       ),
                     ),
                   ],
@@ -4399,6 +4474,45 @@ class _IPODetailScreenState extends State<IPODetailScreen>
       return '${(amount / 1000).toStringAsFixed(1)} K';
     } else {
       return amount.toString();
+    }
+  }
+
+  // Helper methods for document styling
+  List<Color> _getDocumentGradientColors(String documentType) {
+    switch (documentType.toUpperCase()) {
+      case 'ANCHOR':
+        return [
+          const Color(0xFF6366F1), // Indigo
+          const Color(0xFF8B5CF6), // Purple
+        ];
+      case 'DRHP':
+        return [
+          const Color(0xFF059669), // Emerald
+          const Color(0xFF10B981), // Green
+        ];
+      case 'RHP':
+        return [
+          const Color(0xFFDC2626), // Red
+          const Color(0xFFEF4444), // Light Red
+        ];
+      default:
+        return [
+          AppColors.primary,
+          AppColors.primary.withOpacity(0.8),
+        ];
+    }
+  }
+
+  IconData _getDocumentIcon(String documentType) {
+    switch (documentType.toUpperCase()) {
+      case 'ANCHOR':
+        return Icons.anchor_rounded;
+      case 'DRHP':
+        return Icons.edit_document;
+      case 'RHP':
+        return Icons.description_rounded;
+      default:
+        return Icons.picture_as_pdf_rounded;
     }
   }
 }

@@ -20,6 +20,8 @@ class FirebaseIPO {
   final StockData stockData;
   final AllotmentData allotment;
   final String? category; // New category field for mainboard/sme
+  final String? expectedPremium; // Expected premium field
+  final DocumentLinks? documentLinks; // New document links field
 
   const FirebaseIPO({
     required this.companyHeaders,
@@ -38,6 +40,8 @@ class FirebaseIPO {
     required this.stockData,
     required this.allotment,
     this.category,
+    this.expectedPremium,
+    this.documentLinks,
   });
 
   factory FirebaseIPO.fromJson(Map<String, dynamic> json) {
@@ -69,6 +73,10 @@ class FirebaseIPO {
       stockData: StockData.fromJson(json['stock_data'] ?? {}),
       allotment: AllotmentData.fromJson(json['allotment'] ?? {}),
       category: json['category'], // Add category field
+      expectedPremium: json['expectedPremium'], // Add expectedPremium field
+      documentLinks: json['document_links'] != null
+          ? DocumentLinks.fromJson(json['document_links'])
+          : null, // Add document_links field
     );
   }
 
@@ -91,6 +99,8 @@ class FirebaseIPO {
       'stock_data': stockData.toJson(),
       'allotment': allotment.toJson(),
       'category': category, // Add category field
+      'expectedPremium': expectedPremium, // Add expectedPremium field
+      'document_links': documentLinks?.toJson(), // Add document_links field
     };
   }
 
@@ -123,11 +133,9 @@ class FirebaseIPO {
       percentage: listingGains?.currentGainPercent,
     );
 
-    // Create expected premium from listing gains
-    final expectedPremium = ExpectedPremium(
-      range: listingGains != null
-          ? '${listingGains!.listingGainPercent?.toStringAsFixed(1) ?? '0'} - ${listingGains!.currentGainPercent?.toStringAsFixed(1) ?? '0'}'
-          : null,
+    // Create expected premium from the direct expectedPremium field
+    final expectedPremiumObj = ExpectedPremium(
+      range: expectedPremium, // Use the direct expectedPremium field
       note: '',
     );
 
@@ -140,6 +148,9 @@ class FirebaseIPO {
 
     // Create valuations (empty for now as not in Firebase structure)
     const valuations = Valuations();
+
+    // Create documents from document_links
+    final documents = documentLinks?.toIPODocuments() ?? [];
 
     return IPO(
       id: companyHeaders.ipoId.toString(),
@@ -168,7 +179,8 @@ class FirebaseIPO {
       issueObjectives: _getIssueObjectives(),
       strengths: _getStrengths(),
       weaknesses: _getRisks(),
-      expectedPremium: expectedPremium,
+      expectedPremium: expectedPremiumObj,
+      documents: documents, // Add documents from document_links
     );
   }
 
