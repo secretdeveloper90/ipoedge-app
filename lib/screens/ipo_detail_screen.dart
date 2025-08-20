@@ -221,7 +221,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomActionBar(),
+      floatingActionButton: _buildConditionalFloatingActionButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -3990,71 +3991,76 @@ class _IPODetailScreenState extends State<IPODetailScreen>
     );
   }
 
-  Widget _buildBottomActionBar() {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Container(
-          width: double.infinity,
-          height: 50,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppColors.primary,
-                AppColors.primaryDark,
-              ],
-              stops: [0.0, 1.0],
-            ),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withOpacity(0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-                spreadRadius: 0,
-              ),
-            ],
+  Widget _buildConditionalFloatingActionButton() {
+    final now = DateTime.now();
+    final buttonData = _getButtonData(now);
+
+    return Container(
+      height: 48,
+      margin: const EdgeInsets.symmetric(horizontal: 40),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: buttonData.gradientColors,
+          stops: const [0.0, 1.0],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: buttonData.gradientColors.first.withOpacity(0.4),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+            spreadRadius: 0,
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => _applyForIPO(),
-              borderRadius: BorderRadius.circular(16),
-              splashColor: Colors.white.withOpacity(0.2),
-              highlightColor: Colors.white.withOpacity(0.1),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        'Apply',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.arrow_forward_rounded,
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(24),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: InkWell(
+            onTap: buttonData.onPressed,
+            borderRadius: BorderRadius.circular(24),
+            splashColor: Colors.white.withOpacity(0.2),
+            highlightColor: Colors.white.withOpacity(0.1),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    buttonData.icon,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      buttonData.text,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
                         color: Colors.white,
-                        size: 18,
+                        letterSpacing: 0.4,
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                  ],
-                ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_forward_rounded,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -4224,6 +4230,101 @@ class _IPODetailScreenState extends State<IPODetailScreen>
         backgroundColor: AppColors.primary,
       ),
     );
+  }
+
+  void _checkAllotment() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content:
+            Text('Check allotment for $companyName IPO - Feature coming soon'),
+        duration: const Duration(seconds: 2),
+        backgroundColor: AppColors.secondary,
+      ),
+    );
+  }
+
+  _ButtonData _getButtonData(DateTime now) {
+    final openDate = _parseDate(importantDates.openDate);
+    final closeDate = _parseDate(importantDates.closeDate);
+    final allotmentDate = _parseDate(importantDates.allotmentDate);
+
+    // Check if IPO is currently open for applications
+    if (openDate != null && closeDate != null) {
+      final isIPOOpen =
+          now.isAfter(openDate.subtract(const Duration(days: 1))) &&
+              now.isBefore(closeDate.add(const Duration(days: 1)));
+
+      if (isIPOOpen) {
+        return _ButtonData(
+          text: 'Apply',
+          icon: Icons.assignment_turned_in,
+          gradientColors: [AppColors.primary, AppColors.primaryDark],
+          onPressed: _applyForIPO,
+        );
+      }
+    }
+
+    // Check if allotment results are available
+    if (allotmentDate != null) {
+      final isAllotmentAvailable =
+          now.isAfter(allotmentDate.subtract(const Duration(days: 1)));
+
+      if (isAllotmentAvailable) {
+        return _ButtonData(
+          text: 'Check Allotment',
+          icon: Icons.search,
+          gradientColors: [AppColors.secondary, const Color(0xFF1565C0)],
+          onPressed: _checkAllotment,
+        );
+      }
+    }
+
+    // Default case - IPO hasn't opened yet or is in between close and allotment
+    if (openDate != null && now.isBefore(openDate)) {
+      return _ButtonData(
+        text: 'Coming Soon',
+        icon: Icons.schedule,
+        gradientColors: [Colors.grey[600]!, Colors.grey[700]!],
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  '$companyName IPO opens on ${_formatDate(importantDates.openDate!)}'),
+              duration: const Duration(seconds: 2),
+              backgroundColor: Colors.grey[600],
+            ),
+          );
+        },
+      );
+    }
+
+    // Between close and allotment dates
+    return _ButtonData(
+      text: 'Coming Soon',
+      icon: Icons.hourglass_empty,
+      gradientColors: [AppColors.warning, const Color(0xFFE65100)],
+      onPressed: () {
+        final allotmentText = allotmentDate != null
+            ? 'Allotment results expected on ${_formatDate(importantDates.allotmentDate!)}'
+            : 'Allotment results coming soon';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(allotmentText),
+            duration: const Duration(seconds: 2),
+            backgroundColor: AppColors.warning,
+          ),
+        );
+      },
+    );
+  }
+
+  DateTime? _parseDate(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return null;
+    try {
+      return DateTime.parse(dateString);
+    } catch (e) {
+      return null;
+    }
   }
 
   void _openDocument(String url) async {
@@ -4535,4 +4636,18 @@ class _IPODetailScreenState extends State<IPODetailScreen>
         return Icons.picture_as_pdf_rounded;
     }
   }
+}
+
+class _ButtonData {
+  final String text;
+  final IconData icon;
+  final List<Color> gradientColors;
+  final VoidCallback onPressed;
+
+  _ButtonData({
+    required this.text,
+    required this.icon,
+    required this.gradientColors,
+    required this.onPressed,
+  });
 }
