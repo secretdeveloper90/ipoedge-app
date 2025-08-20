@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/ipo_model.dart';
-import '../services/ipo_service.dart';
+import '../models/firebase_ipo_model.dart';
+import '../services/firebase_ipo_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ipo_card.dart';
 import '../widgets/common_app_bar.dart';
@@ -21,11 +21,9 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final IPOService _ipoService = IPOService();
   final TextEditingController _searchController = TextEditingController();
 
-  List<IPO> _searchResults = [];
-  List<IPO> _allIPOs = [];
+  List<FirebaseIPO> _searchResults = [];
   bool _isLoading = false;
   bool _hasSearched = false;
   String _selectedStatus = 'all';
@@ -33,9 +31,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
   final List<String> _statusOptions = [
     'all',
-    'upcoming',
-    'current',
-    'listed',
+    'upcoming_open',
+    'listing_soon',
+    'recently_listed',
   ];
 
   final List<String> _categoryOptions = [
@@ -47,24 +45,27 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    _loadAllIPOs();
+    _initializeCategory();
+  }
+
+  void _initializeCategory() {
+    // Set initial category based on search type
+    switch (widget.searchType) {
+      case SearchType.mainboard:
+        _selectedCategory = 'mainboard';
+        break;
+      case SearchType.sme:
+        _selectedCategory = 'sme';
+        break;
+      default:
+        _selectedCategory = 'all';
+    }
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadAllIPOs() async {
-    try {
-      final ipos = await _ipoService.getAllIPOs();
-      setState(() {
-        _allIPOs = ipos;
-      });
-    } catch (e) {
-      // Handle error silently for now
-    }
   }
 
   Future<void> _performSearch() async {
@@ -76,26 +77,31 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     try {
-      List<IPO> results;
+      List<FirebaseIPO> results;
 
-      if (query.isEmpty) {
-        results = List.from(_allIPOs);
-      } else {
-        results = await _ipoService.searchIPOs(query);
-      }
+      // Use Firebase search with category filter
+      String? categoryFilter =
+          _selectedCategory == 'all' ? null : _selectedCategory;
+      results = await FirebaseIPOService.searchFirebaseIPOs(query,
+          category: categoryFilter);
 
-      // Apply filters
+      // Apply status filter
       if (_selectedStatus != 'all') {
-        results = results
-            .where((ipo) =>
-                ipo.status.toLowerCase() == _selectedStatus.toLowerCase())
-            .toList();
-      }
+        results = results.where((ipo) {
+          final ipoCategory = ipo.category?.toLowerCase() ?? '';
 
-      if (_selectedCategory != 'all') {
-        results = results
-            .where((ipo) => ipo.category.name == _selectedCategory)
-            .toList();
+          switch (_selectedStatus) {
+            case 'upcoming_open':
+              return ipoCategory == 'upcoming_open';
+            case 'listing_soon':
+              return ipoCategory == 'listing_soon';
+            case 'recently_listed':
+              return ipoCategory == 'recently_listed' ||
+                  ipoCategory == 'gain_loss_analysis';
+            default:
+              return true;
+          }
+        }).toList();
       }
 
       setState(() {
@@ -116,7 +122,8 @@ class _SearchScreenState extends State<SearchScreen> {
       _searchResults = [];
       _hasSearched = false;
       _selectedStatus = 'all';
-      _selectedCategory = 'all';
+      // Reset category based on search type
+      _initializeCategory();
     });
   }
 
@@ -187,7 +194,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: TextField(
                       controller: _searchController,
                       style: const TextStyle(
-                       fontSize: 15,
+                        fontSize: 15,
                         fontWeight: FontWeight.w500,
                       ),
                       decoration: InputDecoration(
@@ -195,7 +202,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             widget.initialHint ?? widget.searchType.searchHint,
                         hintStyle: TextStyle(
                           color: AppColors.textSecondary.withOpacity(0.7),
-                         fontSize: 15,
+                          fontSize: 15,
                           fontWeight: FontWeight.w400,
                         ),
                         prefixIcon: Container(
@@ -289,7 +296,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             'Search',
                             style: TextStyle(
                               color: Colors.white,
-                             fontSize: 15,
+                              fontSize: 15,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -335,8 +342,21 @@ class _SearchScreenState extends State<SearchScreen> {
                   });
                   if (_hasSearched) _performSearch();
                 },
-                getDisplayText: (status) =>
-                    status == 'all' ? 'All Status' : status.toUpperCase(),
+                getDisplayText: (status) {
+                  switch (status) {
+                    case 'all':
+                      return 'All Status';
+                    case 'upcoming_open':
+                      return 'Current & Upcoming';
+                    case 'listing_soon':
+                      return 'Listing Soon';
+                    case 'recently_listed':
+                      return 'Listed';
+
+                    default:
+                      return status.toUpperCase();
+                  }
+                },
               ),
             ),
             const SizedBox(width: 8),
@@ -490,7 +510,7 @@ class _SearchScreenState extends State<SearchScreen> {
             const Text(
               'Finding the best investment opportunities for you',
               style: TextStyle(
-               fontSize: 15,
+                fontSize: 15,
                 color: AppColors.textSecondary,
               ),
               textAlign: TextAlign.center,
@@ -540,7 +560,7 @@ class _SearchScreenState extends State<SearchScreen> {
               const Text(
                 'Use the search bar above to find companies,\nsectors, or specific IPO opportunities',
                 style: TextStyle(
-                 fontSize: 15,
+                  fontSize: 15,
                   color: AppColors.textSecondary,
                   height: 1.4,
                 ),
@@ -629,7 +649,7 @@ class _SearchScreenState extends State<SearchScreen> {
               const Text(
                 'We couldn\'t find any IPOs matching your search.\nTry different keywords or adjust your filters.',
                 style: TextStyle(
-                 fontSize: 15,
+                  fontSize: 15,
                   color: AppColors.textSecondary,
                   height: 1.4,
                 ),
@@ -708,7 +728,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     Text(
                       '${_searchResults.length} IPO${_searchResults.length == 1 ? '' : 's'} found',
                       style: const TextStyle(
-                       fontSize: 15,
+                        fontSize: 15,
                         color: AppColors.success,
                         fontWeight: FontWeight.w600,
                       ),
@@ -724,16 +744,17 @@ class _SearchScreenState extends State<SearchScreen> {
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
             itemCount: _searchResults.length,
             itemBuilder: (context, index) {
-              final ipo = _searchResults[index];
+              final firebaseIpo = _searchResults[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: IPOCard(
-                  ipo: ipo,
+                  firebaseIpo: firebaseIpo,
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => IPODetailScreen(ipo: ipo),
+                        builder: (context) =>
+                            IPODetailScreen(firebaseIpo: firebaseIpo),
                       ),
                     );
                   },

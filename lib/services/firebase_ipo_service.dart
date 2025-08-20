@@ -140,7 +140,47 @@ class FirebaseIPOService {
     }
   }
 
-  // Search IPOs by name or sector
+  // Search Firebase IPOs by name, sector, or other fields
+  static Future<List<FirebaseIPO>> searchFirebaseIPOs(String query,
+      {String? category}) async {
+    try {
+      if (query.isEmpty) {
+        if (category != null) {
+          return getFirebaseIPOsByCategory(category);
+        }
+        return getAllFirebaseIPOs();
+      }
+
+      print(
+          '🔍 Searching Firebase IPOs with query: "$query", category: $category');
+
+      // Get IPOs by category first if specified, otherwise get all
+      List<FirebaseIPO> iposToSearch;
+      if (category != null) {
+        iposToSearch = await getFirebaseIPOsByCategory(category);
+      } else {
+        iposToSearch = await getAllFirebaseIPOs();
+      }
+
+      // Filter by search query
+      final results = iposToSearch.where((ipo) {
+        final companyName = ipo.companyHeaders.companyName.toLowerCase();
+        final sectorName = ipo.stockData.sectorName?.toLowerCase() ?? '';
+        final queryLower = query.toLowerCase();
+
+        return companyName.contains(queryLower) ||
+            sectorName.contains(queryLower);
+      }).toList();
+
+      print('✅ Found ${results.length} Firebase IPOs matching query "$query"');
+      return results;
+    } catch (e) {
+      print('❌ Error searching Firebase IPOs: $e');
+      return [];
+    }
+  }
+
+  // Search IPOs by name or sector (legacy format for backward compatibility)
   static Future<List<IPO>> searchIPOs(String query) async {
     try {
       if (query.isEmpty) return getAllIPOs();
