@@ -28,9 +28,9 @@ class IPOCard extends StatelessWidget {
     if (firebaseIpo != null) {
       final openDate = firebaseIpo!.importantDates.openDate ?? '';
       final closeDate = firebaseIpo!.importantDates.closeDate ?? '';
-      return '$openDate - $closeDate';
+      return 'Offer Date: $openDate - $closeDate';
     }
-    return ipo?.offerDate.formatted ?? '';
+    return 'Offer Date: ${ipo?.offerDate?.formatted ?? ''}';
   }
 
   String get offerPriceFormatted {
@@ -627,7 +627,7 @@ class IPOCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -646,8 +646,8 @@ class IPOCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 28,
-            height: 28,
+            width: 24,
+            height: 24,
             decoration: BoxDecoration(
               color: listingColor.withOpacity(0.12),
               borderRadius: BorderRadius.circular(8),
@@ -677,7 +677,7 @@ class IPOCard extends StatelessWidget {
                     text: listingPriceFormatted,
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       color: listingColor,
                     ),
                   ),
@@ -705,7 +705,7 @@ class IPOCard extends StatelessWidget {
         hasExpectedPremiumData ? AppColors.gmpPositive : Colors.grey.shade500;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -724,8 +724,8 @@ class IPOCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 28,
-            height: 28,
+            width: 24,
+            height: 24,
             decoration: BoxDecoration(
               color: premiumColor.withOpacity(0.12),
               borderRadius: BorderRadius.circular(8),
@@ -753,7 +753,7 @@ class IPOCard extends StatelessWidget {
                     text: expectedPremiumFormatted,
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       color: premiumColor,
                     ),
                   ),
@@ -770,42 +770,28 @@ class IPOCard extends StatelessWidget {
 
   Widget _buildShareIcon() {
     return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primary.withOpacity(0.12),
-            AppColors.primary.withOpacity(0.08),
-          ],
-        ),
+        color: AppColors.primary.withOpacity(0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: AppColors.primary.withOpacity(0.15),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withOpacity(0.08),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-            spreadRadius: 0,
-          ),
-        ],
       ),
       child: Material(
         color: Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
         child: InkWell(
           onTap: () => _shareIPO(),
           borderRadius: BorderRadius.circular(8),
-          splashColor: AppColors.primary.withOpacity(0.2),
-          highlightColor: AppColors.primary.withOpacity(0.1),
-          child: Icon(
-            Icons.share_outlined,
-            color: AppColors.primary.withOpacity(0.8),
-            size: 16,
+          splashColor: AppColors.primary.withOpacity(0.1),
+          highlightColor: AppColors.primary.withOpacity(0.05),
+          child: const Padding(
+            padding: EdgeInsets.all(4),
+            child: Icon(
+              Icons.share,
+              color: AppColors.primary,
+              size: 18,
+            ),
           ),
         ),
       ),
@@ -950,10 +936,8 @@ class IPOCard extends StatelessWidget {
 
       // Share the message using the share_plus package
       await Share.share(shareMessage.toString());
-
-      debugPrint('IPO shared successfully');
     } catch (e) {
-      debugPrint('Error sharing IPO: $e');
+      // Handle sharing error silently
     }
   }
 
