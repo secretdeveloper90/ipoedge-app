@@ -39,7 +39,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
     _tabController = TabController(length: 4, vsync: this);
     _currentIPO = widget.ipo;
     _currentFirebaseIPO = widget.firebaseIpo;
-    _refreshIPOData();
+    // Start loading data automatically
+    _loadIPOData();
   }
 
   @override
@@ -48,7 +49,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
     super.dispose();
   }
 
-  Future<void> _refreshIPOData() async {
+  Future<void> _loadIPOData() async {
     setState(() {
       _isLoading = true;
       _error = '';
@@ -69,8 +70,21 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             _isLoading = false;
           });
         }
+      } else if (widget.firebaseIpo != null) {
+        // For Firebase IPO, try to get fresh data
+        final freshFirebaseIPO = await FirebaseIPOService.getFirebaseIPOById(
+            widget.firebaseIpo!.companyHeaders.ipoId.toString());
+        if (freshFirebaseIPO != null && mounted) {
+          setState(() {
+            _currentFirebaseIPO = freshFirebaseIPO;
+            _isLoading = false;
+          });
+        } else if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       } else {
-        // For Firebase IPO, we already have the data
         setState(() {
           _isLoading = false;
         });
@@ -147,7 +161,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh),
-              onPressed: _refreshIPOData,
+              onPressed: _loadIPOData,
             ),
           ],
         ),
@@ -168,7 +182,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: _refreshIPOData,
+                onPressed: _loadIPOData,
                 child: const Text('Retry'),
               ),
             ],
@@ -209,13 +223,42 @@ class _IPODetailScreenState extends State<IPODetailScreen>
             ),
           ),
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
+            child: Stack(
               children: [
-                _buildOverviewTab(),
-                _buildFinancialsTab(),
-                _buildDetailsTab(),
-                _buildAnalysisTab(),
+                TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildOverviewTab(),
+                    _buildFinancialsTab(),
+                    _buildDetailsTab(),
+                    _buildAnalysisTab(),
+                  ],
+                ),
+                // Loading overlay
+                if (_isLoading)
+                  Container(
+                    color: Colors.white.withOpacity(0.8),
+                    child: const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColors.primary),
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Loading IPO details...',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -265,44 +308,6 @@ class _IPODetailScreenState extends State<IPODetailScreen>
                   // Action buttons row
                   Row(
                     children: [
-                      // Refresh button
-                      Container(
-                        width: 34,
-                        height: 34,
-                        margin: const EdgeInsets.only(right: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 0.5,
-                          ),
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: _isLoading ? null : _refreshIPOData,
-                            borderRadius: BorderRadius.circular(10),
-                            splashColor: Colors.white.withOpacity(0.2),
-                            highlightColor: Colors.white.withOpacity(0.1),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
-                                    ),
-                                  )
-                                : const Icon(
-                                    Icons.refresh,
-                                    color: Colors.white,
-                                    size: 18,
-                                  ),
-                          ),
-                        ),
-                      ),
                       // Modern compact share button
                       Container(
                         width: 34,
@@ -434,79 +439,95 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   }
 
   Widget _buildOverviewTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildIPOOverviewCard(),
-          const SizedBox(height: 10),
-          _buildSubscriptionRateTable(),
-          const SizedBox(height: 10),
-          _buildSharesOnOfferCard(),
-          const SizedBox(height: 10),
-          _buildDatesCard(),
-          const SizedBox(height: 10),
-          const SizedBox(height: 30)
-        ],
+    return RefreshIndicator(
+      onRefresh: _loadIPOData,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildIPOOverviewCard(),
+            const SizedBox(height: 10),
+            _buildSubscriptionRateTable(),
+            const SizedBox(height: 10),
+            _buildSharesOnOfferCard(),
+            const SizedBox(height: 10),
+            _buildDatesCard(),
+            const SizedBox(height: 10),
+            const SizedBox(height: 30)
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildFinancialsTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildFinancialPerformanceCard(),
-          const SizedBox(height: 10),
-          _buildPromoterInfoCard(),
-          const SizedBox(height: 10),
-          const SizedBox(height: 30)
-        ],
+    return RefreshIndicator(
+      onRefresh: _loadIPOData,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildFinancialPerformanceCard(),
+            const SizedBox(height: 10),
+            _buildPromoterInfoCard(),
+            const SizedBox(height: 10),
+            const SizedBox(height: 30)
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildDetailsTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildCompanyInfoCard(),
-          const SizedBox(height: 10),
-          _buildObjectivesCard(),
-          const SizedBox(height: 10),
-          _buildRegistrarCard(),
-          const SizedBox(height: 10),
-          _buildLeadManagersCard(),
-          const SizedBox(height: 10),
-          _buildBiddingTimingsCard(),
-          const SizedBox(height: 10),
-          _buildDocumentsCard(),
-          const SizedBox(height: 30)
-        ],
+    return RefreshIndicator(
+      onRefresh: _loadIPOData,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildCompanyInfoCard(),
+            const SizedBox(height: 10),
+            _buildObjectivesCard(),
+            const SizedBox(height: 10),
+            _buildRegistrarCard(),
+            const SizedBox(height: 10),
+            _buildLeadManagersCard(),
+            const SizedBox(height: 10),
+            _buildBiddingTimingsCard(),
+            const SizedBox(height: 10),
+            _buildDocumentsCard(),
+            const SizedBox(height: 30)
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildAnalysisTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildStrengthsCard(),
-          const SizedBox(height: 10),
-          _buildWeaknessesCard(),
-          const SizedBox(height: 10),
-          _buildFAQCard(),
-          const SizedBox(height: 10),
-          _buildRecommendationCard(),
-          const SizedBox(height: 30)
-        ],
+    return RefreshIndicator(
+      onRefresh: _loadIPOData,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildStrengthsCard(),
+            const SizedBox(height: 10),
+            _buildWeaknessesCard(),
+            const SizedBox(height: 10),
+            _buildFAQCard(),
+            const SizedBox(height: 10),
+            _buildRecommendationCard(),
+            const SizedBox(height: 30)
+          ],
+        ),
       ),
     );
   }
