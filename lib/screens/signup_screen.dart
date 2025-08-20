@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_theme.dart';
 import '../services/auth_service.dart';
 import 'home_screen.dart';
@@ -526,69 +527,56 @@ class _SignUpScreenState extends State<SignUpScreen>
               ],
             ),
             const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildSocialButton(
-                    'Google',
-                    Icons.g_mobiledata,
-                    Colors.red,
-                    () => _handleGoogleSignUp(),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildSocialButton(
-                    'Apple',
-                    Icons.apple,
-                    Colors.black,
-                    () => _handleAppleSignUp(),
-                  ),
-                ),
-              ],
-            ),
+            _buildGoogleButton(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSocialButton(
-    String text,
-    IconData icon,
-    Color iconColor,
-    VoidCallback onPressed,
-  ) {
-    return SizedBox(
-      height: 42,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(color: AppColors.cardBorder),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+  Widget _buildGoogleButton() {
+    return Container(
+      width: double.infinity,
+      height: 48,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.cardBorder.withOpacity(0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-          backgroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: iconColor, size: 18),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                text,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
+        ],
+      ),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: () => _handleGoogleSignUp(),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(
+                  'assets/icons/google.svg',
+                  width: 20,
+                  height: 20,
                 ),
-                overflow: TextOverflow.ellipsis,
-              ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Continue with Google',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -690,51 +678,64 @@ class _SignUpScreenState extends State<SignUpScreen>
     }
   }
 
-  void _handleGoogleSignUp() {
-    // Simulate Google Sign Up
-    AuthService().signUp(
-      name: 'Google User',
-      email: 'user@gmail.com',
-    );
+  Future<void> _handleGoogleSignUp() async {
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Google Sign Up successful!'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
-      ),
-    );
+      // Attempt Google Sign Up (same as sign in for Google)
+      bool success = await AuthService().signUpWithGoogle();
 
-    // Navigate to mainboard tab
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-          builder: (context) => const HomeScreen(initialIndex: 0)),
-      (route) => false,
-    );
-  }
+      // Hide loading indicator
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
 
-  void _handleAppleSignUp() {
-    // Simulate Apple Sign Up
-    AuthService().signUp(
-      name: 'Apple User',
-      email: 'user@icloud.com',
-    );
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Welcome ${AuthService().userName}!'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Apple Sign Up successful!'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
-      ),
-    );
-
-    // Navigate to mainboard tab
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-          builder: (context) => const HomeScreen(initialIndex: 0)),
-      (route) => false,
-    );
+        // Navigate to mainboard tab
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const HomeScreen(initialIndex: 0)),
+          (route) => false,
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Google Sign Up failed. Please try again.'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // Hide loading indicator if still showing
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('An error occurred during Google Sign Up.'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 }

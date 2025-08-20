@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../theme/app_theme.dart';
 import '../services/auth_service.dart';
 import '../services/drawer_service.dart';
@@ -117,11 +118,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: 2,
                   ),
                 ),
-                child: const Icon(
-                  Icons.person_rounded,
-                  size: 40,
-                  color: Colors.white,
-                ),
+                child: AuthService().userPhotoUrl != null
+                    ? ClipOval(
+                        child: CachedNetworkImage(
+                          imageUrl: AuthService().userPhotoUrl!,
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => const Icon(
+                            Icons.person_rounded,
+                            size: 40,
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
+                    : const Icon(
+                        Icons.person_rounded,
+                        size: 40,
+                        color: Colors.white,
+                      ),
               ),
               const SizedBox(height: 12),
               Text(
@@ -225,9 +246,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 12),
           _buildDetailRow(
               Icons.phone_outlined, 'Mobile Number', '+91 98765 43210'),
-          const SizedBox(height: 12),
-          _buildDetailRow(
-              Icons.location_city_outlined, 'City', 'Mumbai, Maharashtra'),
         ],
       ),
     );

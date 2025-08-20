@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ipo_edge/theme/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../screens/contact_us_screen.dart';
 import '../screens/privacy_policy_screen.dart';
 import '../screens/terms_conditions_screen.dart';
@@ -696,11 +697,32 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
               ),
             ],
           ),
-          child: const Icon(
-            Icons.person_rounded,
-            color: Colors.white,
-            size: 28,
-          ),
+          child: AuthService().userPhotoUrl != null
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: CachedNetworkImage(
+                    imageUrl: AuthService().userPhotoUrl!,
+                    width: 56,
+                    height: 56,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => const Icon(
+                      Icons.person_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                )
+              : const Icon(
+                  Icons.person_rounded,
+                  color: Colors.white,
+                  size: 28,
+                ),
         ),
         const SizedBox(width: 14),
 
@@ -726,13 +748,17 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Welcome back!',
+                      AuthService().userPhoneNumber != null
+                          ? AuthService().userPhoneNumber!
+                          : 'Welcome back!',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.8),
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 0.2,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
