@@ -4227,10 +4227,30 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   }
 
   void _openDocument(String url) async {
+    if (url.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Invalid document URL'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
     try {
       final Uri uri = Uri.parse(url);
+
       if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+          webViewConfiguration: const WebViewConfiguration(
+            headers: <String, String>{},
+          ),
+        );
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -4246,7 +4266,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error opening document: $e'),
+            content: Text('Failed to open document: $e'),
             duration: const Duration(seconds: 2),
             backgroundColor: Colors.red,
           ),
