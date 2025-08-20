@@ -447,6 +447,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
           const SizedBox(height: 10),
           _buildDatesCard(),
           const SizedBox(height: 10),
+          const SizedBox(height: 30)
         ],
       ),
     );
@@ -462,6 +463,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
           const SizedBox(height: 10),
           _buildPromoterInfoCard(),
           const SizedBox(height: 10),
+          const SizedBox(height: 30)
         ],
       ),
     );
@@ -484,6 +486,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
           _buildBiddingTimingsCard(),
           const SizedBox(height: 10),
           _buildDocumentsCard(),
+          const SizedBox(height: 30)
         ],
       ),
     );
@@ -502,6 +505,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
           _buildFAQCard(),
           const SizedBox(height: 10),
           _buildRecommendationCard(),
+          const SizedBox(height: 30)
         ],
       ),
     );
@@ -4005,11 +4009,11 @@ class _IPODetailScreenState extends State<IPODetailScreen>
           colors: buttonData.gradientColors,
           stops: const [0.0, 1.0],
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
             color: buttonData.gradientColors.first.withOpacity(0.4),
-            blurRadius: 12,
+            blurRadius: 10,
             offset: const Offset(0, 4),
             spreadRadius: 0,
           ),
@@ -4250,9 +4254,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
 
     // Check if IPO is currently open for applications
     if (openDate != null && closeDate != null) {
-      final isIPOOpen =
-          now.isAfter(openDate.subtract(const Duration(days: 1))) &&
-              now.isBefore(closeDate.add(const Duration(days: 1)));
+      final isIPOOpen = now.isAfter(openDate) && now.isBefore(closeDate);
 
       if (isIPOOpen) {
         return _ButtonData(
@@ -4266,8 +4268,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
 
     // Check if allotment results are available
     if (allotmentDate != null) {
-      final isAllotmentAvailable =
-          now.isAfter(allotmentDate.subtract(const Duration(days: 1)));
+      final isAllotmentAvailable = now.isAfter(allotmentDate);
 
       if (isAllotmentAvailable) {
         return _ButtonData(
@@ -4279,7 +4280,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
       }
     }
 
-    // Default case - IPO hasn't opened yet or is in between close and allotment
+    // Default case - IPO hasn't opened yet
     if (openDate != null && now.isBefore(openDate)) {
       return _ButtonData(
         text: 'Coming Soon',
@@ -4298,20 +4299,39 @@ class _IPODetailScreenState extends State<IPODetailScreen>
       );
     }
 
-    // Between close and allotment dates
+    // Check if IPO is closed and waiting for allotment
+    if (closeDate != null &&
+        allotmentDate != null &&
+        now.isAfter(closeDate) &&
+        now.isBefore(allotmentDate)) {
+      return _ButtonData(
+        text: 'Allotment Await',
+        icon: Icons.hourglass_empty,
+        gradientColors: [AppColors.warning, const Color(0xFFE65100)],
+        onPressed: () {
+          final allotmentText =
+              'Allotment results expected on ${_formatDate(importantDates.allotmentDate!)}';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(allotmentText),
+              duration: const Duration(seconds: 2),
+              backgroundColor: AppColors.warning,
+            ),
+          );
+        },
+      );
+    }
+
+    // Fallback case
     return _ButtonData(
       text: 'Coming Soon',
-      icon: Icons.hourglass_empty,
-      gradientColors: [AppColors.warning, const Color(0xFFE65100)],
+      icon: Icons.schedule,
+      gradientColors: [Colors.grey[600]!, Colors.grey[700]!],
       onPressed: () {
-        final allotmentText = allotmentDate != null
-            ? 'Allotment results expected on ${_formatDate(importantDates.allotmentDate!)}'
-            : 'Allotment results coming soon';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(allotmentText),
-            duration: const Duration(seconds: 2),
-            backgroundColor: AppColors.warning,
+          const SnackBar(
+            content: Text('IPO information will be available soon'),
+            duration: Duration(seconds: 2),
           ),
         );
       },

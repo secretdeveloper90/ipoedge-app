@@ -95,6 +95,158 @@ class IPOCard extends StatelessWidget {
     return 'upcoming';
   }
 
+  /// Get detailed IPO status based on important dates
+  String _getDetailedIPOStatus() {
+    final now = DateTime.now();
+
+    if (firebaseIpo != null) {
+      final openDate =
+          DateTime.tryParse(firebaseIpo!.importantDates.openDate ?? '');
+      final closeDate =
+          DateTime.tryParse(firebaseIpo!.importantDates.closeDate ?? '');
+      final allotmentDate =
+          DateTime.tryParse(firebaseIpo!.importantDates.allotmentDate ?? '');
+      final listingDate =
+          DateTime.tryParse(firebaseIpo!.importantDates.listingDate ?? '');
+
+      // Listed - after listing date
+      if (listingDate != null && now.isAfter(listingDate)) {
+        return 'listed';
+      }
+
+      // Allotment Out - after allotment date but before listing
+      if (allotmentDate != null && now.isAfter(allotmentDate)) {
+        return 'allotment_out';
+      }
+
+      // Allotment Awaited - after close date but before allotment
+      if (closeDate != null && now.isAfter(closeDate)) {
+        return 'allotment_awaited';
+      }
+
+      // Live - between open and close date
+      if (openDate != null &&
+          closeDate != null &&
+          now.isAfter(openDate) &&
+          now.isBefore(closeDate.add(const Duration(days: 1)))) {
+        return 'live';
+      }
+
+      // Upcoming - before open date
+      return 'upcoming';
+    } else if (ipo != null) {
+      final openDate = DateTime.tryParse(ipo!.offerDate.start);
+      final closeDate = DateTime.tryParse(ipo!.offerDate.end);
+      final allotmentDate = DateTime.tryParse(ipo!.allotmentDate ?? '');
+      final listingDate = DateTime.tryParse(ipo!.listingDate ?? '');
+
+      // Listed - after listing date
+      if (listingDate != null && now.isAfter(listingDate)) {
+        return 'listed';
+      }
+
+      // Allotment Out - after allotment date but before listing
+      if (allotmentDate != null && now.isAfter(allotmentDate)) {
+        return 'allotment_out';
+      }
+
+      // Allotment Awaited - after close date but before allotment
+      if (closeDate != null && now.isAfter(closeDate)) {
+        return 'allotment_awaited';
+      }
+
+      // Live - between open and close date
+      if (openDate != null &&
+          closeDate != null &&
+          now.isAfter(openDate) &&
+          now.isBefore(closeDate.add(const Duration(days: 1)))) {
+        return 'live';
+      }
+
+      // Upcoming - before open date
+      return 'upcoming';
+    }
+
+    return 'upcoming';
+  }
+
+  /// Build status badge widget
+  Widget _buildStatusBadge() {
+    final status = _getDetailedIPOStatus();
+
+    String text;
+    Color backgroundColor;
+    Color textColor;
+    IconData icon;
+
+    switch (status) {
+      case 'live':
+        text = 'LIVE';
+        backgroundColor = const Color(0xFF4CAF50);
+        textColor = Colors.white;
+        icon = Icons.circle;
+        break;
+      case 'allotment_awaited':
+        text = 'ALLOTMENT AWAITED';
+        backgroundColor = const Color(0xFFFF9800);
+        textColor = Colors.white;
+        icon = Icons.hourglass_empty;
+        break;
+      case 'allotment_out':
+        text = 'ALLOTMENT OUT';
+        backgroundColor = const Color(0xFF2196F3);
+        textColor = Colors.white;
+        icon = Icons.assignment_turned_in;
+        break;
+      case 'listed':
+        text = 'LISTED';
+        backgroundColor = const Color(0xFF9C27B0);
+        textColor = Colors.white;
+        icon = Icons.trending_up;
+        break;
+      default:
+        text = 'UPCOMING';
+        backgroundColor = const Color(0xFF607D8B);
+        textColor = Colors.white;
+        icon = Icons.schedule;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: backgroundColor.withOpacity(0.3),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 10,
+            color: textColor,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+              color: textColor,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   String get listingPriceFormatted {
     if (firebaseIpo != null) {
       final listingOpen = firebaseIpo!.listingGains?.listingOpenPrice;
@@ -127,8 +279,7 @@ class IPOCard extends StatelessWidget {
   bool get shouldShowExpectedPremiumSection {
     if (firebaseIpo != null) {
       final status = _getIPOStatus();
-      return hasExpectedPremiumData &&
-          (status == 'upcoming_open' || status == 'listing_soon');
+      return (status == 'upcoming_open' || status == 'listing_soon');
     }
     return false;
   }
@@ -146,7 +297,7 @@ class IPOCard extends StatelessWidget {
     if (firebaseIpo != null && firebaseIpo!.expectedPremium != null) {
       return firebaseIpo!.expectedPremium!;
     }
-    return '-';
+    return 'Update Soon';
   }
 
   @override
@@ -281,17 +432,25 @@ class IPOCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                companyName,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1A1A1A),
-                  letterSpacing: -0.2,
-                  height: 1.2,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      companyName,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1A1A1A),
+                        letterSpacing: -0.2,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildStatusBadge(),
+                ],
               ),
               const SizedBox(height: 4),
               Container(
@@ -321,48 +480,6 @@ class IPOCard extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ),
-        // Modern light blue share button
-        Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppColors.primary.withOpacity(0.12),
-                AppColors.primary.withOpacity(0.08),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: AppColors.primary.withOpacity(0.15),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withOpacity(0.08),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-                spreadRadius: 0,
-              ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => _shareIPO(),
-              borderRadius: BorderRadius.circular(12),
-              splashColor: AppColors.primary.withOpacity(0.2),
-              highlightColor: AppColors.primary.withOpacity(0.1),
-              child: Icon(
-                Icons.share_rounded,
-                size: 12,
-                color: AppColors.primary.withOpacity(0.8),
-              ),
-            ),
           ),
         ),
       ],
@@ -416,13 +533,39 @@ class IPOCard extends StatelessWidget {
         ),
         if (shouldShowListingSection) ...[
           const SizedBox(height: 12),
-          // Listing Information with enhanced styling
-          _buildListingInfoRow(),
-        ],
-        if (shouldShowExpectedPremiumSection) ...[
+          // Listing Information with enhanced styling and share icon
+          Row(
+            children: [
+              Expanded(
+                flex: 4,
+                child: _buildListingInfoRow(),
+              ),
+              const SizedBox(width: 8),
+              _buildShareIcon(),
+            ],
+          ),
+        ] else if (shouldShowExpectedPremiumSection) ...[
           const SizedBox(height: 12),
-          // Expected Premium Information
-          _buildExpectedPremiumRow(),
+          // Expected Premium Information with share icon
+          Row(
+            children: [
+              Expanded(
+                flex: 4,
+                child: _buildExpectedPremiumRow(),
+              ),
+              const SizedBox(width: 8),
+              _buildShareIcon(),
+            ],
+          ),
+        ] else ...[
+          const SizedBox(height: 12),
+          // Always show share icon even when no premium/listing sections are visible
+          Row(
+            children: [
+              const Spacer(),
+              _buildShareIcon(),
+            ],
+          ),
         ],
       ],
     );
@@ -558,12 +701,10 @@ class IPOCard extends StatelessWidget {
   }
 
   Widget _buildExpectedPremiumRow() {
-    final premiumColor = hasExpectedPremiumData
-        ? Colors.orange.shade600 // Use orange color for expected premium
-        : Colors.grey.shade500;
+    final premiumColor =
+        hasExpectedPremiumData ? AppColors.gmpPositive : Colors.grey.shade500;
 
     return Container(
-      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -601,7 +742,7 @@ class IPOCard extends StatelessWidget {
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: 'Expected Premium: ',
+                    text: 'Exp. Premium: ',
                     style: TextStyle(
                       fontSize: 12,
                       color: premiumColor.withOpacity(0.8),
@@ -623,6 +764,50 @@ class IPOCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildShareIcon() {
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primary.withOpacity(0.12),
+            AppColors.primary.withOpacity(0.08),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: AppColors.primary.withOpacity(0.15),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.08),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _shareIPO(),
+          borderRadius: BorderRadius.circular(8),
+          splashColor: AppColors.primary.withOpacity(0.2),
+          highlightColor: AppColors.primary.withOpacity(0.1),
+          child: Icon(
+            Icons.share_outlined,
+            color: AppColors.primary.withOpacity(0.8),
+            size: 16,
+          ),
+        ),
       ),
     );
   }
