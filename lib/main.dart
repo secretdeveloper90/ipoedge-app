@@ -11,6 +11,7 @@ import 'screens/signup_screen.dart';
 import 'firebase_options.dart';
 import 'services/firebase_messaging_service.dart';
 import 'services/notification_helper.dart';
+import 'services/auth_service.dart';
 
 /// Background message handler for Firebase Messaging
 /// This function must be a top-level function
@@ -41,6 +42,9 @@ void main() async {
 
   // Initialize Notification Helper
   await NotificationHelper().initialize();
+
+  // Initialize Authentication Service with Firebase persistence
+  await AuthService().initialize();
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

@@ -25,6 +25,7 @@ class _SignUpScreenState extends State<SignUpScreen>
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _mobileController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
@@ -274,6 +275,8 @@ class _SignUpScreenState extends State<SignUpScreen>
                 const SizedBox(height: 10),
                 _buildEmailField(),
                 const SizedBox(height: 10),
+                _buildMobileField(),
+                const SizedBox(height: 10),
                 _buildPasswordField(),
                 const SizedBox(height: 10),
                 _buildConfirmPasswordField(),
@@ -338,6 +341,34 @@ class _SignUpScreenState extends State<SignUpScreen>
         }
         if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
           return 'Please enter a valid email';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildMobileField() {
+    return TextFormField(
+      controller: _mobileController,
+      keyboardType: TextInputType.phone,
+      decoration: InputDecoration(
+        labelText: 'Mobile Number',
+        prefixIcon: Icon(Icons.phone_outlined, color: AppColors.primary),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.cardBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.primary, width: 2),
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your mobile number';
+        }
+        if (!RegExp(r'^[6-9]\d{9}$').hasMatch(value)) {
+          return 'Please enter a valid 10-digit mobile number';
         }
         return null;
       },
@@ -631,26 +662,15 @@ class _SignUpScreenState extends State<SignUpScreen>
 
       // Validate and sign up user
       if (mounted) {
-        // Check if email already exists
-        if (AuthService().emailExists(_emailController.text.trim())) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                  'Email already exists. Please use a different email or sign in.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-          return;
-        }
-
         // Create new account
-        bool isSignUpSuccessful = AuthService().signUpWithCredentials(
+        bool isSignUpSuccessful = await AuthService().signUpWithCredentials(
           name: _nameController.text.trim(),
           email: _emailController.text.trim(),
+          mobile: _mobileController.text.trim(),
           password: _passwordController.text,
         );
 
-        if (isSignUpSuccessful) {
+        if (isSignUpSuccessful && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -666,7 +686,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                 builder: (context) => const HomeScreen(initialIndex: 0)),
             (route) => false,
           );
-        } else {
+        } else if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Sign up failed. Please try again.'),

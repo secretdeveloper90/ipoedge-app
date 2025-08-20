@@ -244,8 +244,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildDetailRow(Icons.email_outlined, 'Email',
               AuthService().userEmail ?? 'john.doe@example.com'),
           const SizedBox(height: 12),
-          _buildDetailRow(
-              Icons.phone_outlined, 'Mobile Number', '+91 98765 43210'),
+          _buildDetailRow(Icons.phone_outlined, 'Mobile Number',
+              AuthService().userPhoneNumber ?? 'Not provided'),
         ],
       ),
     );
@@ -345,23 +345,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
-                AuthService().signOut();
-                Navigator.pop(context); // Close dialog
+              onPressed: () async {
+                Navigator.pop(context); // Close dialog first
 
-                // Navigate to home screen (mainboard)
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
-                  (route) => false,
-                );
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Signed out successfully'),
-                    backgroundColor: Colors.green,
+                // Show loading indicator
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => const Center(
+                    child: CircularProgressIndicator(),
                   ),
                 );
+
+                try {
+                  // Use Firebase signOut method
+                  await AuthService().signOut();
+
+                  if (mounted) {
+                    Navigator.pop(context); // Close loading dialog
+
+                    // Navigate to home screen (mainboard)
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const HomeScreen()),
+                      (route) => false,
+                    );
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Signed out successfully'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    Navigator.pop(context); // Close loading dialog
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error signing out: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
               },
               style: TextButton.styleFrom(
                 foregroundColor: Colors.red,

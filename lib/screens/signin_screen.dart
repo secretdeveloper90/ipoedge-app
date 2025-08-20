@@ -23,8 +23,8 @@ class _SignInScreenState extends State<SignInScreen>
   late Animation<double> _scaleAnimation;
 
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'admin@ipoedge.com');
-  final _passwordController = TextEditingController(text: 'admin123');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
   bool _isLoading = false;
@@ -532,12 +532,12 @@ class _SignInScreenState extends State<SignInScreen>
 
       // Validate credentials and sign in
       if (mounted) {
-        bool isValidCredentials = AuthService().signInWithCredentials(
+        bool isValidCredentials = await AuthService().signInWithCredentials(
           _emailController.text.trim(),
           _passwordController.text,
         );
 
-        if (isValidCredentials) {
+        if (isValidCredentials && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Welcome ${AuthService().userName}!'),
@@ -552,7 +552,7 @@ class _SignInScreenState extends State<SignInScreen>
                 builder: (context) => const HomeScreen(initialIndex: 0)),
             (route) => false,
           );
-        } else {
+        } else if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Invalid email or password. Please try again.'),
