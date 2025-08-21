@@ -2815,7 +2815,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   Widget _buildBiddingTimingsCard() {
     //  Static IPO bidding timings for display
     const String hniTiming = "10:00 AM – 4:00 PM (or before)";
-    const String retailTiming = "10:00 AM – 4:00 PM (or before)";
+    const String retailTiming = "10:00 AM – 4:50 PM (or before)";
 
     return Card(
       elevation: 4,
