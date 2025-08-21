@@ -298,7 +298,7 @@ class _IPOCardState extends State<IPOCard> with SingleTickerProviderStateMixin {
           Text(
             text,
             style: TextStyle(
-              fontSize: 10,
+              fontSize: 9,
               fontWeight: FontWeight.w600,
               color: textColor,
               letterSpacing: 0.3,
@@ -395,7 +395,7 @@ class _IPOCardState extends State<IPOCard> with SingleTickerProviderStateMixin {
                   ],
                 ),
               ),
-              // Status badge positioned at absolute top-right corner
+              // Status badge positioned at top-right corner with slight margin
               Positioned(
                 top: 0,
                 right: 0,
@@ -493,7 +493,9 @@ class _IPOCardState extends State<IPOCard> with SingleTickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.only(right: 70),
+                padding: const EdgeInsets.only(
+                    right:
+                        120), // Increased padding to accommodate longer status badges
                 child: Text(
                   companyName,
                   style: const TextStyle(
