@@ -8,15 +8,26 @@ class FirebaseBuybackService {
   // Get all buybacks from Firestore
   static Future<List<Buyback>> getAllBuybacks() async {
     try {
-      final querySnapshot = await _firestore
-          .collection(_collection)
-          .orderBy('issueDate', descending: true)
-          .get();
-      return querySnapshot.docs
+      final querySnapshot = await _firestore.collection(_collection).get();
+
+      if (querySnapshot.docs.isEmpty) {
+        return [];
+      }
+
+      final buybacks = querySnapshot.docs
           .map((doc) => Buyback.fromJson({...doc.data(), 'id': doc.id}))
           .toList();
+
+      // Sort in memory instead of using Firestore orderBy
+      buybacks.sort((a, b) {
+        final aDate = DateTime.tryParse(a.issueDate ?? '') ?? DateTime(1900);
+        final bDate = DateTime.tryParse(b.issueDate ?? '') ?? DateTime(1900);
+        return bDate.compareTo(aDate); 
+      });
+
+      return buybacks;
     } catch (e) {
-      return [];
+      rethrow; // Re-throw the error so the UI can handle it
     }
   }
 
@@ -26,11 +37,20 @@ class FirebaseBuybackService {
       final querySnapshot = await _firestore
           .collection(_collection)
           .where('status', isEqualTo: status)
-          .orderBy('issueDate', descending: true)
           .get();
-      return querySnapshot.docs
+
+      final buybacks = querySnapshot.docs
           .map((doc) => Buyback.fromJson({...doc.data(), 'id': doc.id}))
           .toList();
+
+      // Sort in memory instead of using Firestore orderBy
+      buybacks.sort((a, b) {
+        final aDate = DateTime.tryParse(a.issueDate ?? '') ?? DateTime(1900);
+        final bDate = DateTime.tryParse(b.issueDate ?? '') ?? DateTime(1900);
+        return bDate.compareTo(aDate); // descending order
+      });
+
+      return buybacks;
     } catch (e) {
       return [];
     }

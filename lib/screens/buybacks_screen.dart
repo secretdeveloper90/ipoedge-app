@@ -39,6 +39,7 @@ class _BuybacksScreenState extends State<BuybacksScreen>
 
     try {
       final buybacks = await FirebaseBuybackService.getAllBuybacks();
+
       if (mounted) {
         setState(() {
           _allBuybacks = buybacks;
@@ -78,6 +79,11 @@ class _BuybacksScreenState extends State<BuybacksScreen>
                 delegate: BuybackSearchDelegate(),
               );
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadData,
+            tooltip: 'Refresh',
           ),
         ],
         bottom: PreferredSize(
