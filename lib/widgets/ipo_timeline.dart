@@ -17,7 +17,6 @@ class IPOTimeline extends StatelessWidget {
   Widget build(BuildContext context) {
     final timelineData = _buildTimelineData();
 
-    // Don't show timeline if no dates are available
     if (timelineData.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -36,7 +35,6 @@ class IPOTimeline extends StatelessWidget {
   List<TimelineItemData> _buildTimelineData() {
     final items = <TimelineItemData>[];
 
-    // Add timeline items based on available dates
     if (importantDates.openDate != null) {
       items.add(TimelineItemData(
         title: 'Open',
@@ -84,7 +82,7 @@ class IPOTimeline extends StatelessWidget {
       List<TimelineItemData> items, bool isCompact) {
     if (items.isEmpty) return const SizedBox.shrink();
 
-    final indicatorSize = isCompact ? 18.0 : 22.0;
+    final indicatorSize = isCompact ? 20.0 : 26.0;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -93,19 +91,16 @@ class IPOTimeline extends StatelessWidget {
 
         return Column(
           children: [
-            // Timeline container with proper alignment
             SizedBox(
               height: indicatorSize,
               child: Stack(
                 children: [
-                  // Dynamic progress lines between points
                   Positioned(
                     top: (indicatorSize - 3) / 2,
                     left: itemWidth / 2,
                     right: itemWidth / 2,
                     child: _buildProgressLines(items, isCompact),
                   ),
-                  // Timeline indicators - evenly distributed
                   Row(
                     children: items.map((item) {
                       return SizedBox(
@@ -119,8 +114,7 @@ class IPOTimeline extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: isCompact ? 12 : 16),
-            // Labels positioned directly below each indicator
+            SizedBox(height: isCompact ? 14 : 18),
             Row(
               children: items.map((item) {
                 return SizedBox(
@@ -139,67 +133,41 @@ class IPOTimeline extends StatelessWidget {
   }
 
   Widget _buildModernIndicator(TimelineItemData item, bool isCompact) {
-    final indicatorSize = isCompact ? 18.0 : 22.0;
-    final iconSize = isCompact ? 9.0 : 11.0;
-    final borderWidth = isCompact ? 2.0 : 2.5;
+    final indicatorSize = isCompact ? 20.0 : 26.0;
+    final iconSize = isCompact ? 11.0 : 14.0;
 
     Color backgroundColor;
     Color borderColor;
-    List<BoxShadow> shadows = [];
 
     if (item.isCompleted) {
       backgroundColor = AppColors.success;
       borderColor = Colors.white;
-      shadows = [
-        BoxShadow(
-          color: AppColors.success.withOpacity(0.4),
-          blurRadius: 8,
-          spreadRadius: 2,
-        ),
-        BoxShadow(
-          color: Colors.white.withOpacity(0.2),
-          blurRadius: 2,
-          spreadRadius: 0,
-        ),
-      ];
     } else if (item.isCurrent) {
       backgroundColor = AppColors.warning;
       borderColor = Colors.white;
-      shadows = [
-        BoxShadow(
-          color: AppColors.warning.withOpacity(0.4),
-          blurRadius: 8,
-          spreadRadius: 2,
-        ),
-        BoxShadow(
-          color: Colors.white.withOpacity(0.2),
-          blurRadius: 2,
-          spreadRadius: 0,
-        ),
-      ];
     } else {
-      backgroundColor = Colors.white.withOpacity(0.25);
-      borderColor = Colors.white.withOpacity(0.5);
-      shadows = [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.1),
-          blurRadius: 4,
-          spreadRadius: 0,
-        ),
-      ];
+      backgroundColor = Colors.grey.shade600.withOpacity(0.4);
+      borderColor = Colors.white.withOpacity(0.3);
     }
 
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
       width: indicatorSize,
       height: indicatorSize,
       decoration: BoxDecoration(
         color: backgroundColor,
         shape: BoxShape.circle,
-        border: Border.all(
-          color: borderColor,
-          width: borderWidth,
-        ),
-        boxShadow: shadows,
+        border: Border.all(color: borderColor, width: 2),
+        boxShadow: item.isCurrent
+            ? [
+                BoxShadow(
+                  color: AppColors.warning.withOpacity(0.6),
+                  blurRadius: 10,
+                  spreadRadius: 3,
+                )
+              ]
+            : [],
       ),
       child: Icon(
         item.icon,
@@ -215,31 +183,37 @@ class IPOTimeline extends StatelessWidget {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          item.title,
-          textAlign: textAlign,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: isCompact ? 10 : 11,
-            fontWeight: FontWeight.w600,
-            color: item.isCompleted || item.isCurrent
-                ? Colors.white
-                : Colors.white.withOpacity(0.8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+          decoration: BoxDecoration(
+            color: item.isCompleted
+                ? AppColors.success.withOpacity(0.2)
+                : item.isCurrent
+                    ? AppColors.warning.withOpacity(0.2)
+                    : Colors.white.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            item.title,
+            style: TextStyle(
+              fontSize: isCompact ? 10 : 12,
+              fontWeight: FontWeight.w600,
+              color: item.isCompleted
+                  ? AppColors.success
+                  : item.isCurrent
+                      ? AppColors.warning
+                      : Colors.white70,
+            ),
           ),
         ),
-        SizedBox(height: isCompact ? 2 : 3),
+        const SizedBox(height: 4),
         Text(
           formattedDate,
           textAlign: textAlign,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: isCompact ? 8 : 9,
-            color: Colors.white.withOpacity(0.7),
-            fontWeight: FontWeight.w500,
+            fontSize: isCompact ? 9 : 11,
+            color: Colors.white.withOpacity(0.8),
           ),
         ),
       ],
@@ -249,71 +223,38 @@ class IPOTimeline extends StatelessWidget {
   Widget _buildProgressLines(List<TimelineItemData> items, bool isCompact) {
     if (items.length < 2) return const SizedBox.shrink();
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final availableWidth = constraints.maxWidth;
-        final segmentWidth = availableWidth / (items.length - 1);
+    return Row(
+      children: List.generate(items.length - 1, (index) {
+        final current = items[index];
+        final next = items[index + 1];
 
-        return Row(
-          children: List.generate(items.length - 1, (index) {
-            final currentItem = items[index];
-            final nextItem = items[index + 1];
+        bool isActive = current.isCompleted && next.isCompleted;
+        bool isPartiallyActive = current.isCompleted && next.isCurrent;
 
-            // Determine line state based on current and next item status
-            bool isActive = false;
-            bool isPartiallyActive = false;
-
-            if (currentItem.isCompleted && nextItem.isCompleted) {
-              isActive = true;
-            } else if (currentItem.isCompleted && nextItem.isCurrent) {
-              isPartiallyActive = true;
-            } else if (currentItem.isCurrent && nextItem.isCurrent) {
-              isPartiallyActive = true;
-            }
-
-            return SizedBox(
-              width: segmentWidth,
-              child: Container(
-                height: 3,
-                margin: EdgeInsets.symmetric(horizontal: isCompact ? 4 : 8),
-                decoration: BoxDecoration(
-                  gradient: isActive
-                      ? const LinearGradient(
-                          colors: [
-                            AppColors.success,
-                            AppColors.success,
-                          ],
+        return Expanded(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeInOut,
+            height: 3,
+            margin: EdgeInsets.symmetric(horizontal: isCompact ? 3 : 6),
+            decoration: BoxDecoration(
+              gradient: isActive
+                  ? const LinearGradient(
+                      colors: [AppColors.success, AppColors.success],
+                    )
+                  : isPartiallyActive
+                      ? LinearGradient(
+                          colors: [AppColors.success, AppColors.warning],
                         )
-                      : isPartiallyActive
-                          ? LinearGradient(
-                              colors: [
-                                AppColors.success,
-                                AppColors.warning.withOpacity(0.6),
-                              ],
-                            )
-                          : null,
-                  color: isActive || isPartiallyActive
-                      ? null
-                      : Colors.white.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(1.5),
-                  boxShadow: isActive || isPartiallyActive
-                      ? [
-                          BoxShadow(
-                            color: (isActive
-                                    ? AppColors.success
-                                    : AppColors.warning)
-                                .withOpacity(0.3),
-                            blurRadius: 4,
-                            spreadRadius: 0,
-                          ),
-                        ]
                       : null,
-                ),
-              ),
-            );
-          }),
+              color: (!isActive && !isPartiallyActive)
+                  ? Colors.white.withOpacity(0.15)
+                  : null,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
         );
-      },
+      }),
     );
   }
 
@@ -369,7 +310,7 @@ class IPOTimeline extends StatelessWidget {
               DateTime.tryParse(importantDates.allotmentDate!);
           if (allotmentDate != null) {
             final daysDiff = allotmentDate.difference(now).inDays;
-            return daysDiff >= -1 && daysDiff <= 1; // Current if within 1 day
+            return daysDiff >= -1 && daysDiff <= 1;
           }
         }
         return false;
