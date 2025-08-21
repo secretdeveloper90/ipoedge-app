@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import '../models/buyback_model.dart';
 import '../screens/buyback_detail_screen.dart';
-import '../theme/app_theme.dart';
 
 class BuybackCard extends StatelessWidget {
   final Buyback buyback;
 
   const BuybackCard({
-    Key? key,
+    super.key,
     required this.buyback,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +136,7 @@ class BuybackCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                '${buyback.companyName}',
+                buyback.companyName,
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -307,32 +306,6 @@ class BuybackCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(0.5),
       ),
     );
-  }
-
-  Color _getStatusColor() {
-    switch (buyback.status.toLowerCase()) {
-      case 'upcoming':
-        return AppColors.info;
-      case 'open':
-        return AppColors.success;
-      case 'closed':
-        return AppColors.textSecondary;
-      default:
-        return AppColors.textSecondary;
-    }
-  }
-
-  IconData _getStatusIcon() {
-    switch (buyback.status.toLowerCase()) {
-      case 'upcoming':
-        return Icons.schedule_rounded;
-      case 'open':
-        return Icons.play_arrow_rounded;
-      case 'closed':
-        return Icons.check_circle_rounded;
-      default:
-        return Icons.info_rounded;
-    }
   }
 
   Color _getLogoBackgroundColor() {

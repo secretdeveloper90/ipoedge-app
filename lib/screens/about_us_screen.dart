@@ -8,11 +8,13 @@ class AboutUsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.pop(context);
-        DrawerService().openDrawer();
-        return false;
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (!didPop) {
+          Navigator.pop(context);
+          DrawerService().openDrawer();
+        }
       },
       child: Scaffold(
         appBar: AppBar(

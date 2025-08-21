@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import '../services/buyback_service.dart';
+import '../services/firebase_buyback_service.dart';
 import '../models/buyback_model.dart';
 import '../widgets/buyback_card.dart';
 
 class BuybackSearchDelegate extends SearchDelegate<String> {
-  List<Buyback> get allBuybacks => BuybackService.getAllBuybacks();
+  List<Buyback> _allBuybacks = [];
+  bool _isLoaded = false;
+
+  Future<List<Buyback>> get allBuybacks async {
+    if (!_isLoaded) {
+      _allBuybacks = await FirebaseBuybackService.getAllBuybacks();
+      _isLoaded = true;
+    }
+    return _allBuybacks;
+  }
 
   @override
   String get searchFieldLabel => 'Search buybacks...';
@@ -50,19 +59,31 @@ class BuybackSearchDelegate extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    final results = BuybackService.searchBuybacks(query);
+    return FutureBuilder<List<Buyback>>(
+      future: FirebaseBuybackService.searchBuybacks(query),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    if (results.isEmpty) {
-      return _buildEmptyState('No buybacks found for "$query"');
-    }
+        if (snapshot.hasError) {
+          return _buildEmptyState('Error searching buybacks');
+        }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: results.length,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: BuybackCard(buyback: results[index]),
+        final results = snapshot.data ?? [];
+        if (results.isEmpty) {
+          return _buildEmptyState('No buybacks found for "$query"');
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: results.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: BuybackCard(buyback: results[index]),
+            );
+          },
         );
       },
     );
@@ -70,74 +91,88 @@ class BuybackSearchDelegate extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final suggestions = query.isEmpty
-        ? allBuybacks.take(5).toList()
-        : BuybackService.searchBuybacks(query).take(5).toList();
+    return FutureBuilder<List<Buyback>>(
+      future: query.isEmpty
+          ? allBuybacks.then((buybacks) => buybacks.take(5).toList())
+          : FirebaseBuybackService.searchBuybacks(query)
+              .then((results) => results.take(5).toList()),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: suggestions.length,
-      itemBuilder: (context, index) {
-        final buyback = suggestions[index];
-        return ListTile(
-          leading: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey[300]!),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                buyback.logo,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(
-                      'assets/images/ipo-edge-logo.jpeg',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: AppColors.primary.withOpacity(0.1),
-                          child: const Icon(
-                            Icons.business,
-                            color: AppColors.primary,
-                            size: 20,
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
+        if (snapshot.hasError) {
+          return _buildEmptyState('Error loading suggestions');
+        }
+
+        final suggestions = snapshot.data ?? [];
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: suggestions.length,
+          itemBuilder: (context, index) {
+            final buyback = suggestions[index];
+            return ListTile(
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    buyback.logo,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset(
+                          'assets/images/ipo-edge-logo.jpeg',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: AppColors.primary.withOpacity(0.1),
+                              child: const Icon(
+                                Icons.business,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
-            ),
-          ),
-          title: Text(buyback.companyName),
-          subtitle: Text(
-              '${buyback.statusDisplayName} • ${buyback.formattedBuybackPrice}'),
-          trailing: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: _getStatusColor(buyback.status).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _getStatusColor(buyback.status).withOpacity(0.3),
+              title: Text(buyback.companyName),
+              subtitle: Text(
+                  '${buyback.statusDisplayName} • ${buyback.formattedBuybackPrice}'),
+              trailing: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: _getStatusColor(buyback.status).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: _getStatusColor(buyback.status).withOpacity(0.3),
+                  ),
+                ),
+                child: Text(
+                  buyback.statusDisplayName,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: _getStatusColor(buyback.status),
+                  ),
+                ),
               ),
-            ),
-            child: Text(
-              buyback.statusDisplayName,
-              style: TextStyle(
-               fontSize:11,
-                fontWeight: FontWeight.w600,
-                color: _getStatusColor(buyback.status),
-              ),
-            ),
-          ),
-          onTap: () {
-            query = buyback.companyName;
-            showResults(context);
+              onTap: () {
+                query = buyback.companyName;
+                showResults(context);
+              },
+            );
           },
         );
       },
@@ -172,121 +207,6 @@ class BuybackSearchDelegate extends SearchDelegate<String> {
               color: AppColors.textSecondary,
             ),
             textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBuybackCard(String companyName) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.account_balance_rounded,
-                    color: AppColors.primary,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        companyName,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const Text(
-                        'Buyback Program',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'Active',
-                    style: TextStyle(
-                     fontSize:11,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.success,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                _buildInfoChip('Price: ₹2,500', Icons.currency_rupee_rounded),
-                const SizedBox(width: 8),
-                _buildInfoChip('Ratio: 1:1', Icons.compare_arrows_rounded),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                _buildInfoChip(
-                    'Record Date: 15 Aug', Icons.calendar_today_rounded),
-                const SizedBox(width: 8),
-                _buildInfoChip('Closes: 30 Aug', Icons.schedule_rounded),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoChip(String text, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 12,
-            color: AppColors.textSecondary,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            text,
-            style: const TextStyle(
-             fontSize:11,
-              color: AppColors.textSecondary,
-            ),
           ),
         ],
       ),
