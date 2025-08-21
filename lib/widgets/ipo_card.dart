@@ -1,158 +1,158 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:share_plus/share_plus.dart';
-import '../models/ipo.dart';
-import '../models/ipo_model.dart';
 import '../models/firebase_ipo_model.dart';
 import '../theme/app_theme.dart';
 
-class IPOCard extends StatelessWidget {
-  final IPO? ipo;
-  final FirebaseIPO? firebaseIpo;
+class IPOCard extends StatefulWidget {
+  final FirebaseIPO firebaseIpo;
   final VoidCallback? onTap;
 
   const IPOCard({
     super.key,
-    this.ipo,
-    this.firebaseIpo,
+    required this.firebaseIpo,
     this.onTap,
-  }) : assert(ipo != null || firebaseIpo != null,
-            'Either ipo or firebaseIpo must be provided');
+  });
 
-  // Helper getters to work with both data structures
-  String get companyName =>
-      firebaseIpo?.companyHeaders.companyName ?? ipo?.name ?? '';
-  String? get companyLogo =>
-      firebaseIpo?.companyHeaders.companyLogo ?? ipo?.logo;
+  @override
+  State<IPOCard> createState() => _IPOCardState();
+}
+
+class _IPOCardState extends State<IPOCard> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.8,
+      end: 1.2,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+
+    // Start the blinking animation
+    _animationController.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  // Helper getters for Firebase IPO data
+  String get companyName => widget.firebaseIpo.companyHeaders.companyName;
+  String? get companyLogo => widget.firebaseIpo.companyHeaders.companyLogo;
   String get offerDateFormatted {
-    if (firebaseIpo != null) {
-      final openDate = firebaseIpo!.importantDates.openDate ?? '';
-      final closeDate = firebaseIpo!.importantDates.closeDate ?? '';
+    final openDate = widget.firebaseIpo.importantDates.openDate ?? '';
+    final closeDate = widget.firebaseIpo.importantDates.closeDate ?? '';
 
-      if (openDate.isEmpty || closeDate.isEmpty) {
-        return 'Offer Date: TBA';
-      }
-
-      try {
-        final startDate = DateTime.parse(openDate);
-        final endDate = DateTime.parse(closeDate);
-
-        const List<String> months = [
-          'Jan',
-          'Feb',
-          'Mar',
-          'Apr',
-          'May',
-          'Jun',
-          'Jul',
-          'Aug',
-          'Sep',
-          'Oct',
-          'Nov',
-          'Dec'
-        ];
-
-        final startDay = startDate.day;
-        final startMonth = months[startDate.month - 1];
-        final endDay = endDate.day;
-        final endMonth = months[endDate.month - 1];
-        final startYear = startDate.year;
-        final endYear = endDate.year;
-
-        if (startDate.month == endDate.month &&
-            startDate.year == endDate.year) {
-          // Same month and year: "22-24 Aug, 2025"
-          return 'Offer Date: $startDay-$endDay $endMonth, $endYear';
-        } else if (startDate.year == endDate.year) {
-          // Same year, different months: "30 Aug - 1 Sept, 2025"
-          return 'Offer Date: $startDay $startMonth - $endDay $endMonth, $endYear';
-        } else {
-          // Different years: "31 dec, 2025 - 1 jav, 2026"
-          return 'Offer Date: $startDay $startMonth, $startYear - $endDay $endMonth, $endYear';
-        }
-      } catch (e) {
-        // Fallback to original format if parsing fails
-        return 'Offer Date: $openDate - $closeDate';
-      }
+    if (openDate.isEmpty || closeDate.isEmpty) {
+      return 'Offer Date: TBA';
     }
-    return 'Offer Date: TBA';
+
+    try {
+      final startDate = DateTime.parse(openDate);
+      final endDate = DateTime.parse(closeDate);
+
+      const List<String> months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
+      ];
+
+      final startDay = startDate.day;
+      final startMonth = months[startDate.month - 1];
+      final endDay = endDate.day;
+      final endMonth = months[endDate.month - 1];
+      final startYear = startDate.year;
+      final endYear = endDate.year;
+
+      if (startDate.month == endDate.month && startDate.year == endDate.year) {
+        // Same month and year: "22-24 Aug, 2025"
+        return 'Offer Date: $startDay-$endDay $endMonth, $endYear';
+      } else if (startDate.year == endDate.year) {
+        // Same year, different months: "30 Aug - 1 Sept, 2025"
+        return 'Offer Date: $startDay $startMonth - $endDay $endMonth, $endYear';
+      } else {
+        // Different years: "31 dec, 2025 - 1 jav, 2026"
+        return 'Offer Date: $startDay $startMonth, $startYear - $endDay $endMonth, $endYear';
+      }
+    } catch (e) {
+      // Fallback to original format if parsing fails
+      return 'Offer Date: $openDate - $closeDate';
+    }
   }
 
   String get offerPriceFormatted {
-    if (firebaseIpo != null) {
-      final min = firebaseIpo!.companyIpoOverview.priceRangeMin;
-      final max = firebaseIpo!.companyIpoOverview.priceRangeMax;
-      if (min != null && max != null && min > 0 && max > 0) {
-        return '₹$min - ₹$max';
-      }
-      return 'Price TBA';
+    final min = widget.firebaseIpo.companyIpoOverview.priceRangeMin;
+    final max = widget.firebaseIpo.companyIpoOverview.priceRangeMax;
+    if (min != null && max != null && min > 0 && max > 0) {
+      return '₹$min - ₹$max';
     }
-    return ipo?.offerPrice.formatted ?? 'Price TBA';
+    return 'Price TBA';
   }
 
   String get lotSizeFormatted {
-    if (firebaseIpo != null) {
-      return '${firebaseIpo!.companyIpoOverview.lotSize ?? 0}';
-    }
-    return '${ipo?.lotSize ?? 0}';
+    return '${widget.firebaseIpo.companyIpoOverview.lotSize ?? 0}';
   }
 
   String get subscriptionFormatted {
-    if (firebaseIpo != null) {
-      final totalSubs =
-          firebaseIpo!.subscriptionRate.subscriptionHeaderData?.totalSubscribed;
-      return totalSubs != null ? '${totalSubs.toStringAsFixed(1)}x' : '-';
-    }
-    return ipo?.subscription.formattedTimes ?? '-';
+    final totalSubs = widget
+        .firebaseIpo.subscriptionRate.subscriptionHeaderData?.totalSubscribed;
+    return totalSubs != null ? '${totalSubs.toStringAsFixed(1)}x' : '-';
   }
 
   double get subscriptionTimes {
-    if (firebaseIpo != null) {
-      return firebaseIpo!
-              .subscriptionRate.subscriptionHeaderData?.totalSubscribed ??
-          0.0;
-    }
-    return ipo?.subscription.displayTimes ?? 0.0;
+    return widget.firebaseIpo.subscriptionRate.subscriptionHeaderData
+            ?.totalSubscribed ??
+        0.0;
   }
 
   bool get hasListingData {
-    if (firebaseIpo != null) {
-      return firebaseIpo!.listingGains?.listingOpenPrice != null;
-    }
-    return false; // For now, only Firebase IPOs have listing data
+    return widget.firebaseIpo.listingGains?.listingOpenPrice != null;
   }
 
   bool get shouldShowListingSection {
-    if (firebaseIpo != null) {
-      // Show listing section for recently listed and gain/loss analysis IPOs
-      final status = _getIPOStatus();
-      final hasListing = hasListingData;
-      return hasListing &&
-          (status == 'recently_listed' || status == 'gain_loss_analysis');
-    }
-    return false;
+    // Show listing section for recently listed and gain/loss analysis IPOs
+    final status = _getIPOStatus();
+    final hasListing = hasListingData;
+    return hasListing &&
+        (status == 'recently_listed' || status == 'gain_loss_analysis');
   }
 
   String _getIPOStatus() {
-    if (firebaseIpo != null) {
-      return firebaseIpo!.category ?? 'upcoming';
-    }
-    return 'upcoming';
+    return widget.firebaseIpo.category ?? 'upcoming';
   }
 
   /// Get detailed IPO status based on important dates
   String _getDetailedIPOStatus() {
-  final now = DateTime.now();
+    final now = DateTime.now();
 
-  if (firebaseIpo != null) {
     final openDate =
-        DateTime.tryParse(firebaseIpo!.importantDates.openDate ?? '');
+        DateTime.tryParse(widget.firebaseIpo.importantDates.openDate ?? '');
     final closeDate =
-        DateTime.tryParse(firebaseIpo!.importantDates.closeDate ?? '');
-    final allotmentDate =
-        DateTime.tryParse(firebaseIpo!.importantDates.allotmentDate ?? '');
+        DateTime.tryParse(widget.firebaseIpo.importantDates.closeDate ?? '');
+    final allotmentDate = DateTime.tryParse(
+        widget.firebaseIpo.importantDates.allotmentDate ?? '');
     final listingDate =
-        DateTime.tryParse(firebaseIpo!.importantDates.listingDate ?? '');
+        DateTime.tryParse(widget.firebaseIpo.importantDates.listingDate ?? '');
 
     // Listed - after listing date
     if (listingDate != null && now.isAfter(listingDate)) {
@@ -210,11 +210,6 @@ class IPOCard extends StatelessWidget {
     return 'upcoming';
   }
 
-  // If no firebase data at all
-  return 'upcoming';
-}
-
-
   /// Build status badge widget
   Widget _buildStatusBadge() {
     final status = _getDetailedIPOStatus();
@@ -257,34 +252,57 @@ class IPOCard extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(8), // Match card's corner radius
+          bottomLeft: Radius.circular(8), // Smooth curve for bottom-left
+        ),
         boxShadow: [
           BoxShadow(
-            color: backgroundColor.withOpacity(0.3),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: backgroundColor.withOpacity(0.25),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+            spreadRadius: -4,
           ),
         ],
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 0.5,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 10,
-            color: textColor,
+          AnimatedBuilder(
+            animation: _scaleAnimation,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _scaleAnimation.value,
+                child: Icon(
+                  icon,
+                  size: 11,
+                  color: textColor,
+                ),
+              );
+            },
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 5),
           Text(
             text,
             style: TextStyle(
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
               color: textColor,
-              letterSpacing: 0.5,
+              letterSpacing: 0.3,
+              height: 1.0,
             ),
           ),
         ],
@@ -293,54 +311,41 @@ class IPOCard extends StatelessWidget {
   }
 
   String get listingPriceFormatted {
-    if (firebaseIpo != null) {
-      final listingOpen = firebaseIpo!.listingGains?.listingOpenPrice;
-      if (listingOpen != null) {
-        return '₹${listingOpen.toStringAsFixed(1)}';
-      }
+    final listingOpen = widget.firebaseIpo.listingGains?.listingOpenPrice;
+    if (listingOpen != null) {
+      return '₹${listingOpen.toStringAsFixed(1)}';
     }
     return '₹0.0';
   }
 
   String get premiumMessage {
-    if (firebaseIpo != null) {
-      final gainPercent = firebaseIpo!.listingGains?.currentGainPercent;
-      if (gainPercent != null) {
-        final isPositive = gainPercent >= 0;
-        final premiumText = isPositive ? 'premium' : 'discount';
-        return 'at a $premiumText of ${gainPercent.abs().toStringAsFixed(1)}%';
-      }
+    final gainPercent = widget.firebaseIpo.listingGains?.currentGainPercent;
+    if (gainPercent != null) {
+      final isPositive = gainPercent >= 0;
+      final premiumText = isPositive ? 'premium' : 'discount';
+      return 'at a $premiumText of ${gainPercent.abs().toStringAsFixed(1)}%';
     }
     return 'at listing price';
   }
 
   double get listingGainPercentage {
-    if (firebaseIpo != null) {
-      return firebaseIpo!.listingGains?.currentGainPercent ?? 0.0;
-    }
-    return 0.0;
+    return widget.firebaseIpo.listingGains?.currentGainPercent ?? 0.0;
   }
 
   bool get shouldShowExpectedPremiumSection {
-    if (firebaseIpo != null) {
-      final status = _getIPOStatus();
-      return (status == 'upcoming_open' || status == 'listing_soon');
-    }
-    return false;
+    final status = _getIPOStatus();
+    return (status == 'upcoming_open' || status == 'listing_soon');
   }
 
   bool get hasExpectedPremiumData {
-    if (firebaseIpo != null) {
-      // Check if expectedPremium field exists and is not empty
-      return firebaseIpo!.expectedPremium != null &&
-          firebaseIpo!.expectedPremium!.isNotEmpty;
-    }
-    return false;
+    // Check if expectedPremium field exists and is not empty
+    return widget.firebaseIpo.expectedPremium != null &&
+        widget.firebaseIpo.expectedPremium!.isNotEmpty;
   }
 
   String get expectedPremiumFormatted {
-    if (firebaseIpo != null && firebaseIpo!.expectedPremium != null) {
-      return firebaseIpo!.expectedPremium!;
+    if (widget.firebaseIpo.expectedPremium != null) {
+      return widget.firebaseIpo.expectedPremium!;
     }
     return 'Update Soon';
   }
@@ -373,20 +378,30 @@ class IPOCard extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(24),
+          onTap: widget.onTap,
+          borderRadius: BorderRadius.circular(12),
           splashColor: AppColors.primary.withOpacity(0.04),
           highlightColor: AppColors.primary.withOpacity(0.02),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 14),
-                _buildSimpleMetrics(),
-              ],
-            ),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(),
+                    const SizedBox(height: 14),
+                    _buildSimpleMetrics(),
+                  ],
+                ),
+              ),
+              // Status badge positioned at absolute top-right corner
+              Positioned(
+                top: 0,
+                right: 0,
+                child: _buildStatusBadge(),
+              ),
+            ],
           ),
         ),
       ),
@@ -477,25 +492,20 @@ class IPOCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      companyName,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1A1A1A),
-                        letterSpacing: -0.2,
-                        height: 1.2,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+              Padding(
+                padding: const EdgeInsets.only(right: 70),
+                child: Text(
+                  companyName,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1A1A1A),
+                    letterSpacing: -0.2,
+                    height: 1.2,
                   ),
-                  const SizedBox(width: 8),
-                  _buildStatusBadge(),
-                ],
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               const SizedBox(height: 4),
               Container(
@@ -862,13 +872,9 @@ class IPOCard extends StatelessWidget {
 
       // Allotment Date
       String allotmentDate = '';
-      if (firebaseIpo != null) {
-        final allotment = firebaseIpo!.importantDates.allotmentDate;
-        if (allotment != null && allotment.isNotEmpty) {
-          allotmentDate = _formatDate(allotment);
-        }
-      } else if (ipo != null && ipo!.allotmentDate != null) {
-        allotmentDate = _formatDate(ipo!.allotmentDate!);
+      final allotment = widget.firebaseIpo.importantDates.allotmentDate;
+      if (allotment != null && allotment.isNotEmpty) {
+        allotmentDate = _formatDate(allotment);
       }
       if (allotmentDate.isNotEmpty) {
         shareMessage.writeln('🎯 Allotment Date: $allotmentDate');
@@ -878,13 +884,9 @@ class IPOCard extends StatelessWidget {
 
       // Listing Date
       String listingDate = '';
-      if (firebaseIpo != null) {
-        final listing = firebaseIpo!.importantDates.listingDate;
-        if (listing != null && listing.isNotEmpty) {
-          listingDate = _formatDate(listing);
-        }
-      } else if (ipo != null && ipo!.listingDate != null) {
-        listingDate = _formatDate(ipo!.listingDate!);
+      final listing = widget.firebaseIpo.importantDates.listingDate;
+      if (listing != null && listing.isNotEmpty) {
+        listingDate = _formatDate(listing);
       }
       if (listingDate.isNotEmpty) {
         shareMessage.writeln('📋 Listing Date: $listingDate');
@@ -894,18 +896,13 @@ class IPOCard extends StatelessWidget {
 
       // Price Range
       String priceInfo = '';
-      if (firebaseIpo != null) {
-        final priceMin = firebaseIpo!.companyIpoOverview.priceRangeMin;
-        final priceMax = firebaseIpo!.companyIpoOverview.priceRangeMax;
-        if (priceMin != null && priceMax != null) {
-          priceInfo = '₹$priceMin - ₹$priceMax per share';
-        } else if (firebaseIpo!.companyIpoOverview.issuePrice != null) {
-          priceInfo =
-              '₹${firebaseIpo!.companyIpoOverview.issuePrice} per share';
-        }
-      } else if (ipo != null) {
+      final priceMin = widget.firebaseIpo.companyIpoOverview.priceRangeMin;
+      final priceMax = widget.firebaseIpo.companyIpoOverview.priceRangeMax;
+      if (priceMin != null && priceMax != null) {
+        priceInfo = '₹$priceMin - ₹$priceMax per share';
+      } else if (widget.firebaseIpo.companyIpoOverview.issuePrice != null) {
         priceInfo =
-            '₹${ipo!.offerPrice.min} - ₹${ipo!.offerPrice.max} per share';
+            '₹${widget.firebaseIpo.companyIpoOverview.issuePrice} per share';
       }
       if (priceInfo.isNotEmpty) {
         shareMessage.writeln('💰 Price Range: $priceInfo');
@@ -913,11 +910,8 @@ class IPOCard extends StatelessWidget {
 
       // Lot Size
       String lotInfo = '';
-      if (firebaseIpo != null &&
-          firebaseIpo!.companyIpoOverview.lotSize != null) {
-        lotInfo = '${firebaseIpo!.companyIpoOverview.lotSize} shares';
-      } else if (ipo != null) {
-        lotInfo = '${ipo!.lotSize} shares';
+      if (widget.firebaseIpo.companyIpoOverview.lotSize != null) {
+        lotInfo = '${widget.firebaseIpo.companyIpoOverview.lotSize} shares';
       }
       if (lotInfo.isNotEmpty) {
         shareMessage.writeln('📦 Lot Size: $lotInfo');
@@ -925,16 +919,11 @@ class IPOCard extends StatelessWidget {
 
       // Minimum Investment
       String minInvestment = '';
-      if (firebaseIpo != null) {
-        final lotSize = firebaseIpo!.companyIpoOverview.lotSize;
-        final priceMin = firebaseIpo!.companyIpoOverview.priceRangeMin;
-        if (lotSize != null && priceMin != null) {
-          final investment = lotSize * priceMin;
-          minInvestment = '₹${_formatCurrency(investment)}';
-        }
-      } else if (ipo != null) {
-        final investment = ipo!.lotSize * ipo!.offerPrice.min;
-        minInvestment = '₹${_formatCurrency(investment.toInt())}';
+      final lotSize = widget.firebaseIpo.companyIpoOverview.lotSize;
+      final minPrice = widget.firebaseIpo.companyIpoOverview.priceRangeMin;
+      if (lotSize != null && minPrice != null) {
+        final investment = lotSize * minPrice;
+        minInvestment = '₹${_formatCurrency(investment)}';
       }
       if (minInvestment.isNotEmpty) {
         shareMessage.writeln('💵 Min Investment: $minInvestment');
@@ -942,12 +931,9 @@ class IPOCard extends StatelessWidget {
 
       // Issue Size
       String issueSizeInfo = '';
-      if (firebaseIpo != null &&
-          firebaseIpo!.companyIpoOverview.issueSize != null) {
+      if (widget.firebaseIpo.companyIpoOverview.issueSize != null) {
         issueSizeInfo =
-            _formatIssueSize(firebaseIpo!.companyIpoOverview.issueSize!);
-      } else if (ipo != null) {
-        issueSizeInfo = ipo!.issueSize;
+            _formatIssueSize(widget.firebaseIpo.companyIpoOverview.issueSize!);
       }
       if (issueSizeInfo.isNotEmpty) {
         shareMessage.writeln('💼 Issue Size: $issueSizeInfo');
@@ -955,14 +941,10 @@ class IPOCard extends StatelessWidget {
 
       // Category
       String category = '';
-      if (firebaseIpo != null) {
-        if (firebaseIpo!.stockData.isSme == true) {
-          category = 'SME';
-        } else {
-          category = 'Mainboard';
-        }
-      } else if (ipo != null) {
-        category = ipo!.category == IPOCategory.sme ? 'SME' : 'Mainboard';
+      if (widget.firebaseIpo.stockData.isSme == true) {
+        category = 'SME';
+      } else {
+        category = 'Mainboard';
       }
       if (category.isNotEmpty) {
         shareMessage.writeln('🏢 Category: $category');
