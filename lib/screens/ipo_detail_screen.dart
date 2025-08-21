@@ -4013,10 +4013,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
 
       // Share the message using the share_plus package
       await Share.share(shareMessage.toString());
-
-      debugPrint('IPO shared successfully');
-    } catch (e) {
-      debugPrint('Error sharing IPO: $e');
+    } catch (e) {    
     }
   }
 

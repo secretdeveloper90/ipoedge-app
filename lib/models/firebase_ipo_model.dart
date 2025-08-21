@@ -253,7 +253,6 @@ class FirebaseIPO {
     try {
       return HtmlParserUtils.parseFinancialTable(financials!);
     } catch (e) {
-      print('Error parsing financial data: $e');
       return [];
     }
   }

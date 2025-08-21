@@ -13,7 +13,6 @@ class FirebaseBrokerService {
           .map((doc) => Broker.fromJson({...doc.data(), 'id': doc.id}))
           .toList();
     } catch (e) {
-      print('Error fetching brokers: $e');
       return [];
     }
   }
@@ -29,7 +28,6 @@ class FirebaseBrokerService {
           .map((doc) => Broker.fromJson({...doc.data(), 'id': doc.id}))
           .toList();
     } catch (e) {
-      print('Error fetching brokers by type: $e');
       return [];
     }
   }
@@ -44,7 +42,6 @@ class FirebaseBrokerService {
       }
       return null;
     } catch (e) {
-      print('Error fetching broker by ID: $e');
       return null;
     }
   }
@@ -63,7 +60,6 @@ class FirebaseBrokerService {
               broker.type.toLowerCase().contains(query.toLowerCase()))
           .toList();
     } catch (e) {
-      print('Error searching brokers: $e');
       return [];
     }
   }
@@ -80,7 +76,6 @@ class FirebaseBrokerService {
           .map((doc) => Broker.fromJson({...doc.data(), 'id': doc.id}))
           .toList();
     } catch (e) {
-      print('Error fetching brokers by rating: $e');
       return [];
     }
   }
@@ -97,7 +92,6 @@ class FirebaseBrokerService {
           .map((doc) => Broker.fromJson({...doc.data(), 'id': doc.id}))
           .toList();
     } catch (e) {
-      print('Error fetching top-rated brokers: $e');
       return [];
     }
   }
@@ -135,7 +129,6 @@ class FirebaseBrokerService {
       types.sort();
       return types;
     } catch (e) {
-      print('Error fetching unique broker types: $e');
       return [];
     }
   }
@@ -164,7 +157,6 @@ class FirebaseBrokerService {
 
       return stats;
     } catch (e) {
-      print('Error fetching broker stats: $e');
       return {};
     }
   }

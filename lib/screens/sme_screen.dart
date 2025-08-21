@@ -193,8 +193,6 @@ class _SMEIPOStatusListViewState extends State<SMEIPOStatusListView>
   }
 
   Future<void> _loadIPOs() async {
-    print(
-        '🚀 SME Loading IPOs for category: ${widget.category}, status: ${widget.status}');
     setState(() {
       _isLoading = true;
       _error = '';
@@ -207,15 +205,11 @@ class _SMEIPOStatusListViewState extends State<SMEIPOStatusListView>
         widget.category,
         widget.status,
       );
-
-      print(
-          '📱 SME UI received ${firebaseIPOs.length} IPOs for ${widget.category}/${widget.status}');
       setState(() {
         _firebaseIpos = firebaseIPOs;
         _isLoading = false;
       });
     } catch (e) {
-      print('❌ SME UI Error loading IPOs: $e');
       setState(() {
         _error = 'Failed to load IPOs: $e';
         _isLoading = false;

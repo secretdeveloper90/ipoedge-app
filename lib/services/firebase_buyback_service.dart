@@ -16,7 +16,6 @@ class FirebaseBuybackService {
           .map((doc) => Buyback.fromJson({...doc.data(), 'id': doc.id}))
           .toList();
     } catch (e) {
-      print('Error fetching buybacks: $e');
       return [];
     }
   }
@@ -33,7 +32,6 @@ class FirebaseBuybackService {
           .map((doc) => Buyback.fromJson({...doc.data(), 'id': doc.id}))
           .toList();
     } catch (e) {
-      print('Error fetching buybacks by status: $e');
       return [];
     }
   }
@@ -63,7 +61,6 @@ class FirebaseBuybackService {
       }
       return null;
     } catch (e) {
-      print('Error fetching buyback by ID: $e');
       return null;
     }
   }
@@ -81,7 +78,6 @@ class FirebaseBuybackService {
               buyback.companyName.toLowerCase().contains(query.toLowerCase()))
           .toList();
     } catch (e) {
-      print('Error searching buybacks: $e');
       return [];
     }
   }
@@ -98,7 +94,6 @@ class FirebaseBuybackService {
           .map((doc) => Buyback.fromJson({...doc.data(), 'id': doc.id}))
           .toList();
     } catch (e) {
-      print('Error fetching buybacks by method: $e');
       return [];
     }
   }
@@ -120,7 +115,6 @@ class FirebaseBuybackService {
           .map((doc) => Buyback.fromJson({...doc.data(), 'id': doc.id}))
           .toList();
     } catch (e) {
-      print('Error fetching buybacks by date range: $e');
       return [];
     }
   }
@@ -139,7 +133,6 @@ class FirebaseBuybackService {
           .map((doc) => Buyback.fromJson({...doc.data(), 'id': doc.id}))
           .toList();
     } catch (e) {
-      print('Error fetching buybacks by price range: $e');
       return [];
     }
   }
@@ -204,7 +197,6 @@ class FirebaseBuybackService {
             .length,
       };
     } catch (e) {
-      print('Error fetching buyback stats: $e');
       return {};
     }
   }

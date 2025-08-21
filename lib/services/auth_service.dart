@@ -40,9 +40,8 @@ class AuthService {
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
-      print('✅ User data stored in Firestore successfully');
     } catch (e) {
-      print('❌ Error storing user data in Firestore: $e');
+      // Error storing user data
     }
   }
 
@@ -51,11 +50,9 @@ class AuthService {
     try {
       final doc = await _firestore.collection('users').doc(uid).get();
       if (doc.exists) {
-        print('✅ User data retrieved from Firestore');
         return doc.data();
       }
     } catch (e) {
-      print('❌ Error retrieving user data from Firestore: $e');
     }
     return null;
   }
@@ -78,9 +75,6 @@ class AuthService {
       final userData = await _getUserDataFromFirestore(currentUser.uid);
       _userPhoneNumber = userData?['mobile'] ?? currentUser.phoneNumber;
 
-      print('✅ Restored authentication state from Firebase');
-      print('   User: $_userName ($_userEmail)');
-      print('   Mobile: $_userPhoneNumber');
     } else {
       // No authenticated user
       _isLoggedIn = false;
@@ -88,7 +82,6 @@ class AuthService {
       _userEmail = null;
       _userPhotoUrl = null;
       _userPhoneNumber = null;
-      print('ℹ️ No authenticated user found');
     }
 
     // Listen to auth state changes for automatic persistence
@@ -104,8 +97,6 @@ class AuthService {
         final userData = await _getUserDataFromFirestore(user.uid);
         _userPhoneNumber = userData?['mobile'] ?? user.phoneNumber;
 
-        print('🔄 Auth state changed: User signed in - $_userName');
-        print('   Mobile: $_userPhoneNumber');
       } else {
         // User signed out
         _isLoggedIn = false;
@@ -113,7 +104,6 @@ class AuthService {
         _userEmail = null;
         _userPhotoUrl = null;
         _userPhoneNumber = null;
-        print('🔄 Auth state changed: User signed out');
       }
     });
   }
@@ -169,12 +159,9 @@ class AuthService {
         _userPhoneNumber =
             userData?['mobile'] ?? userCredential.user!.phoneNumber;
 
-        print('✅ Firebase signin successful for: $email with name: $_userName');
-        print('   Mobile: $_userPhoneNumber');
         return true;
       }
     } catch (e) {
-      print('Firebase sign in failed: $e');
 
       // Handle the specific type casting error - user is actually authenticated
       if (e.toString().contains('List<Object?>') &&
@@ -197,8 +184,6 @@ class AuthService {
           final userData = await _getUserDataFromFirestore(currentUser.uid);
           _userPhoneNumber = userData?['mobile'] ?? currentUser.phoneNumber;
 
-          print('Authentication successful despite type casting error');
-          print('   Mobile: $_userPhoneNumber');
           return true;
         }
       }
@@ -227,13 +212,10 @@ class AuthService {
       await _firebaseAuth.signOut().timeout(
         const Duration(seconds: 5),
         onTimeout: () {
-          print('⚠️ Firebase Auth sign out timed out');
           return;
         },
       );
-      print('✅ Firebase Auth sign out successful');
     } catch (e) {
-      print('❌ Error signing out from Firebase Auth: $e');
     }
 
     try {
@@ -241,16 +223,12 @@ class AuthService {
       await _googleSignIn.signOut().timeout(
         const Duration(seconds: 5),
         onTimeout: () {
-          print('⚠️ Google Sign-In sign out timed out');
           return null;
         },
       );
-      print('✅ Google Sign-In sign out successful');
     } catch (e) {
-      print('❌ Error signing out from Google Sign-In: $e');
     }
 
-    print('🚪 User successfully signed out from all services');
   }
 
   // Sign up with Firebase authentication
@@ -272,9 +250,7 @@ class AuthService {
         try {
           // Try to update the user's display name
           await userCredential.user!.updateDisplayName(name);
-          print('✅ Display name updated successfully: $name');
         } catch (updateError) {
-          print('⚠️ Display name update failed: $updateError');
           // Continue with signup even if display name update fails
         }
 
@@ -295,11 +271,9 @@ class AuthService {
           photoUrl: _userPhotoUrl,
         );
 
-        print('✅ Firebase signup successful for: $email with name: $name');
         return true;
       }
     } catch (e) {
-      print('❌ Firebase sign up failed: $e');
 
       // Handle the specific type casting error - user might be created despite error
       if (e.toString().contains('List<Object?>') &&
@@ -313,11 +287,8 @@ class AuthService {
             if (currentUser.displayName == null ||
                 currentUser.displayName!.isEmpty) {
               await currentUser.updateDisplayName(name);
-              print('✅ Display name updated after error recovery: $name');
             }
           } catch (updateError) {
-            print(
-                '⚠️ Display name update failed during error recovery: $updateError');
             // Continue anyway - the account was created successfully
           }
 
@@ -337,9 +308,6 @@ class AuthService {
             mobile: mobile,
             photoUrl: _userPhotoUrl,
           );
-
-          print(
-              '✅ Sign up successful despite type casting error for: $email with name: $name');
           return true;
         }
       }
@@ -365,11 +333,9 @@ class AuthService {
 
       if (googleUser == null) {
         // User canceled the sign-in
-        print('Google Sign-In cancelled by user');
         return false;
       }
 
-      print('Google Sign-In successful for: ${googleUser.email}');
 
       // For now, if Google Sign-In is successful, we'll use the Google user data directly
       // This bypasses the Firebase authentication type casting issue
@@ -379,10 +345,6 @@ class AuthService {
       _userPhotoUrl = googleUser.photoUrl;
       _userPhoneNumber =
           null; // Google Sign-In doesn't provide phone number directly
-      print('Authentication successful for: $_userEmail');
-      print('Profile photo URL: $_userPhotoUrl');
-      print(
-          'Phone number: $_userPhoneNumber (not available via Google Sign-In)');
 
       // Try Firebase authentication but don't fail if it has issues
       try {
@@ -399,7 +361,6 @@ class AuthService {
               await _firebaseAuth.signInWithCredential(credential);
 
           if (userCredential.user != null) {
-            print('Firebase authentication also successful');
             // Update with Firebase user data if available
             _userName = userCredential.user!.displayName ?? _userName;
             _userEmail = userCredential.user!.email ?? _userEmail;
@@ -409,17 +370,13 @@ class AuthService {
           }
         }
       } catch (firebaseError) {
-        print(
-            'Firebase authentication failed but Google Sign-In succeeded: $firebaseError');
         // Continue with Google user data
       }
 
       return true;
     } on Exception catch (e) {
-      print('Google Sign-In Exception: $e');
       return false;
     } catch (e) {
-      print('Error signing in with Google: $e');
       return false;
     }
   }
@@ -455,7 +412,6 @@ class AuthService {
         return true;
       }
     } catch (e) {
-      print('Error checking auth state: $e');
     }
     return false;
   }

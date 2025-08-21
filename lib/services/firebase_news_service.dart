@@ -15,7 +15,6 @@ class FirebaseNewsService {
           .map((doc) => {...doc.data(), 'id': doc.id})
           .toList();
     } catch (e) {
-      print('Error fetching news: $e');
       return [];
     }
   }
@@ -33,7 +32,6 @@ class FirebaseNewsService {
           .map((doc) => {...doc.data(), 'id': doc.id})
           .toList();
     } catch (e) {
-      print('Error fetching news by sector: $e');
       return [];
     }
   }
@@ -54,7 +52,6 @@ class FirebaseNewsService {
           .map((doc) => {...doc.data(), 'id': doc.id})
           .toList();
     } catch (e) {
-      print('Error fetching news by date range: $e');
       return [];
     }
   }
@@ -83,7 +80,6 @@ class FirebaseNewsService {
                   .contains(query.toLowerCase()))
           .toList();
     } catch (e) {
-      print('Error searching news: $e');
       return [];
     }
   }
@@ -101,7 +97,6 @@ class FirebaseNewsService {
           .map((doc) => {...doc.data(), 'id': doc.id})
           .toList();
     } catch (e) {
-      print('Error fetching latest news: $e');
       return [];
     }
   }
@@ -145,7 +140,6 @@ class FirebaseNewsService {
       sectors.sort();
       return sectors;
     } catch (e) {
-      print('Error fetching unique sectors: $e');
       return [];
     }
   }

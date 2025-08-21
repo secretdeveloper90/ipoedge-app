@@ -54,7 +54,6 @@ class _AllotmentCheckWebViewScreenState
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {
-            print('WebView loading progress: $progress%');
             // Hide loader when we reach 80% progress for faster perceived loading
             if (progress >= 80 && _isLoading) {
               _cancelLoadingTimeout();
@@ -64,7 +63,6 @@ class _AllotmentCheckWebViewScreenState
             }
           },
           onPageStarted: (String url) {
-            print('WebView page started loading: $url');
             _cancelLoadingTimeout();
             setState(() {
               _isLoading = true;
@@ -74,14 +72,12 @@ class _AllotmentCheckWebViewScreenState
             _startLoadingTimeout();
           },
           onPageFinished: (String url) {
-            print('WebView page finished loading: $url');
             _cancelLoadingTimeout();
             setState(() {
               _isLoading = false;
             });
           },
           onWebResourceError: (WebResourceError error) {
-            print('WebView error: ${error.description}');
             _cancelLoadingTimeout();
             setState(() {
               _isLoading = false;
@@ -96,7 +92,7 @@ class _AllotmentCheckWebViewScreenState
 
   void _startLoadingTimeout() {
     _loadingTimeout = Timer(const Duration(seconds: 10), () {
-      print('WebView loading timeout reached');
+      // WebView loading timeout reached
       if (_isLoading && mounted) {
         setState(() {
           _isLoading = false;
