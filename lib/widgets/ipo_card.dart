@@ -28,9 +28,54 @@ class IPOCard extends StatelessWidget {
     if (firebaseIpo != null) {
       final openDate = firebaseIpo!.importantDates.openDate ?? '';
       final closeDate = firebaseIpo!.importantDates.closeDate ?? '';
-      return 'Offer Date: $openDate - $closeDate';
+
+      if (openDate.isEmpty || closeDate.isEmpty) {
+        return 'Offer Date: TBA';
+      }
+
+      try {
+        final startDate = DateTime.parse(openDate);
+        final endDate = DateTime.parse(closeDate);
+
+        const List<String> months = [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec'
+        ];
+
+        final startDay = startDate.day;
+        final startMonth = months[startDate.month - 1];
+        final endDay = endDate.day;
+        final endMonth = months[endDate.month - 1];
+        final startYear = startDate.year;
+        final endYear = endDate.year;
+
+        if (startDate.month == endDate.month &&
+            startDate.year == endDate.year) {
+          // Same month and year: "22-24 Aug, 2025"
+          return 'Offer Date: $startDay-$endDay $endMonth, $endYear';
+        } else if (startDate.year == endDate.year) {
+          // Same year, different months: "30 Aug - 1 Sept, 2025"
+          return 'Offer Date: $startDay $startMonth - $endDay $endMonth, $endYear';
+        } else {
+          // Different years: "31 dec, 2025 - 1 jav, 2026"
+          return 'Offer Date: $startDay $startMonth, $startYear - $endDay $endMonth, $endYear';
+        }
+      } catch (e) {
+        // Fallback to original format if parsing fails
+        return 'Offer Date: $openDate - $closeDate';
+      }
     }
-    return 'Offer Date: ${ipo?.offerDate?.formatted ?? ''}';
+    return 'Offer Date: TBA';
   }
 
   String get offerPriceFormatted {
@@ -97,78 +142,78 @@ class IPOCard extends StatelessWidget {
 
   /// Get detailed IPO status based on important dates
   String _getDetailedIPOStatus() {
-    final now = DateTime.now();
+  final now = DateTime.now();
 
-    if (firebaseIpo != null) {
-      final openDate =
-          DateTime.tryParse(firebaseIpo!.importantDates.openDate ?? '');
-      final closeDate =
-          DateTime.tryParse(firebaseIpo!.importantDates.closeDate ?? '');
-      final allotmentDate =
-          DateTime.tryParse(firebaseIpo!.importantDates.allotmentDate ?? '');
-      final listingDate =
-          DateTime.tryParse(firebaseIpo!.importantDates.listingDate ?? '');
+  if (firebaseIpo != null) {
+    final openDate =
+        DateTime.tryParse(firebaseIpo!.importantDates.openDate ?? '');
+    final closeDate =
+        DateTime.tryParse(firebaseIpo!.importantDates.closeDate ?? '');
+    final allotmentDate =
+        DateTime.tryParse(firebaseIpo!.importantDates.allotmentDate ?? '');
+    final listingDate =
+        DateTime.tryParse(firebaseIpo!.importantDates.listingDate ?? '');
 
-      // Listed - after listing date
-      if (listingDate != null && now.isAfter(listingDate)) {
-        return 'listed';
-      }
-
-      // Allotment Out - after allotment date but before listing
-      if (allotmentDate != null && now.isAfter(allotmentDate)) {
-        return 'allotment_out';
-      }
-
-      // Allotment Awaited - after close date but before allotment
-      if (closeDate != null && now.isAfter(closeDate)) {
-        return 'allotment_awaited';
-      }
-
-      // Live - between open and close date
-      if (openDate != null &&
-          closeDate != null &&
-          now.isAfter(openDate) &&
-          now.isBefore(closeDate.add(const Duration(days: 1)))) {
-        return 'live';
-      }
-
-      // Upcoming - before open date
-      return 'upcoming';
-    } else if (ipo != null) {
-      final openDate = DateTime.tryParse(ipo!.offerDate.start);
-      final closeDate = DateTime.tryParse(ipo!.offerDate.end);
-      final allotmentDate = DateTime.tryParse(ipo!.allotmentDate ?? '');
-      final listingDate = DateTime.tryParse(ipo!.listingDate ?? '');
-
-      // Listed - after listing date
-      if (listingDate != null && now.isAfter(listingDate)) {
-        return 'listed';
-      }
-
-      // Allotment Out - after allotment date but before listing
-      if (allotmentDate != null && now.isAfter(allotmentDate)) {
-        return 'allotment_out';
-      }
-
-      // Allotment Awaited - after close date but before allotment
-      if (closeDate != null && now.isAfter(closeDate)) {
-        return 'allotment_awaited';
-      }
-
-      // Live - between open and close date
-      if (openDate != null &&
-          closeDate != null &&
-          now.isAfter(openDate) &&
-          now.isBefore(closeDate.add(const Duration(days: 1)))) {
-        return 'live';
-      }
-
-      // Upcoming - before open date
-      return 'upcoming';
+    // Listed - after listing date
+    if (listingDate != null && now.isAfter(listingDate)) {
+      return 'listed';
     }
 
+    // Allotment Out - after allotment date 11 PM but before listing
+    if (allotmentDate != null) {
+      final allotmentDateWith11PM = DateTime(
+        allotmentDate.year,
+        allotmentDate.month,
+        allotmentDate.day,
+        23, // 11 PM
+        0,
+        0,
+      );
+      if (now.isAfter(allotmentDateWith11PM)) {
+        return 'allotment_out';
+      }
+    }
+
+    // Live - between open and close date (until 5 PM on close date)
+    if (openDate != null && closeDate != null && now.isAfter(openDate)) {
+      // Create close date with 5 PM cutoff
+      final closeDateWith5PM = DateTime(
+        closeDate.year,
+        closeDate.month,
+        closeDate.day,
+        17, // 5 PM
+        0,
+        0,
+      );
+
+      if (now.isBefore(closeDateWith5PM)) {
+        return 'live';
+      }
+    }
+
+    // Allotment Awaited - after close date 5 PM but before allotment
+    if (closeDate != null) {
+      final closeDateWith5PM = DateTime(
+        closeDate.year,
+        closeDate.month,
+        closeDate.day,
+        17, // 5 PM
+        0,
+        0,
+      );
+      if (now.isAfter(closeDateWith5PM)) {
+        return 'allotment_awaited';
+      }
+    }
+
+    // Upcoming - before open date
     return 'upcoming';
   }
+
+  // If no firebase data at all
+  return 'upcoming';
+}
+
 
   /// Build status badge widget
   Widget _buildStatusBadge() {
@@ -471,7 +516,7 @@ class IPOCard extends StatelessWidget {
                     Text(
                       offerDateFormatted,
                       style: const TextStyle(
-                        fontSize: 10,
+                        fontSize: 11,
                         color: AppColors.primary,
                         fontWeight: FontWeight.w600,
                       ),
