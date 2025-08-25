@@ -5,6 +5,8 @@ import '../services/auth_service.dart';
 import '../services/drawer_service.dart';
 import '../widgets/common_app_bar.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/profile_account_widget.dart';
+import '../widgets/profile_ipo_orders_widget.dart';
 import 'home_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -83,6 +85,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildProfileHeader(),
           const SizedBox(height: 16),
           _buildUserDetailsCard(),
+          const SizedBox(height: 20),
+          _buildAccountsSection(),
+          const SizedBox(height: 20),
+          _buildIpoOrdersSection(),
           const SizedBox(height: 20),
         ],
       ),
@@ -267,6 +273,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
               AuthService().userPhoneNumber ?? 'Not provided'),
         ],
       ),
+    );
+  }
+
+  Widget _buildAccountsSection() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.cardBorder,
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: const ProfileAccountWidget(),
+    );
+  }
+
+  Widget _buildIpoOrdersSection() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.cardBorder,
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: const ProfileIpoOrdersWidget(),
     );
   }
 

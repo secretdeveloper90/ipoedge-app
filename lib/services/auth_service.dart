@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'demat_account_service.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -52,8 +53,7 @@ class AuthService {
       if (doc.exists) {
         return doc.data();
       }
-    } catch (e) {
-    }
+    } catch (e) {}
     return null;
   }
 
@@ -74,7 +74,6 @@ class AuthService {
       // Get mobile number from Firestore
       final userData = await _getUserDataFromFirestore(currentUser.uid);
       _userPhoneNumber = userData?['mobile'] ?? currentUser.phoneNumber;
-
     } else {
       // No authenticated user
       _isLoggedIn = false;
@@ -97,6 +96,8 @@ class AuthService {
         final userData = await _getUserDataFromFirestore(user.uid);
         _userPhoneNumber = userData?['mobile'] ?? user.phoneNumber;
 
+        // Initialize demat account service for Firebase data
+        DematAccountService.instance;
       } else {
         // User signed out
         _isLoggedIn = false;
@@ -159,10 +160,12 @@ class AuthService {
         _userPhoneNumber =
             userData?['mobile'] ?? userCredential.user!.phoneNumber;
 
+        // Initialize demat account service for Firebase data
+        DematAccountService.instance;
+
         return true;
       }
     } catch (e) {
-
       // Handle the specific type casting error - user is actually authenticated
       if (e.toString().contains('List<Object?>') &&
           e.toString().contains('PigeonUserDetails')) {
@@ -215,8 +218,7 @@ class AuthService {
           return;
         },
       );
-    } catch (e) {
-    }
+    } catch (e) {}
 
     try {
       // Sign out from Google Sign-In with timeout
@@ -226,9 +228,7 @@ class AuthService {
           return null;
         },
       );
-    } catch (e) {
-    }
-
+    } catch (e) {}
   }
 
   // Sign up with Firebase authentication
@@ -274,7 +274,6 @@ class AuthService {
         return true;
       }
     } catch (e) {
-
       // Handle the specific type casting error - user might be created despite error
       if (e.toString().contains('List<Object?>') &&
           (e.toString().contains('PigeonUserDetails') ||
@@ -336,7 +335,6 @@ class AuthService {
         return false;
       }
 
-
       // For now, if Google Sign-In is successful, we'll use the Google user data directly
       // This bypasses the Firebase authentication type casting issue
       _isLoggedIn = true;
@@ -372,6 +370,9 @@ class AuthService {
       } catch (firebaseError) {
         // Continue with Google user data
       }
+
+      // Initialize demat account service for Firebase data
+      DematAccountService.instance;
 
       return true;
     } on Exception catch (e) {
@@ -411,8 +412,7 @@ class AuthService {
 
         return true;
       }
-    } catch (e) {
-    }
+    } catch (e) {}
     return false;
   }
 }

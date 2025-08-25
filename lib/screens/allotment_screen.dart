@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common_app_bar.dart';
 import '../services/auth_service.dart';
+import '../services/listed_ipo_service.dart';
+import '../services/demat_account_service.dart';
+import '../models/listed_ipo.dart';
+import '../models/demat_account.dart';
 import 'signin_screen.dart';
 import 'signup_screen.dart';
 
@@ -13,6 +18,37 @@ class AllotmentScreen extends StatefulWidget {
 }
 
 class _AllotmentScreenState extends State<AllotmentScreen> {
+  List<ListedIpo> _listedIpos = [];
+  List<DematAccount> _accounts = [];
+  ListedIpo? _selectedIpo;
+
+  @override
+  void initState() {
+    super.initState();
+    if (AuthService().isLoggedIn) {
+      _initializeData();
+    }
+  }
+
+  Future<void> _initializeData() async {
+    try {
+      // Load Firebase data
+      await ListedIpoService.instance.loadFirebaseData();
+
+      // Load data - get IPOs where allotment date has passed
+      final ipos =
+          await ListedIpoService.instance.getIposWithAllotmentDatePassed();
+      final accounts = await DematAccountService.instance.getAllAccounts();
+
+      setState(() {
+        _listedIpos = ipos;
+        _accounts = accounts;
+      });
+    } catch (e) {
+      // Handle error silently
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -338,9 +374,7 @@ class _AllotmentScreenState extends State<AllotmentScreen> {
         children: [
           _buildWelcomeCard(),
           const SizedBox(height: 16),
-          _buildAllotmentHistory(),
-          const SizedBox(height: 16),
-          _buildQuickActions(),
+          _buildAllotmentCheckSection(),
         ],
       ),
     );
@@ -407,7 +441,7 @@ class _AllotmentScreenState extends State<AllotmentScreen> {
     );
   }
 
-  Widget _buildAllotmentHistory() {
+  Widget _buildAllotmentCheckSection() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -432,18 +466,18 @@ class _AllotmentScreenState extends State<AllotmentScreen> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.secondary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
-                  Icons.history_rounded,
+                  Icons.search_rounded,
                   size: 20,
-                  color: AppColors.primary,
+                  color: AppColors.secondary,
                 ),
               ),
               const SizedBox(width: 12),
               const Text(
-                'Recent Applications',
+                'Check Allotment Status',
                 style: TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.w700,
@@ -453,145 +487,160 @@ class _AllotmentScreenState extends State<AllotmentScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildAllotmentItem(
-            'TechCorp IPO',
-            'Applied: ₹50,000',
-            'Allotted: ₹25,000',
-            'Allotted',
-            Colors.green,
-            Icons.check_circle,
-          ),
-          const SizedBox(height: 12),
-          _buildAllotmentItem(
-            'GreenEnergy Ltd',
-            'Applied: ₹30,000',
-            'Status: Pending',
-            'Pending',
-            Colors.orange,
-            Icons.schedule,
-          ),
+          _buildIpoDropdown(),
+          if (_selectedIpo != null) ...[
+            const SizedBox(height: 16),
+            _buildDirectResultCard(),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildAllotmentItem(
-    String companyName,
-    String appliedAmount,
-    String statusText,
-    String status,
-    Color statusColor,
-    IconData statusIcon,
-  ) {
+  Widget _buildIpoDropdown() {
     return Container(
-      padding: const EdgeInsets.all(14),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.cardBorder),
+        borderRadius: BorderRadius.circular(8),
+        color: Colors.white,
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<ListedIpo>(
+          value: _selectedIpo,
+          hint: Text(
+            'Select IPO to check allotment',
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 14,
+            ),
+          ),
+          isExpanded: true,
+          menuMaxHeight: 300, // Fixed height for dropdown menu
+          items: _listedIpos.map((ipo) {
+            return DropdownMenuItem<ListedIpo>(
+              value: ipo,
+              child: Text(
+                ipo.ipoName,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            );
+          }).toList(),
+          onChanged: (ListedIpo? newValue) {
+            setState(() {
+              _selectedIpo = newValue;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDirectResultCard() {
+    if (_selectedIpo == null) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder.withOpacity(0.3)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  companyName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  appliedAmount,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                Text(
-                  statusText,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  statusIcon,
-                  size: 14,
-                  color: statusColor,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  status,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: statusColor,
-                  ),
-                ),
-              ],
-            ),
+        border: Border.all(color: AppColors.success.withOpacity(0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.success.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildQuickActions() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Quick Actions',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+          Row(
+            children: [
+              Icon(
+                Icons.check_circle_rounded,
+                color: AppColors.success,
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'IPO Selected Successfully',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.success,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildIpoResultInfo(),
+          const SizedBox(height: 16),
+          _buildAllotmentCheckButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIpoResultInfo() {
+    if (_selectedIpo == null) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _selectedIpo!.ipoName,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _selectedIpo!.companyName,
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.textSecondary,
             ),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
-                child: _buildQuickActionButton(
-                  'Check New IPO',
-                  Icons.add_circle_outline,
-                  AppColors.primary,
-                  () => _handleCheckNewIPO(),
-                ),
+                child: _buildInfoColumn(
+                    'Allotment Date', _selectedIpo!.formattedListingDate),
               ),
-              const SizedBox(width: 12),
               Expanded(
-                child: _buildQuickActionButton(
-                  'Download Report',
-                  Icons.download_rounded,
-                  AppColors.primary,
-                  () => _handleDownloadReport(),
-                ),
+                child:
+                    _buildInfoColumn('Registrar', _selectedIpo!.registrarName),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInfoColumn('Issue Price',
+                    '₹${_selectedIpo!.issuePrice.toStringAsFixed(0)}'),
+              ),
+              Expanded(
+                child: _buildInfoColumn('Status', _selectedIpo!.status),
               ),
             ],
           ),
@@ -600,20 +649,40 @@ class _AllotmentScreenState extends State<AllotmentScreen> {
     );
   }
 
-  Widget _buildQuickActionButton(
-    String text,
-    IconData icon,
-    Color color,
-    VoidCallback onPressed,
-  ) {
-    return Container(
-      height: 44,
+  Widget _buildInfoColumn(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: AppColors.textSecondary,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 14,
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAllotmentCheckButton() {
+    return SizedBox(
+      width: double.infinity,
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: color,
+          backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
-          elevation: 2,
+          padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -621,16 +690,13 @@ class _AllotmentScreenState extends State<AllotmentScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 16),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                text,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-                overflow: TextOverflow.ellipsis,
+            const Icon(Icons.open_in_new_rounded, size: 20),
+            const SizedBox(width: 8),
+            const Text(
+              'Check Allotment Status',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -639,22 +705,182 @@ class _AllotmentScreenState extends State<AllotmentScreen> {
     );
   }
 
-  void _handleCheckNewIPO() {
-    // This will be handled by the bottom navigation
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Navigate to Mainboard to check new IPOs'),
-        duration: Duration(seconds: 2),
+  Widget _buildNoAccountsMessage() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.orange.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.warning_amber_rounded,
+            color: Colors.orange,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'No demat accounts found. Add your accounts in Profile section.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.orange.shade700,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  void _handleDownloadReport() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Download feature coming soon!'),
-        duration: Duration(seconds: 2),
+  Widget _buildAccountCard(DematAccount account) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.cardBorder.withOpacity(0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.secondary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.account_balance,
+              color: AppColors.secondary,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${account.dpType.displayName} - ${account.applicantName}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  account.dpType == DPType.cdsl
+                      ? 'Demat ID: ${account.dematId}'
+                      : 'DP ID: ${account.dpId} • Client ID: ${account.clientId}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => _checkAllotmentForAccount(account),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Check',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  Widget _buildCheckAllButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _accounts.isNotEmpty ? _checkAllotmentForAllAccounts : null,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.secondary,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.search_rounded, size: 20),
+            const SizedBox(width: 8),
+            const Text(
+              'Check Allotment for All Accounts',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _checkAllotmentForAccount(DematAccount account) async {
+    if (_selectedIpo == null) return;
+
+    final url = Uri.parse(_selectedIpo!.registrarLink);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text('Could not open ${_selectedIpo!.registrarName} website'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _checkAllotmentForAllAccounts() async {
+    if (_selectedIpo == null) return;
+
+    final url = Uri.parse(_selectedIpo!.registrarLink);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text('Could not open ${_selectedIpo!.registrarName} website'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
