@@ -105,7 +105,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
         width: double.infinity,
         constraints: const BoxConstraints(
           minHeight: 160,
-          maxHeight: 190,
+          maxHeight: 200,
         ),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
