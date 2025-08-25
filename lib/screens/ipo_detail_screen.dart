@@ -3895,7 +3895,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
 
     return Container(
       height: 48,
-      margin: const EdgeInsets.symmetric(horizontal: 40),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
