@@ -9,6 +9,7 @@ import '../models/firebase_ipo_model.dart';
 import '../theme/app_theme.dart';
 import '../services/firebase_ipo_service.dart';
 import '../widgets/ipo_timeline.dart';
+import '../widgets/subscription_chart_widget.dart';
 import 'allotment_check_webview_screen.dart';
 
 class IPODetailScreen extends StatefulWidget {
@@ -33,6 +34,8 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   FirebaseIPO? _currentFirebaseIPO;
   bool _isLoading = false;
   String _error = '';
+  bool _isLevelChart =
+      true; // Toggle between Level Chart and Distribution Chart
 
   @override
   void initState() {
@@ -863,16 +866,89 @@ class _IPODetailScreenState extends State<IPODetailScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Icons.table_chart, color: AppColors.primary, size: 20),
-                SizedBox(width: 8),
-                Text(
+                const Icon(Icons.table_chart,
+                    color: AppColors.primary, size: 20),
+                const SizedBox(width: 8),
+                const Text(
                   'Subscription Status',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
+                  ),
+                ),
+                const Spacer(),
+                // Toggle button for chart view
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isLevelChart = true;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: _isLevelChart
+                                ? AppColors.primary
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.bar_chart_rounded,
+                                size: 16,
+                                color: _isLevelChart
+                                    ? Colors.white
+                                    : AppColors.primary,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isLevelChart = false;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: !_isLevelChart
+                                ? AppColors.primary
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.pie_chart_rounded,
+                                size: 16,
+                                color: !_isLevelChart
+                                    ? Colors.white
+                                    : AppColors.primary,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -898,17 +974,17 @@ class _IPODetailScreenState extends State<IPODetailScreen>
   }
 
   Widget _buildCurrentSubscriptionSummary(SubscriptionHeaderData headerData) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        // color: AppColors.primary.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header with date info
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+          ),
+          child: Row(
             children: [
               const Icon(Icons.trending_up, color: AppColors.primary, size: 16),
               const SizedBox(width: 6),
@@ -933,23 +1009,47 @@ class _IPODetailScreenState extends State<IPODetailScreen>
               ],
             ],
           ),
-          const SizedBox(height: 12),
-          _buildSubscriptionBar(
-              'Overall', ipo.subscription.times, AppColors.primary),
-          const SizedBox(height: 8),
-          _buildSubscriptionBar(
-              'Retail', ipo.subscription.retail, AppColors.secondary),
-          const SizedBox(height: 8),
-          _buildSubscriptionBar('HNI', ipo.subscription.hni, AppColors.warning),
-          const SizedBox(height: 8),
-          _buildSubscriptionBar('QIB', ipo.subscription.qib, AppColors.info),
-          if (ipo.subscription.employee != null) ...[
-            const SizedBox(height: 8),
-            _buildSubscriptionBar(
-                'Employee', ipo.subscription.employee, AppColors.success),
-          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Enhanced graphical representation with built-in toggle
+        if (ipo.subscription.hasSubscriptionData) ...[
+          SubscriptionChartWidget(
+            subscription: ipo.subscription,
+            isLevelChart: _isLevelChart,
+          ),
+        ] else ...[
+          // Fallback for no data
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: const Center(
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.bar_chart_outlined,
+                    size: 48,
+                    color: Colors.grey,
+                  ),
+                  SizedBox(height: 12),
+                  Text(
+                    'Subscription data not available',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
-      ),
+      ],
     );
   }
 
@@ -4013,8 +4113,7 @@ class _IPODetailScreenState extends State<IPODetailScreen>
 
       // Share the message using the share_plus package
       await Share.share(shareMessage.toString());
-    } catch (e) {    
-    }
+    } catch (e) {}
   }
 
   void _applyForIPO() {

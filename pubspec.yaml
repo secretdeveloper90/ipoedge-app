@@ -80,6 +80,7 @@ dependencies:
 
   # WebView for allotment check
   webview_flutter: ^4.4.2
+  fl_chart: ^1.0.0
 
 dev_dependencies:
   flutter_test:
