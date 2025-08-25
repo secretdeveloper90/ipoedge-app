@@ -440,7 +440,7 @@ class _IPOCardState extends State<IPOCard> with SingleTickerProviderStateMixin {
           ),
           child: companyLogo != null
               ? ClipRRect(
-                  borderRadius: BorderRadius.circular(17),
+                  borderRadius: BorderRadius.circular(10),
                   child: CachedNetworkImage(
                     imageUrl: companyLogo!,
                     fit: BoxFit.contain,
@@ -449,7 +449,7 @@ class _IPOCardState extends State<IPOCard> with SingleTickerProviderStateMixin {
                         gradient: LinearGradient(
                           colors: [Colors.grey.shade100, Colors.grey.shade200],
                         ),
-                        borderRadius: BorderRadius.circular(17),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
                         Icons.business_rounded,
@@ -462,7 +462,7 @@ class _IPOCardState extends State<IPOCard> with SingleTickerProviderStateMixin {
                         gradient: LinearGradient(
                           colors: [Colors.grey.shade100, Colors.grey.shade200],
                         ),
-                        borderRadius: BorderRadius.circular(17),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
                         Icons.business_rounded,
@@ -477,7 +477,7 @@ class _IPOCardState extends State<IPOCard> with SingleTickerProviderStateMixin {
                     gradient: LinearGradient(
                       colors: [Colors.grey.shade100, Colors.grey.shade200],
                     ),
-                    borderRadius: BorderRadius.circular(17),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
                     Icons.business_rounded,

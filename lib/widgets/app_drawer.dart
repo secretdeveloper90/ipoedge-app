@@ -101,8 +101,11 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
     return SlideTransition(
       position: _slideAnimation,
       child: Container(
-        height: 180,
         width: double.infinity,
+        constraints: const BoxConstraints(
+          minHeight: 160,
+          maxHeight: 190,
+        ),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
@@ -150,69 +153,73 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
             // Content
             SafeArea(
               child: Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    AuthService().isLoggedIn
-                        ? _buildLoggedInContent()
-                        : Row(
-                            children: [
-                              Container(
-                                width: 56,
-                                height: 56,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      Colors.white.withOpacity(0.25),
-                                      Colors.white.withOpacity(0.15),
+                    Flexible(
+                      child: AuthService().isLoggedIn
+                          ? _buildLoggedInContent()
+                          : Row(
+                              children: [
+                                Container(
+                                  width: 52,
+                                  height: 52,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Colors.white.withOpacity(0.25),
+                                        Colors.white.withOpacity(0.15),
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Colors.white.withOpacity(0.3),
+                                      width: 1.5,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 3),
+                                      ),
                                     ],
                                   ),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Colors.white.withOpacity(0.3),
-                                    width: 1.5,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 3),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10.5),
+                                    child: Image.asset(
+                                      'assets/images/ipo-edge-logo.jpeg',
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return const Icon(
+                                          Icons.trending_up_rounded,
+                                          color: Colors.white,
+                                          size: 24,
+                                        );
+                                      },
                                     ),
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10.5),
-                                  child: Image.asset(
-                                    'assets/images/ipo-edge-logo.jpeg',
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return const Icon(
-                                        Icons.trending_up_rounded,
-                                        color: Colors.white,
-                                        size: 8,
-                                      );
-                                    },
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: _buildGuestContent(),
-                              ),
-                            ],
-                          ),
-                    const SizedBox(height: 18),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _buildGuestContent(),
+                                ),
+                              ],
+                            ),
+                    ),
+                    const SizedBox(height: 12),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: 6,
+                      runSpacing: 6,
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
+                            horizontal: 8,
+                            vertical: 4,
                           ),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
@@ -221,7 +228,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                                 Colors.white.withOpacity(0.1),
                               ],
                             ),
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: Colors.white.withOpacity(0.3),
                               width: 1,
@@ -233,14 +240,14 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                               Icon(
                                 Icons.verified_rounded,
                                 color: Colors.greenAccent,
-                                size: 16,
+                                size: 14,
                               ),
-                              SizedBox(width: 4),
+                              SizedBox(width: 3),
                               Text(
                                 'Trusted',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 10,
+                                  fontSize: 9,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -249,8 +256,8 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
+                            horizontal: 8,
+                            vertical: 4,
                           ),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
@@ -259,7 +266,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                                 Colors.orange.withOpacity(0.2),
                               ],
                             ),
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: Colors.amber.withOpacity(0.4),
                               width: 1,
@@ -271,14 +278,14 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                               Icon(
                                 Icons.star_rounded,
                                 color: Colors.amber,
-                                size: 16,
+                                size: 14,
                               ),
-                              SizedBox(width: 4),
+                              SizedBox(width: 3),
                               Text(
                                 'Premium',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 10,
+                                  fontSize: 9,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -701,8 +708,8 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
       children: [
         // Profile Avatar with same style as IPO logo
         Container(
-          width: 56,
-          height: 56,
+          width: 52,
+          height: 52,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -712,26 +719,26 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                 Colors.white.withOpacity(0.15),
               ],
             ),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: Colors.white.withOpacity(0.3),
-              width: 2,
+              width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
               ),
             ],
           ),
           child: AuthService().userPhotoUrl != null
               ? ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(12.5),
                   child: CachedNetworkImage(
                     imageUrl: AuthService().userPhotoUrl!,
-                    width: 56,
-                    height: 56,
+                    width: 52,
+                    height: 52,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => const Center(
                       child: CircularProgressIndicator(
@@ -740,27 +747,27 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                       ),
                     ),
                     errorWidget: (context, url, error) => ClipRRect(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(12.5),
                       child: Image.asset(
                         'assets/images/profile.png',
-                        width: 56,
-                        height: 56,
+                        width: 52,
+                        height: 52,
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
                 )
               : ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(12.5),
                   child: Image.asset(
                     'assets/images/profile.png',
-                    width: 56,
-                    height: 56,
+                    width: 52,
+                    height: 52,
                     fit: BoxFit.cover,
                   ),
                 ),
         ),
-        const SizedBox(width: 14),
+        const SizedBox(width: 12),
 
         // User info with welcome message and icon in same row
         Expanded(
@@ -775,19 +782,19 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                       AuthService().userName ?? 'IPO Investor',
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         letterSpacing: -0.3,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       'Welcome back!',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.8),
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 0.2,
                       ),
@@ -797,7 +804,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               MouseRegion(
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
@@ -805,7 +812,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                   child: Icon(
                     Icons.settings_outlined,
                     color: Colors.white.withOpacity(0.9),
-                    size: 28,
+                    size: 24,
                   ),
                 ),
               ),
@@ -825,7 +832,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
           'IPO Edge',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 19,
+            fontSize: 17,
             fontWeight: FontWeight.bold,
             letterSpacing: -0.4,
             height: 1.1,
@@ -840,12 +847,12 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
           'Your Gateway to IPO Success',
           style: TextStyle(
             color: Colors.white.withOpacity(0.8),
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: FontWeight.w500,
             letterSpacing: 0,
             height: 1.2,
@@ -853,7 +860,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
@@ -863,7 +870,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                 text: 'Click here to ',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.8),
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: FontWeight.w400,
                   height: 1.1,
                 ),

@@ -56,6 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: AppColors.background,
       appBar: CommonAppBar(
         title: 'Profile',
         actions: AuthService().isLoggedIn
@@ -70,9 +71,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             : null,
       ),
       drawer: const AppDrawer(),
-      body: AuthService().isLoggedIn
-          ? _buildAuthenticatedProfile()
-          : _buildGuestProfile(),
+      body: _buildAuthenticatedProfile(),
     );
   }
 
@@ -81,28 +80,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         children: [
           _buildProfileHeader(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           _buildUserDetailsCard(),
-          const SizedBox(height: 20),
+          const SizedBox(height: 32),
         ],
-      ),
-    );
-  }
-
-  Widget _buildGuestProfile() {
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 40),
-            _buildGuestImage(),
-            const SizedBox(height: 32),
-            _buildGuestInfo(),
-            const SizedBox(height: 40),
-          ],
-        ),
       ),
     );
   }
@@ -116,112 +97,206 @@ class _ProfileScreenState extends State<ProfileScreen> {
           end: Alignment.bottomRight,
           colors: [
             AppColors.primary,
-            AppColors.primary.withOpacity(0.8),
+            AppColors.primaryDark,
+            AppColors.primary.withOpacity(0.9),
           ],
+          stops: const [0.0, 0.6, 1.0],
         ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
           child: Column(
             children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
-                    width: 2,
-                  ),
-                ),
-                child: AuthService().userPhotoUrl != null
-                    ? ClipOval(
-                        child: CachedNetworkImage(
-                          imageUrl: AuthService().userPhotoUrl!,
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          ),
-                          errorWidget: (context, url, error) => ClipOval(
-                            child: Image.asset(
-                              'assets/images/profile.png',
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      )
-                    : ClipOval(
-                        child: Image.asset(
-                          'assets/images/profile.png',
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                        ),
+              // Profile Image with enhanced design
+              Stack(
+                children: [
+                  Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.white.withOpacity(0.3),
+                          Colors.white.withOpacity(0.1),
+                        ],
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.4),
+                            width: 3,
+                          ),
+                        ),
+                        child: AuthService().userPhotoUrl != null
+                            ? ClipOval(
+                                child: CachedNetworkImage(
+                                  imageUrl: AuthService().userPhotoUrl!,
+                                  width: 112,
+                                  height: 112,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white.withOpacity(0.2),
+                                    ),
+                                    child: const Center(
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                  ),
+                                  errorWidget: (context, url, error) =>
+                                      ClipOval(
+                                    child: Image.asset(
+                                      'assets/images/profile.png',
+                                      width: 112,
+                                      height: 112,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : ClipOval(
+                                child: Image.asset(
+                                  'assets/images/profile.png',
+                                  width: 112,
+                                  height: 112,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                  // Online status indicator
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: AppColors.success,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 3,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.success.withOpacity(0.4),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
+              // User name with enhanced typography
               Text(
                 AuthService().userName ?? 'IPO Investor',
                 style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
                   color: Colors.white,
+                  letterSpacing: 0.5,
+                  height: 1.2,
                 ),
                 textAlign: TextAlign.center,
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
+              // User email with subtle styling
+              if (AuthService().userEmail != null) ...[
+                Text(
+                  AuthService().userEmail!,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white.withOpacity(0.8),
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0.3,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 16),
+              ] else
+                const SizedBox(height: 12),
+              // Premium badge with enhanced design
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  'Premium Member',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white.withOpacity(0.9),
-                    fontWeight: FontWeight.w500,
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.white.withOpacity(0.25),
+                      Colors.white.withOpacity(0.15),
+                    ],
                   ),
+                  borderRadius: BorderRadius.circular(25),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.star_rounded,
+                      color: Colors.white.withOpacity(0.9),
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Premium Member',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.white.withOpacity(0.95),
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGuestImage() {
-    return Container(
-      width: 120,
-      height: 120,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: AppColors.cardBorder,
-          width: 2,
-        ),
-      ),
-      child: ClipOval(
-        child: Image.asset(
-          'assets/images/profile.png',
-          width: 120,
-          height: 120,
-          fit: BoxFit.cover,
         ),
       ),
     );
@@ -230,16 +305,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildUserDetailsCard() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.cardBorder.withOpacity(0.3),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -248,114 +331,142 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.person_outline_rounded,
-                color: AppColors.primary,
-                size: 20,
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primary.withOpacity(0.1),
+                      AppColors.primary.withOpacity(0.05),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.person_outline_rounded,
+                  color: AppColors.primary,
+                  size: 22,
+                ),
               ),
-              const SizedBox(width: 8),
-              const Text(
-                'Personal Information',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Personal Information',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.verified_rounded,
+                  color: AppColors.success,
+                  size: 16,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          _buildDetailRow(
-              Icons.person, 'Full Name', AuthService().userName ?? 'John Doe'),
-          const SizedBox(height: 12),
-          _buildDetailRow(Icons.email_outlined, 'Email',
-              AuthService().userEmail ?? 'john.doe@example.com'),
-          const SizedBox(height: 12),
-          _buildDetailRow(Icons.phone_outlined, 'Mobile Number',
-              AuthService().userPhoneNumber ?? 'Not provided'),
+          const SizedBox(height: 24),
+          _buildEnhancedDetailRow(
+            Icons.person_rounded,
+            'Full Name',
+            AuthService().userName ?? 'John Doe',
+            AppColors.primary,
+          ),
+          const SizedBox(height: 20),
+          _buildEnhancedDetailRow(
+            Icons.email_rounded,
+            'Email Address',
+            AuthService().userEmail ?? 'john.doe@example.com',
+            AppColors.info,
+          ),
+          const SizedBox(height: 20),
+          _buildEnhancedDetailRow(
+            Icons.phone_rounded,
+            'Mobile Number',
+            AuthService().userPhoneNumber ?? 'Not provided',
+            AppColors.success,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildGuestInfo() {
-    return Column(
-      children: [
-        const Text(
-          'IPO Investor',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
-          ),
-          textAlign: TextAlign.center,
+  Widget _buildEnhancedDetailRow(
+    IconData icon,
+    String label,
+    String value,
+    Color iconColor,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: iconColor.withOpacity(0.1),
+          width: 1,
         ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceVariant,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.cardBorder),
-          ),
-          child: Text(
-            'Track and analyze IPO investments',
-            style: TextStyle(
-              fontSize: 16,
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w500,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  iconColor.withOpacity(0.15),
+                  iconColor.withOpacity(0.08),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
             ),
-            textAlign: TextAlign.center,
+            child: Icon(
+              icon,
+              color: iconColor,
+              size: 20,
+            ),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDetailRow(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            icon,
-            color: AppColors.primary,
-            size: 16,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w500,
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.2,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 1),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w600,
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.1,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ],
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 
