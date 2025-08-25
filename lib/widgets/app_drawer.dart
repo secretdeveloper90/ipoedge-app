@@ -739,17 +739,25 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                         strokeWidth: 2,
                       ),
                     ),
-                    errorWidget: (context, url, error) => const Icon(
-                      Icons.person_rounded,
-                      color: Colors.white,
-                      size: 28,
+                    errorWidget: (context, url, error) => ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Image.asset(
+                        'assets/images/profile.png',
+                        width: 56,
+                        height: 56,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 )
-              : const Icon(
-                  Icons.person_rounded,
-                  color: Colors.white,
-                  size: 28,
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: Image.asset(
+                    'assets/images/profile.png',
+                    width: 56,
+                    height: 56,
+                    fit: BoxFit.cover,
+                  ),
                 ),
         ),
         const SizedBox(width: 14),

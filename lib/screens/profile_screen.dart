@@ -150,17 +150,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               strokeWidth: 2,
                             ),
                           ),
-                          errorWidget: (context, url, error) => const Icon(
-                            Icons.person_rounded,
-                            size: 40,
-                            color: Colors.white,
+                          errorWidget: (context, url, error) => ClipOval(
+                            child: Image.asset(
+                              'assets/images/profile.png',
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       )
-                    : const Icon(
-                        Icons.person_rounded,
-                        size: 40,
-                        color: Colors.white,
+                    : ClipOval(
+                        child: Image.asset(
+                          'assets/images/profile.png',
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        ),
                       ),
               ),
               const SizedBox(height: 12),
@@ -204,17 +210,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       width: 120,
       height: 120,
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
         shape: BoxShape.circle,
         border: Border.all(
           color: AppColors.cardBorder,
           width: 2,
         ),
       ),
-      child: Icon(
-        Icons.person_rounded,
-        size: 60,
-        color: AppColors.textSecondary,
+      child: ClipOval(
+        child: Image.asset(
+          'assets/images/profile.png',
+          width: 120,
+          height: 120,
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }

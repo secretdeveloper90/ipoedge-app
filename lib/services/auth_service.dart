@@ -53,6 +53,7 @@ class AuthService {
         return doc.data();
       }
     } catch (e) {
+      // Ignore errors when fetching user data from Firestore
     }
     return null;
   }
@@ -69,12 +70,11 @@ class AuthService {
       _userEmail = currentUser.email;
       _userName = currentUser.displayName; // Get name directly from Firebase
       _userPhotoUrl =
-          currentUser.photoURL ?? _generateAvatarUrl(currentUser.email ?? '');
+          currentUser.photoURL; // Use Google photo if available, null otherwise
 
       // Get mobile number from Firestore
       final userData = await _getUserDataFromFirestore(currentUser.uid);
       _userPhoneNumber = userData?['mobile'] ?? currentUser.phoneNumber;
-
     } else {
       // No authenticated user
       _isLoggedIn = false;
@@ -91,12 +91,12 @@ class AuthService {
         _isLoggedIn = true;
         _userEmail = user.email;
         _userName = user.displayName; // Get name directly from Firebase
-        _userPhotoUrl = user.photoURL ?? _generateAvatarUrl(user.email ?? '');
+        _userPhotoUrl =
+            user.photoURL; // Use Google photo if available, null otherwise
 
         // Get mobile number from Firestore (important for persistence)
         final userData = await _getUserDataFromFirestore(user.uid);
         _userPhoneNumber = userData?['mobile'] ?? user.phoneNumber;
-
       } else {
         // User signed out
         _isLoggedIn = false;
@@ -106,30 +106,6 @@ class AuthService {
         _userPhoneNumber = null;
       }
     });
-  }
-
-  // Generate avatar URL based on user name
-  String _generateAvatarUrl(String name) {
-    // Using UI Avatars service to generate avatar based on initials
-    if (name.isEmpty) {
-      return 'https://ui-avatars.com/api/?name=U&size=200&background=4F46E5&color=ffffff&bold=true&format=png';
-    }
-
-    List<String> nameParts = name.split(' ');
-    String initials;
-
-    if (nameParts.length >= 2) {
-      // Use first letter of first and last name
-      initials = '${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}';
-    } else if (name.isNotEmpty) {
-      // Use first letter only
-      initials = name[0];
-    } else {
-      initials = 'U';
-    }
-
-    // Generate a nice avatar with initials - using name parameter for better rendering
-    return 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(initials)}&size=200&background=4F46E5&color=ffffff&bold=true&format=png';
   }
 
   // Sign in with email and password using Firebase
@@ -148,10 +124,10 @@ class AuthService {
         // Use display name from Firebase (should be set during signup)
         _userName = userCredential.user!.displayName ?? 'User';
 
-        // Use profile photo if available, otherwise generate avatar
+        // Use profile photo if available (for Google users), otherwise null (will use default profile.png)
         _userPhotoUrl = userCredential.user!.photoURL?.isNotEmpty == true
             ? userCredential.user!.photoURL!
-            : _generateAvatarUrl(_userName!);
+            : null;
 
         // Get mobile number from Firestore
         final userData =
@@ -162,7 +138,6 @@ class AuthService {
         return true;
       }
     } catch (e) {
-
       // Handle the specific type casting error - user is actually authenticated
       if (e.toString().contains('List<Object?>') &&
           e.toString().contains('PigeonUserDetails')) {
@@ -175,10 +150,10 @@ class AuthService {
           // Use display name from Firebase (should be set during signup)
           _userName = currentUser.displayName ?? 'User';
 
-          // Use profile photo if available, otherwise generate avatar
+          // Use profile photo if available (for Google users), otherwise null (will use default profile.png)
           _userPhotoUrl = currentUser.photoURL?.isNotEmpty == true
               ? currentUser.photoURL!
-              : _generateAvatarUrl(_userName!);
+              : null;
 
           // Get mobile number from Firestore
           final userData = await _getUserDataFromFirestore(currentUser.uid);
@@ -216,6 +191,7 @@ class AuthService {
         },
       );
     } catch (e) {
+      // Ignore Firebase sign out errors
     }
 
     try {
@@ -227,8 +203,8 @@ class AuthService {
         },
       );
     } catch (e) {
+      // Ignore Google sign out errors
     }
-
   }
 
   // Sign up with Firebase authentication
@@ -258,8 +234,8 @@ class AuthService {
         _userName = name;
         _userEmail = email;
 
-        // Generate avatar for new user
-        _userPhotoUrl = _generateAvatarUrl(name);
+        // Set photo URL to null for credential users (will use default profile.png)
+        _userPhotoUrl = null;
         _userPhoneNumber = mobile; // Store the provided mobile number
 
         // Store user data in Firestore
@@ -274,7 +250,6 @@ class AuthService {
         return true;
       }
     } catch (e) {
-
       // Handle the specific type casting error - user might be created despite error
       if (e.toString().contains('List<Object?>') &&
           (e.toString().contains('PigeonUserDetails') ||
@@ -296,8 +271,8 @@ class AuthService {
           _userName = name;
           _userEmail = email;
 
-          // Generate avatar for new user
-          _userPhotoUrl = _generateAvatarUrl(name);
+          // Set photo URL to null for credential users (will use default profile.png)
+          _userPhotoUrl = null;
           _userPhoneNumber = mobile; // Store the provided mobile number
 
           // Store user data in Firestore
@@ -336,7 +311,6 @@ class AuthService {
         return false;
       }
 
-
       // For now, if Google Sign-In is successful, we'll use the Google user data directly
       // This bypasses the Firebase authentication type casting issue
       _isLoggedIn = true;
@@ -374,8 +348,6 @@ class AuthService {
       }
 
       return true;
-    } on Exception catch (e) {
-      return false;
     } catch (e) {
       return false;
     }
@@ -412,6 +384,7 @@ class AuthService {
         return true;
       }
     } catch (e) {
+      // Ignore errors during auth state check
     }
     return false;
   }
